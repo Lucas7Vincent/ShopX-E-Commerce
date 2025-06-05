@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Mã giảm giá - ShopX Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 0.25em 0.6em;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            min-width: 90px;
+            display: inline-block;
+        }
+
+        .status-active {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-inactive {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-expired {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .status-upcoming {
+            background-color: #fef9c3;
+            color: #854d0e;
+        }
+
+
+
+        .action-icon {
+            padding: 0.3rem;
+            border-radius: 0.25rem;
+            transition: background-color 0.2s;
+        }
+
+        .action-icon:hover {
+            background-color: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div>
+        <div class="content-area flex-1 min-h-screen flex flex-col">
+            <div id="header"></div>
+            <div id="app" class="flex-grow">
+                <main class="p-4 md:p-6 mx-auto w-full max-w-6xl">
+                    <section class="mt-6 md:mt-10 bg-white shadow-xl rounded-lg p-4 md:p-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <h2 class="text-xl md:text-2xl font-bold text-gray-800">Quản lý Mã Giảm Giá</h2>
+                            <a href="/Admin/templates/discount/create.html"
+                                class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm transition-colors">
+                                <i class="fas fa-plus mr-2"></i>Tạo Mã Mới
+                            </a>
+                        </div>
+
+                        <!-- Filters Form -->
+                        <div class="bg-gray-50 p-4 rounded-lg shadow-sm mb-6 border border-gray-200">
+                            <form id="discountFilterForm"
+                                class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-4 items-end">
+                                <div>
+                                    <label for="searchTermDiscount"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Tìm theo Mã</label>
+                                    <input type="text" id="searchTermDiscount" name="searchTerm"
+                                        placeholder="Nhập mã giảm giá..."
+                                        class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                </div>
+                                <div>
+                                    <label for="statusFilterDiscount"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                                    <select id="statusFilterDiscount" name="isActive"
+                                        class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all">
+                                        <option value="">Tất cả</option>
+                                        <option value="true">Đang hoạt động</option>
+                                        <option value="false">Không hoạt động</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="validOnDateFilter"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Hiệu lực vào ngày</label>
+                                    <input type="date" id="validOnDateFilter" name="validOnDate"
+                                        class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all" />
+                                </div>
+                                <div class="sm:col-span-2 lg:col-span-1 flex justify-end items-end">
+                                    <button type="submit"
+                                        class="bg-indigo-600 text-white px-5 py-2 rounded-md hover:bg-indigo-700 transition font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 w-full sm:w-auto">
+                                        <i class="fas fa-filter mr-2"></i>Lọc
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                        <!-- Discounts Table -->
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full bg-white border border-gray-200 rounded-md">
+                                <thead class="bg-gray-100 text-gray-600 uppercase text-xs">
+                                    <tr>
+                                        <th class="py-3 text-center font-semibold">STT</th>
+                                        <th class="py-3 text-left font-semibold">Mã Giảm Giá</th>
+                                        <th class="py-3 text-center font-semibold">Phần trăm (%)</th>
+                                        <th class="py-3 text-center font-semibold">Ngân sách</th>
+                                        <th class="py-3 text-left font-semibold">Giá trị giảm tối đa</th>
+                                        <th class="py-3 text-left font-semibold">Ngân sách còn lại</th>
+                                        <th class="py-3 text-left font-semibold">Ngày Bắt Đầu</th>
+                                        <th class="py-3 text-left font-semibold">Ngày Kết Thúc</th>
+                                        <th class="py-3 text-center font-semibold">Trạng Thái</th>
+                                        <th class="py-3 text-center font-semibold">Hiệu Lực</th>
+                                        <th class="py-3 text-center font-semibold">Hành Động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="discountTableBody" class="text-gray-700 text-sm divide-y divide-gray-200">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-6" id="discountLoadingState">
+                                            <i class="fas fa-spinner fa-spin text-indigo-500 text-xl mr-2"></i>Đang
+                                            tải...
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Pagination -->
+                    <div id="discountPaginationContainer"
+                        class="hidden flex flex-col sm:flex-row justify-between items-center mt-6 text-sm text-gray-600">
+                        <div id="discountPaginationInfo">
+                            Hiển thị <span id="discountCurrentPageInfo" class="font-medium">0</span> / <span
+                                id="discountTotalPagesInfo" class="font-medium">0</span> trang
+                            (Tổng <span id="discountTotalItemsInfo" class="font-medium">0</span> mã)
+                        </div>
+                        <div class="flex items-center space-x-1 mt-3 sm:mt-0">
+                            <button id="discountPrevPageBtn"
+                                class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="flex items-center">
+                                <input type="number" id="discountPageInput" min="1"
+                                    class="p-2 border border-gray-300 rounded-md w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <button id="discountGoToPageBtn"
+                                    class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-3 rounded-md ml-1 transition-colors">Đi</button>
+                            </div>
+                            <button id="discountNextPageBtn"
+                                class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="footer" class="mt-auto"></div>
+        </div>
+    </div>
+
+    <script src="/Admin/assets/js/index.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+
+    <script>
+        function initializeDiscountListPage() {
+            const discountTableBody = document.getElementById('discountTableBody');
+            const loadingStateRow = document.getElementById('discountLoadingState');
+            const filterForm = document.getElementById('discountFilterForm');
+            const searchTermInput = document.getElementById('searchTermDiscount');
+            const statusFilterSelect = document.getElementById('statusFilterDiscount');
+            const validOnDateInput = document.getElementById('validOnDateFilter');
+            const DEFAULT_PAGE_SIZE = 10;
+
+            const paginationContainer = document.getElementById('discountPaginationContainer');
+            const paginationInfoDiv = document.getElementById('discountPaginationInfo');
+            const currentPageSpan = document.getElementById('discountCurrentPageInfo');
+            const totalPagesSpan = document.getElementById('discountTotalPagesInfo');
+            const totalItemsSpan = document.getElementById('discountTotalItemsInfo');
+            const prevPageBtn = document.getElementById('discountPrevPageBtn');
+            const nextPageBtn = document.getElementById('discountNextPageBtn');
+            const pageInput = document.getElementById('discountPageInput');
+            const goToPageBtn = document.getElementById('discountGoToPageBtn');
+
+            let currentPage = 1;
+
+            if (typeof API_BASE_URL === 'undefined' || typeof checkAuthToken !== 'function' || typeof formatDate !== 'function') {
+                console.error("Lỗi: Các hàm hoặc biến toàn cục từ index.js chưa được tải.");
+                if (loadingStateRow) loadingStateRow.innerHTML = '<td colspan="8" class="text-center py-6 text-red-500">Lỗi tải trang. Vui lòng kiểm tra console.</td>';
+                return;
+            }
+
+            function getValidityStatus(discount) {
+                const now = new Date();
+                const startDate = new Date(discount.startDate);
+                const endDate = new Date(discount.endDate);
+                endDate.setHours(23, 59, 59, 999);
+
+                if (now < startDate) return { text: 'Sắp diễn ra', class: 'status-upcoming' };
+                if (now > endDate) return { text: 'Đã hết hạn', class: 'status-expired' };
+                if (!discount.isCurrentlyValid) return { text: 'Không hoạt động', class: 'status-inactive' };
+                return { text: 'Đang hoạt động', class: 'status-active' };
+            }
+
+            async function fetchDiscounts(page = 1) {
+                if (loadingStateRow) loadingStateRow.style.display = 'table-row';
+                discountTableBody.innerHTML = '';
+                discountTableBody.appendChild(loadingStateRow);
+                paginationContainer.classList.add('hidden');
+
+                currentPage = page;
+                const params = new URLSearchParams({
+                    pageNumber: currentPage.toString(),
+                    pageSizeInput: DEFAULT_PAGE_SIZE.toString()
+                });
+                const searchTerm = searchTermInput.value.trim();
+                if (searchTerm) params.append('SearchTerm', searchTerm);
+                const isActive = statusFilterSelect.value;
+                if (isActive !== "") params.append('IsActive', isActive);
+                const validOnDate = validOnDateInput.value;
+                if (validOnDate) params.append('ValidOnDate', validOnDate);
+                const token = sessionStorage.getItem('token');
+                if (!token) { checkAuthToken(); return; }
+                const url = `${API_BASE_URL}/Discounts?${params.toString()}`;
+                console.log(url)
+
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) {
+                        let errorDetail = `Lỗi ${response.status}.`;
+                        try {
+                            const errorData = await response.json(); // Cố gắng phân tích lỗi từ server
+                            errorDetail = errorData.message || `Lỗi ${response.status}: ${response.statusText || "Không thể tải danh sách mã giảm giá."}`;
+                        } catch (parseError) {
+                            errorDetail = `Lỗi ${response.status}: ${response.statusText || "Không thể tải danh sách mã giảm giá."}`;
+                        }
+
+                        if (response.status === 401 || response.status === 403) {
+                            alert('Phiên đăng nhập hết hạn hoặc bạn không có quyền truy cập. ' + errorDetail);
+                            window.location.href = "/Admin/templates/auth/login.html";
+                        } else {
+                            // Hiển thị message lỗi
+                            throw new Error(errorDetail);
+                        }
+                        return; // Dừng lại nếu có lỗi xác thực hoặc ủy quyền
+                    }
+                    const data = await response.json();
+
+                    if (loadingStateRow) loadingStateRow.style.display = 'none';
+
+                    if (data.items && data.items.length > 0) {
+                        renderDiscountsTable(data.items);
+                        updateDiscountPaginationUI(data);
+                    } else {
+                        discountTableBody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-gray-500">Không tìm thấy mã giảm giá nào.</td></tr>';
+                        updateDiscountPaginationUI(null);
+                    }
+                } catch (error) { // Bắt cả lỗi từ throw new Error ở trên và lỗi mạng
+                    console.error('Lỗi khi tải mã giảm giá:', error);
+                    if (loadingStateRow) loadingStateRow.style.display = 'none';
+                    // Hiển thị lỗi bằng alert
+                    alert(error.message || "Đã xảy ra lỗi không mong muốn khi tải dữ liệu.");
+                    discountTableBody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-red-500">Không thể tải dữ liệu. Vui lòng thử lại.</td></tr>`;
+                    updateDiscountPaginationUI(null);
+                }
+            }
+
+            function renderDiscountsTable(discounts) {
+                discountTableBody.innerHTML = '';
+                discounts.forEach((discount, index) => {
+                    const row = discountTableBody.insertRow();
+                    const stt = (currentPage - 1) * DEFAULT_PAGE_SIZE + index + 1;
+                    const validity = getValidityStatus(discount);
+
+                    let actionsHtml = `
+                        <a href="/Admin/templates/discount/update.html?id=${discount.discountID}" class="text-yellow-500 hover:text-yellow-700 action-icon" title="Sửa">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <button onclick="window.toggleDiscountActive(${discount.discountID}, ${!discount.isActive})" 
+                                class="${discount.isActive ? 'text-red-500' : 'text-green-500'} hover:text-red-700 hover:text-green-700 action-icon" 
+                                title="${discount.isActive ? 'Vô hiệu hóa' : 'Kích hoạt'}">
+                            <i class="fas ${discount.isActive ? 'fa-toggle-off' : 'fa-toggle-on'}"></i>
+                        </button>
+                        <button onclick="window.deleteDiscountPermanently(${discount.discountID})" class="text-red-600 hover:text-red-700 action-icon" title="Xóa vĩnh viễn">
+                            <i class="fas fa-trash-alt fa-fw"></i>
+                        </button>
+                    `;
+                    row.innerHTML = `
+                        <td class="py-3 px-2 text-center">${stt}</td>
+                        <td class="py-3 px-2 font-medium">${discount.discountCode}</td>
+                        <td class="py-3 px-2 text-center">${discount.discountPercent.toFixed(2)}%</td>
+                        <td class="py-3 px-2 font-medium text-right">${formatCurrency(discount.budget)}</td>
+                        <td class="py-3 px-2 font-medium text-right">${formatCurrency(discount.maxDiscountPercent)}</td>
+                        <td class="py-3 px-2 font-medium text-right">${formatCurrency(discount.remainingBudget)}</td>
+                        <td class="py-3 px-2">${formatDate(new Date(discount.startDate))}</td>
+                        <td class="py-3 px-2">${formatDate(new Date(discount.endDate))}</td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="status-badge ${discount.isActive ? 'status-active' : 'status-inactive'}">
+                                ${discount.isActive ? 'Hoạt động' : 'Vô hiệu hóa'}
+                            </span>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <span class="status-badge ${validity.class}">${validity.text}</span>
+                        </td>
+                        <td class="py-3 px-4 text-center space-x-2">${actionsHtml}</td>
+                    `;
+                });
+            }
+
+            function updateDiscountPaginationUI(data) {
+                if (data && data.items && data.items.length > 0) {
+                    paginationContainer.classList.remove('hidden');
+                    paginationInfoDiv.classList.remove('hidden');
+                    currentPageSpan.textContent = data.pageNumber;
+                    totalPagesSpan.textContent = data.totalPages;
+                    totalItemsSpan.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber;
+                    pageInput.max = data.totalPages;
+
+                    prevPageBtn.disabled = !data.hasPreviousPage;
+                    nextPageBtn.disabled = !data.hasNextPage;
+                    goToPageBtn.disabled = (data.totalPages <= 1);
+                } else {
+                    paginationContainer.classList.add('hidden');
+                    paginationInfoDiv.classList.add('hidden');
+                    currentPageSpan.textContent = '0';
+                    totalPagesSpan.textContent = '0';
+                    totalItemsSpan.textContent = '0';
+                    pageInput.value = '1';
+                    pageInput.max = '1';
+                    [prevPageBtn, nextPageBtn, goToPageBtn].forEach(btn => btn.disabled = true);
+                }
+            }
+
+
+            window.toggleDiscountActive = async (discountId, newActiveState) => {
+                const actionText = newActiveState ? "kích hoạt" : "vô hiệu hóa";
+                if (!confirm(`Bạn có chắc muốn ${actionText} mã giảm giá này không?`)) return;
+
+                const token = sessionStorage.getItem('token');
+                if (!token) { checkAuthToken(); return; }
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Discounts/${discountId}/toggle-status`, {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ isActive: newActiveState })
+                    });
+                    if (response.ok) {
+                        alert(`Đã ${actionText} mã giảm giá thành công.`);
+                        fetchDiscounts(currentPage);
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Lỗi: ${errorData.message || `Không thể ${actionText} mã giảm giá. Vui lòng thử lại.`}`);
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi ${actionText} mã giảm giá:`, error);
+                    alert(`Đã xảy ra lỗi kết nối: ${error.message}`);
+                }
+            };
+
+            window.deleteDiscountPermanently = async (discountId) => {
+                if (!confirm(`BẠN CÓ CHẮC CHẮN MUỐN XÓA VĨNH VIỄN MÃ GIẢM GIÁ NÀY KHÔNG? Hành động này không thể hoàn tác.`)) return;
+                const token = sessionStorage.getItem('token');
+                if (!token) { checkAuthToken(); return; }
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Discounts/${discountId}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.ok || response.status === 204) {
+                        alert(`Đã xóa vĩnh viễn mã giảm giá.`);
+                        fetchDiscounts(1);
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Lỗi xóa: ${errorData.message || `Không thể xóa mã giảm giá. Vui lòng thử lại.`}`);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi xóa mã giảm giá:', error);
+                    alert(`Lỗi kết nối khi xóa mã giảm giá: ${error.message}`);
+                }
+            };
+
+            filterForm.addEventListener('submit', (e) => { e.preventDefault(); fetchDiscounts(1); });
+            prevPageBtn.addEventListener('click', () => { if (currentPage > 1) fetchDiscounts(currentPage - 1); });
+            nextPageBtn.addEventListener('click', () => { if (currentPage < parseInt(totalPagesSpan.textContent)) fetchDiscounts(currentPage + 1); });
+            goToPageBtn.addEventListener('click', () => {
+                const target = parseInt(pageInput.value);
+                const total = parseInt(totalPagesSpan.textContent);
+                if (target >= 1 && target <= total && target !== currentPage) fetchDiscounts(target);
+                else if (target !== currentPage) pageInput.value = currentPage;
+            });
+            pageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') goToPageBtn.click(); });
+
+
+            checkAuthToken();
+            fetchDiscounts(currentPage);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDiscountListPage);
+        } else {
+            setTimeout(initializeDiscountListPage, 100);
+        }
+    </script>
+</body>
+
+</html>

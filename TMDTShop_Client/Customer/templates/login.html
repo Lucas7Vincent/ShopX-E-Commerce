@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tài khoản - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/login.css">
+    
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+      <div class="container mx-auto px-4">
+        <div class="flex items-center justify-between py-4 gap-6">
+          <div class="flex items-center gap-12">
+            <a href="#" class="text-2xl font-bold text-blue-600">ShopX</a>
+            <nav class="hidden md:flex items-center gap-6">
+              <a href="index.html" class="text-gray-700 hover:text-blue-600 transition">Trang chủ</a>
+              
+            </nav>
+          </div>
+  
+          <div class="flex items-center gap-4">
+            <div class="relative group">
+              <button class="text-gray-700 hover:text-blue-600 transition pb-2">
+                <a href="contact.html" class="text-gray-700 hover:text-blue-600 transition">Liên hệ</a>
+              </button>
+
+            </div>
+  
+            <button class="md:hidden text-gray-700">
+              <i class="fas fa-bars text-xl"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+  
+    <!-- Auth Pages Container -->
+  <div class="relative px-4 py-20">
+    <!-- Blurred Background Image -->
+    <div class="absolute inset-0 z-0" style="background-image: url(../assets/img/3.jpg); background-position: 50% 50%; background-repeat: no-repeat; background-size: cover; filter: blur(1px);"></div>
+    <!-- Dark Overlay -->
+    <div class="absolute inset-0 z-1 bg-black bg-opacity-10"></div>
+    <!-- Form Container -->
+    <div class="relative z-20 max-w-md mx-auto">
+      <!-- Success Message -->
+      <div id="successMessage" class="hidden bg-white rounded-xl shadow-md p-8 text-center">
+        <h2 class="text-2xl font-bold text-green-600">Đăng nhập thành công! Đang chuyển hướng...</h2>
+      </div>
+
+        <!-- Login Form -->
+        <div id="loginForm" class="bg-white rounded-xl shadow-md overflow-hidden border-glow p-8 animate-fadeSlideIn">
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">ĐĂNG NHẬP</h2>
+          
+          <form id="loginFormSubmit">
+            <div class="mb-4">
+              <label for="loginEmail" class="block text-gray-700 font-medium mb-2">Email</label>
+              <input type="email" id="loginEmail" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" autofocus required>
+            </div>
+  
+            <div class="mb-6">
+              <label for="loginPassword" class="block text-gray-700 font-medium mb-2">Mật khẩu</label>
+              <div class="relative">
+                <input type="password" id="loginPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" onclick="togglePassword('loginPassword')">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+  
+            <div class="flex items-center justify-between mb-6">
+              <div class="flex items-center">
+                <input type="checkbox" id="rememberMe" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                <label for="rememberMe" class="ml-2 block text-sm text-gray-700">Ghi nhớ đăng nhập</label>
+              </div>
+              <a href="#forgotPasswordForm" class="text-sm text-blue-600 hover:text-blue-800" onclick="showForm('forgotPasswordForm')">Quên mật khẩu?</a>
+            </div>
+  
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition mb-4">
+              Đăng nhập
+            </button>
+  
+            <div class="text-center text-sm text-gray-600">
+              Chưa có tài khoản? <a href="#registerForm" class="text-blue-600 hover:text-blue-800 font-medium" onclick="showForm('registerForm')">Đăng ký ngay</a>
+            </div>
+  
+            <div class="relative my-6">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-2 bg-white text-gray-500">Hoặc đăng nhập bằng</span>
+              </div>
+            </div>
+  
+            <div class="grid grid-cols-2 gap-4">
+              <button type="button" id="facebookLogin" class="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition">
+                <img src="https://cdn-icons-png.flaticon.com/512/124/124010.png" class="h-5" alt="Facebook">
+                Facebook
+              </button>
+              <button type="button" id="googleLogin" class="flex items-center justify-center gap-2 bg-white border border-gray-300 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition">
+                <img src="https://cdn-icons-png.flaticon.com/512/281/281764.png" class="h-5" alt="Google">
+                Google
+              </button>
+            </div>
+          </form>
+        </div>
+  
+        <!-- Register Form -->
+        <div id="registerForm" class="bg-white rounded-xl shadow-md overflow-hidden p-8 hidden animate-fadeSlideIn">
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Đăng ký tài khoản</h2>
+          
+          <form id="registerFormSubmit">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+              <div>
+                <label for="firstName" class="block text-gray-700 font-medium mb-2">Họ</label>
+                <input type="text" id="firstName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+              </div>
+              <div>
+                <label for="lastName" class="block text-gray-700 font-medium mb-2">Tên</label>
+                <input type="text" id="lastName" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+              </div>
+            </div>
+  
+            <div class="mb-4">
+              <label for="registerEmail" class="block text-gray-700 font-medium mb-2">Email</label>
+              <input type="email" id="registerEmail" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+  
+            <div class="mb-4">
+              <label for="phone" class="block text-gray-700 font-medium mb-2">Số điện thoại</label>
+              <input type="tel" id="phone" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+  
+            <div class="mb-4">
+              <label for="address" class="block text-gray-700 font-medium mb-2">Địa chỉ</label>
+              <input type="text" id="address" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+            </div>
+  
+            <div class="mb-4">
+              <label for="registerPassword" class="block text-gray-700 font-medium mb-2">Mật khẩu</label>
+              <div class="relative">
+                <input type="password" id="registerPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" onclick="togglePassword('registerPassword')">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Mật khẩu tối thiểu 8 ký tự, bao gồm chữ hoa, chữ thường và số</p>
+            </div>
+  
+            <div class="mb-6">
+              <label for="confirmPassword" class="block text-gray-700 font-medium mb-2">Nhập lại mật khẩu</label>
+              <div class="relative">
+                <input type="password" id="confirmPassword" class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" required>
+                <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" onclick="togglePassword('confirmPassword')">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+  
+            <div class="mb-6">
+              <div class="flex items-start">
+                <div class="flex items-center h-5">
+                  <input type="checkbox" id="terms" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" required>
+                </div>
+                <div class="ml-3 text-sm">
+                  <label for="terms" class="text-gray-700">Tôi đồng ý với <a href="#" class="text-blue-600 hover:text-blue-800">Điều khoản sử dụng</a> và <a href="#" class="text-blue-600 hover:text-blue-800">Chính sách bảo mật</a> của ShopX</label>
+                </div>
+              </div>
+            </div>
+  
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition mb-4">
+              Đăng ký
+            </button>
+  
+            <div class="text-center text-sm text-gray-600">
+              Đã có tài khoản? <a href="#loginForm" class="text-blue-600 hover:text-blue-800 font-medium" onclick="showForm('loginForm')">Đăng nhập ngay</a>
+            </div>
+          </form>
+        </div>
+  
+        <!-- 🔥 FORGOT PASSWORD FORM -->
+        <div id="forgotPasswordForm" class="bg-white rounded-xl shadow-md overflow-hidden p-8 hidden">
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Quên mật khẩu</h2>
+          
+          <form id="forgotPasswordFormSubmit">
+              <div class="mb-4">
+                  <p class="text-gray-600 mb-4">
+                      <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+                      Nhập email đã đăng ký để nhận hướng dẫn đặt lại mật khẩu.
+                  </p>
+              </div>
+
+              <div class="mb-6">
+                  <label for="forgotEmail" class="block text-gray-700 font-medium mb-2">
+                      <i class="fas fa-envelope mr-2 text-blue-600"></i>Email đăng ký
+                  </label>
+                  <input type="email" id="forgotEmail" 
+                         class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                         placeholder="Nhập email đã đăng ký" required>
+              </div>
+
+              <button type="submit" 
+                      class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition mb-4">
+                  <i class="fas fa-paper-plane mr-2"></i>Gửi yêu cầu
+              </button>
+
+              <div class="text-center text-sm text-gray-600">
+                  <a href="login.html" class="text-blue-600 hover:text-blue-800" onclick="showForm('loginForm')">
+                      <i class="fas fa-arrow-left mr-1"></i>Quay lại đăng nhập
+                  </a>
+              </div>
+          </form>
+      </div>
+
+      <!-- 🔥 SUCCESS MESSAGE -->
+      <div id="forgotSuccessMessage" class="hidden bg-white rounded-xl shadow-md overflow-hidden p-8">
+          <div class="text-center">
+              <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+              </div>
+              <h3 class="text-xl font-bold text-green-600 mb-2">Email đã được gửi!</h3>
+              <p class="text-gray-600 mb-4">
+                  Chúng tôi đã gửi hướng dẫn đặt lại mật khẩu tới email của bạn.
+              </p>
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <p class="text-sm text-blue-800">
+                      <i class="fas fa-info-circle mr-2"></i>
+                      Vui lòng kiểm tra email (kể cả thư mục spam) và làm theo hướng dẫn.
+                  </p>
+              </div>
+              <button onclick="showForm('loginForm')" 
+                      class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-6 rounded-lg font-medium transition">
+                  <i class="fas fa-sign-in-alt mr-2"></i>Quay lại đăng nhập
+              </button>
+          </div>
+      </div>
+
+      <!-- 🔥 RESET PASSWORD FORM -->
+      <div id="resetPasswordForm" class="bg-white rounded-xl shadow-md overflow-hidden p-8 hidden">
+          <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Đặt lại mật khẩu</h2>
+          
+          <form id="resetPasswordFormSubmit">
+              <div class="mb-4">
+                  <label for="newPassword" class="block text-gray-700 font-medium mb-2">Mật khẩu mới</label>
+                  <input type="password" id="newPassword" 
+                         class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                         placeholder="Nhập mật khẩu mới" required>
+                         <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" onclick="togglePassword('newPassword')">
+                          <i class="fas fa-eye"></i>
+                         </button>
+              </div>
+
+              <div class="mb-6">
+                  <label for="confirmNewPassword" class="block text-gray-700 font-medium mb-2">Xác nhận mật khẩu</label>
+                  <input type="password" id="confirmNewPassword" 
+                         class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                         placeholder="Nhập lại mật khẩu mới" required>
+                         <button type="button" class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500" onclick="togglePassword('confirmNewPassword')">
+                          <i class="fas fa-eye"></i>
+                         </button>
+              </div>
+
+              <button type="submit" 
+                      class="w-full bg-green-600 hover:bg-green-700 text-white py-3 px-6 rounded-lg font-medium transition mb-4">
+                  <i class="fas fa-key mr-2"></i>Đặt lại mật khẩu
+              </button>
+          </form>
+      </div>
+      <!-- 🔥 EMAIL PROMPT FORM FOR FACEBOOK LOGIN -->
+<div id="emailPrompt" class="bg-white rounded-xl shadow-md overflow-hidden p-8 hidden">
+  <h2 class="text-2xl font-bold text-center text-gray-800 mb-6">Nhập Email</h2>
+  
+  <div class="mb-4">
+      <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+          <p class="text-sm text-blue-800">
+              <i class="fas fa-info-circle mr-2"></i>
+              Facebook không cung cấp email của bạn. Vui lòng nhập email để hoàn tất đăng nhập.
+          </p>
+      </div>
+  </div>
+  
+  <form id="emailPromptForm">
+      <div class="mb-6">
+          <label for="socialEmail" class="block text-gray-700 font-medium mb-2">
+              <i class="fas fa-envelope mr-2 text-blue-600"></i>Email của bạn
+          </label>
+          <input type="email" id="socialEmail" 
+                 class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                 placeholder="Nhập email của bạn" required>
+      </div>
+
+      <button type="submit" 
+              class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 px-6 rounded-lg font-medium transition mb-4">
+          <i class="fas fa-arrow-right mr-2"></i>Tiếp tục đăng nhập
+      </button>
+
+      <div class="text-center text-sm text-gray-600">
+          <button type="button" onclick="cancelSocialLogin()" class="text-red-600 hover:text-red-800">
+              <i class="fas fa-times mr-1"></i>Hủy đăng nhập
+          </button>
+      </div>
+  </form>
+</div>
+      </div>
+    </div>
+  
+ <!-- Footer Container -->
+ <div id="footer-container"></div>
+ 
+    
+    <script type="module" src="../assets/js/login.js"></script>
+    <script type="module" src="../assets/js/components.js"></script>
+    <script>
+      function togglePassword(inputId) {
+  const input = document.getElementById(inputId);
+  const icon = input.nextElementSibling.querySelector('i');
+  input.type = (input.type === 'password') ? 'text' : 'password';
+  icon.classList.toggle('fa-eye');
+  icon.classList.toggle('fa-eye-slash');
+}
+    </script>
+</body>
+</html>

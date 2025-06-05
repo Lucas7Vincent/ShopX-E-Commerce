@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Danh sách Đơn hàng</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .status-badge {
+            padding: 0.35em 0.7em;
+            border-radius: 0.375rem;
+            font-size: 0.875em;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            cursor: default;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            min-width: 130px;
+            display: inline-block;
+            border: 1px solid transparent;
+        }
+
+        .status-badge.interactive {
+            cursor: pointer;
+        }
+
+        .status-badge.interactive:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-cho-xac-nhan {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        .status-dang-xu-ly {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+        .status-dang-giao {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .status-da-giao {
+            background-color: #41a765;
+            color: #ffffff;
+            border-color: #bbf7d0;
+        }
+
+        .status-yeu-cau-tra-hang-hoan-tien {
+            background-color: #fffbeb;
+            color: #b45309;
+            border-color: #fef3c7;
+        }
+
+        .status-da-hoan-tien {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+
+        .status-da-huy {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .status-default {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border-color: #e5e7eb;
+        }
+
+
+        .action-button {
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease-in-out;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .action-button i {
+            margin-right: 0.35rem;
+        }
+
+        .action-button-view {
+            background-color: #eff6ff;
+            color: #2563eb;
+            border-color: #bfdbfe;
+        }
+
+        .action-button-view:hover {
+            background-color: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .action-button-cancel {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .action-button-cancel:hover {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .action-button-refund {
+            background-color: #dcfce7;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        .action-button-refund:hover {
+            background-color: #bbf7d0;
+            color: #14532d;
+        }
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .action-button:disabled:hover {
+            background-color: inherit;
+            color: inherit;
+        }
+        .status-dropdown {
+        padding: 0.35em 0.7em;
+        border-radius: 0.375rem;
+        font-size: 1em;
+        font-weight: 600;
+        min-width: 150px;
+        border: 1px solid #d1d5db;
+        background-color: white;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 0.5rem center;
+        background-repeat: no-repeat;
+        background-size: 1.5em 1.5em;
+        padding-right: 2.5rem;
+        text-align: center;
+        text-align-last:center ;
+    }
+    
+    .status-dropdown:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    .status-dropdown:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    
+    /* ✅ Status-specific dropdown colors */
+    .status-dropdown.cho-xac-nhan { background-color: white; color: #b45309; border-color: #fde68a; }
+    .status-dropdown.dang-xu-ly { background-color: white; color: #1e40af; border-color: #bfdbfe; }
+    .status-dropdown.dang-giao { background-color: white; color: #065f46; border-color: #a7f3d0; }
+    .status-dropdown.da-giao { background-color: white; color: #065f46; border-color: #a7f3d0; }
+    .status-dropdown.yeu-cau-tra-hang-hoan-tien { background-color: white; color: #b45309; border-color: #fef3c7; }
+    .status-dropdown.da-hoan-tien { background-color: white; color: #5b21b6; border-color: #ddd6fe; }
+        .status-dropdown.da-huy { background-color: white; color: #991b1b; border-color: #fecaca; }
+    .status-dropdown.tu-choi-hoan-tien { background-color: white; color: #4b5563; border-color: #e5e7eb; }
+    
+    /* ✅ Loading state */
+    .status-dropdown.loading {
+        opacity: 0.6;
+        cursor: not-allowed;
+        pointer-events: none;
+    }
+    
+    .status-dropdown.loading::after {
+        content: "";
+        position: absolute;
+        right: 0.5rem;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 1rem;
+        height: 1rem;
+        border: 2px solid #f3f4f6;
+        border-top: 2px solid #3b82f6;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        0% { transform: translateY(-50%) rotate(0deg); }
+        100% { transform: translateY(-50%) rotate(360deg); }
+    }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div>
+        <div class="content-area flex-1 min-h-screen flex flex-col">
+            <div id="header"></div>
+            <div id="app" class="flex-grow">
+                <main class="p-4 md:p-6 mx-auto w-full max-w-7xl">
+                    <section class="mt-6 md:mt-10 bg-white shadow-xl rounded-lg p-4 md:p-6">
+                        <h2 class="text-xl md:text-2xl font-bold mb-6 text-gray-800">Danh sách đơn hàng</h2>
+                        <div class="overflow-x-auto">
+                            <div class="bg-gray-50 p-4 md:p-6 rounded-lg shadow-sm mb-6 border border-gray-200">
+                                <h3 class="text-lg font-semibold mb-4 flex items-center space-x-2 text-blue-700">
+                                    <i class="fas fa-filter"></i>
+                                    <span>Lọc và Sắp xếp Đơn hàng</span>
+                                </h3>
+                                <form id="orderFilterForm"
+                                    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-6 gap-y-4 items-end">
+                                    <!-- Tìm kiếm theo Tên Khách Hàng -->
+                                    <div class="lg:col-span-2 xl:col-span-2">
+                                        <label for="searchTerm" class="block text-sm font-medium text-gray-700 mb-1">Tìm
+                                            theo tên KH/ Mã ĐH</label>
+                                        <input type="text" id="searchTerm" name="searchTerm"
+                                            placeholder="Nhập tên hoặc mã đơn hàng..."
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                                    </div>
+
+                                    <!-- Trạng thái -->
+                                    <div>
+                                        <label for="statusFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Trạng thái</label>
+                                        <select id="statusFilter" name="status"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                                            <option value="">Tất cả trạng thái</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Ngày đặt hàng - Từ ngày -->
+                                    <div>
+                                        <label for="startDateFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Từ ngày</label>
+                                        <input type="date" id="startDateFilter" name="startDate"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150" />
+                                    </div>
+
+                                    <!-- Ngày đặt hàng - Đến ngày -->
+                                    <div>
+                                        <label for="endDateFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Đến ngày</label>
+                                        <input type="date" id="endDateFilter" name="endDate"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150" />
+                                    </div>
+
+                                    <!-- Khoảng giá tiền: Từ -->
+                                    <div>
+                                        <label for="minPriceFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Giá từ (VNĐ)</label>
+                                        <input type="number" id="minPriceFilter" name="minPrice"
+                                            placeholder="VD: 100000" min="0"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                                    </div>
+
+                                    <!-- Khoảng giá tiền: Đến -->
+                                    <div>
+                                        <label for="maxPriceFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Giá đến (VNĐ)</label>
+                                        <input type="number" id="maxPriceFilter" name="maxPrice"
+                                            placeholder="VD: 5000000" min="0"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                                    </div>
+
+                                    <!-- Sắp xếp -->
+                                    <div>
+                                        <label for="sortByFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Sắp xếp theo</label>
+                                        <select id="sortByFilter" name="sortBy"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                                            <option value="">Mặc định (Ngày mới nhất)</option>
+                                            <option value="totalAmount_asc">Tổng tiền thanh toán: Thấp đến Cao</option>
+                                            <option value="totalAmount_desc">Tổng tiền thanh toán: Cao đến Thấp</option>
+                                            <option value="customerName_asc">Tên khách hàng: A-Z</option>
+                                            <option value="customerName_desc">Tên khách hàng: Z-A</option>
+                                            <option value="status_asc">Trạng thái (Tùy chỉnh)</option>
+                                            <option value="status_desc">Trạng thái (Đảo ngược) </option>
+                                            <option value="orderDate_asc">Ngày đặt: Cũ nhất</option>
+                                        </select>
+                                    </div>
+
+
+                                    <!-- Page Size -->
+                                    <div class="self-end"> <!-- Đảm bảo nó căn chỉnh đúng với các input khác -->
+                                        <label for="pageSizeSelect"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Hiển thị</label>
+                                        <select id="pageSizeSelect" name="pageSize"
+                                            class="w-full border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                                            <option value="10">10 đơn hàng</option>
+                                            <option value="25">25 đơn hàng</option>
+                                            <option value="50">50 đơn hàng</option>
+                                            <option value="100">100 đơn hàng</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="col-span-full flex justify-end items-end mt-3">
+                                        <button type="submit" id="applyOrderFiltersBtn"
+                                            class="bg-blue-600 text-white px-6 py-2.5 rounded-md hover:bg-blue-700 transition font-medium shadow-sm hover:shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                                            <i class="fas fa-search mr-2"></i>Áp dụng
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-md">
+                                <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+                                    <tr>
+                                        <th class="py-3 px-4 border-b text-left font-semibold">STT</th>
+                                        <th class="py-3 px-4 border-b text-left font-semibold">Mã ĐH</th>
+                                        <th class="py-3 px-4 border-b text-left font-semibold">Ngày đặt</th>
+                                        <th class="py-3 px-4 border-b text-left font-semibold">Khách hàng</th>
+                                        <th class="py-3 px-4 border-b text-right font-semibold">Đơn giá</th>
+                                        <th class="py-3 px-4 border-b text-right font-semibold">Tổng tiền thanh toán</th>
+                                        <th class="py-3 px-4 border-b text-center font-semibold">SL SP</th>
+                                        <th class="py-3 px-4 border-b text-center font-semibold">Trạng thái</th>
+                                        <th class="py-3 px-4 border-b text-center font-semibold">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="orderTableBody" class="text-gray-700 text-sm">
+                                    <tr>
+                                        <td colspan="9" class="text-center py-6"><i
+                                                class="fas fa-spinner fa-spin text-blue-500 text-xl mr-2"></i>Đang tải
+                                            dữ liệu...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-center mt-6 text-sm text-gray-600">
+                        <div>
+                            Hiển thị <span id="currentPageInfo" class="font-medium">1</span> / <span id="totalPagesInfo"
+                                class="font-medium">1</span> trang
+                            (Tổng số <span id="totalItemsInfo" class="font-medium">0</span> đơn hàng)
+                        </div>
+                        <div class="flex items-center space-x-1 mt-3 sm:mt-0">
+                            <button id="prevPageBtn"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                disabled>
+                                <i class="fas fa-chevron-left"></i>
+                            </button>
+                            <div class="flex items-center">
+                                <input type="number" id="pageInput" min="1"
+                                    class="p-2 border border-gray-300 rounded-md w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button id="goToPageBtn"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-3 rounded-md ml-1 transition-colors">Đi</button>
+                            </div>
+                            <button id="nextPageBtn"
+                                class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                disabled>
+                                <i class="fas fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="footer" class="mt-auto"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const orderTableBody = document.getElementById('orderTableBody');
+            const orderFilterForm = document.getElementById('orderFilterForm');
+
+            const searchTermInput = document.getElementById('searchTerm');
+            const statusFilter = document.getElementById('statusFilter');
+            const startDateFilter = document.getElementById('startDateFilter');
+            const endDateFilter = document.getElementById('endDateFilter');
+            const minPriceFilter = document.getElementById('minPriceFilter');
+            const maxPriceFilter = document.getElementById('maxPriceFilter');
+            const sortByFilter = document.getElementById('sortByFilter');
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+
+            const currentPageInfo = document.getElementById('currentPageInfo');
+            const totalPagesInfo = document.getElementById('totalPagesInfo');
+            const totalItemsInfo = document.getElementById('totalItemsInfo');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInput = document.getElementById('pageInput');
+            const goToPageBtn = document.getElementById('goToPageBtn');
+
+            let currentPage = 1;
+
+            const ORDER_STATUSES = Object.freeze({
+                CHO_XAC_NHAN: "Chờ xác nhận",
+                DANG_XU_LY: "Đang xử lý",
+                DANG_GIAO: "Đang giao",
+                DA_GIAO: "Đã giao",
+                YEU_CAU_TRA_HANG_HOAN_TIEN: "Yêu cầu trả hàng/ hoàn tiền",
+                DA_HOAN_TIEN: "Đã hoàn tiền",
+                DA_HUY: "Đã hủy"
+            });
+
+            function createStatusDropdown(orderId, currentStatus) {
+        const statusClass = getStatusClassForDropdown(currentStatus);
+        const allStatuses = Object.values(ORDER_STATUSES);
+        
+        let options = '';
+        allStatuses.forEach(status => {
+            const selected = status === currentStatus ? 'selected' : '';
+            options += `<option value="${status}" ${selected}>${status}</option>`;
+        });
+        
+        return `
+            <select class="status-dropdown ${statusClass}" 
+                    data-order-id="${orderId}" 
+                    data-current-status="${currentStatus}"
+                    onchange="handleStatusChange(this)">
+                ${options}
+            </select>
+        `;
+    }
+
+    // ✅ HÀM GET STATUS CLASS CHO DROPDOWN
+    function getStatusClassForDropdown(status) {
+        const normalizedStatus = status.toLowerCase()
+            .replace(/\s+/g, '-')
+            .replace(/[àáạảãâầấậẩẫăằắặẳẵ]/g, 'a')
+            .replace(/[èéẹẻẽêềếệểễ]/g, 'e')
+            .replace(/[ìíịỉĩ]/g, 'i')
+            .replace(/[òóọỏõôồốộổỗơờớợởỡ]/g, 'o')
+            .replace(/[ùúụủũưừứựửữ]/g, 'u')
+            .replace(/[ỳýỵỷỹ]/g, 'y')
+            .replace(/đ/g, 'd')
+            .replace(/[\/]/g, '-');
+        
+        return normalizedStatus;
+    }
+    window.handleStatusChange = async function(selectElement) {
+        const orderId = selectElement.dataset.orderId;
+        const currentStatus = selectElement.dataset.currentStatus;
+        const newStatus = selectElement.value;
+        
+        // Nếu không thay đổi thì return
+        if (newStatus === currentStatus) return;
+        
+        // Xác nhận thay đổi
+        const confirmMessage = `Bạn có chắc muốn chuyển đơn hàng #${orderId} từ "${currentStatus}" sang "${newStatus}"?`;
+        if (!confirm(confirmMessage)) {
+            // Reset về trạng thái cũ nếu hủy
+            selectElement.value = currentStatus;
+            return;
+        }
+        
+        // Thêm loading state
+        selectElement.classList.add('loading');
+        selectElement.disabled = true;
+        
+        try {
+            const success = await updateOrderStatusAPI(orderId, newStatus);
+            if (success) {
+                alert(`✅ Đơn hàng #${orderId} đã được chuyển sang "${newStatus}".`);
+                // Cập nhật data-current-status
+                selectElement.dataset.currentStatus = newStatus;
+                // Cập nhật class màu sắc
+                const newStatusClass = getStatusClassForDropdown(newStatus);
+                selectElement.className = `status-dropdown ${newStatusClass}`;
+            } else {
+                // Reset về trạng thái cũ nếu lỗi
+                selectElement.value = currentStatus;
+            }
+        } catch (error) {
+            console.error('Error updating status:', error);
+            alert(`❌ Lỗi khi cập nhật trạng thái: ${error.message}`);
+            selectElement.value = currentStatus;
+        } finally {
+            // Remove loading state
+            selectElement.classList.remove('loading');
+            selectElement.disabled = false;
+        }
+    };
+            const ALL_VALID_STATUSES_FOR_FILTER = Object.values(ORDER_STATUSES);
+
+            function populateStatusFilter() {
+                ALL_VALID_STATUSES_FOR_FILTER.forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status;
+                    option.textContent = status;
+                    statusFilter.appendChild(option);
+                });
+            }
+
+            function formatLocalCurrency(amount) {
+                if (amount === null || typeof amount !== 'number') return 'N/A';
+                return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            }
+
+            // Assume formatDate is in index.js
+            // function formatDate(dateObj) { ... }
+
+            function getStatusClass(status) {
+                switch (status) {
+                    case ORDER_STATUSES.CHO_XAC_NHAN: return 'status-cho-xac-nhan';
+                    case ORDER_STATUSES.DANG_XU_LY: return 'status-dang-xu-ly';
+                    case ORDER_STATUSES.DANG_GIAO: return 'status-dang-giao';
+                    case ORDER_STATUSES.DA_GIAO: return 'status-da-giao';
+                    case ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN: return 'status-yeu-cau-tra-hang-hoan-tien';
+                    case ORDER_STATUSES.DA_HOAN_TIEN: return 'status-da-hoan-tien';
+                    case ORDER_STATUSES.DA_HUY: return 'status-da-huy';
+                    case ORDER_STATUSES.TU_CHOI_HOAN_TIEN: return 'status-tu-choi-hoan-tien';
+                    default: return 'status-default'
+                }
+            }
+
+            function getNextStatusInFlow(currentStatus) {
+                switch (currentStatus) {
+                    case ORDER_STATUSES.CHO_XAC_NHAN: return ORDER_STATUSES.DANG_XU_LY;
+                    case ORDER_STATUSES.DANG_XU_LY: return ORDER_STATUSES.DANG_GIAO;
+                    case ORDER_STATUSES.DANG_GIAO: return ORDER_STATUSES.DA_GIAO;
+                    default: return null;
+                }
+            }
+
+            async function updateOrderStatusAPI(orderId, newStatus) {
+                if (typeof API_BASE_URL === 'undefined') {
+                    console.error("API_BASE_URL is not defined.");
+                    alert("Lỗi cấu hình: Không thể kết nối đến máy chủ.");
+                    return false;
+                }
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    window.location.href = "/Customer/templates/login.html";
+                    return false;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ newStatus: newStatus })
+                    });
+
+                    if (response.ok) {
+                        await fetchOrders(currentPage); // Refresh list after successful update
+                        return true;
+                    } else {
+                        let errorMessage = `Lỗi cập nhật trạng thái (${response.status})`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = `Lỗi: ${errorData.message || JSON.stringify(errorData)}`;
+                        } catch (e) {
+                            const textError = await response.text();
+                            errorMessage = `Lỗi ${response.status}: ${textError || response.statusText}`;
+                        }
+                        alert(errorMessage);
+                        return false;
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi cập nhật trạng thái đơn hàng ${orderId} thành ${newStatus}:`, error);
+                    alert(`Đã xảy ra lỗi kết nối hoặc xử lý yêu cầu: ${error.message}`);
+                    return false;
+                }
+            }
+
+            window.handleStatusButtonClick = async function (orderId, currentStatus) {
+                const nextStatus = getNextStatusInFlow(currentStatus);
+                if (!nextStatus) return;
+                if (confirm(`Bạn có chắc muốn chuyển đơn hàng #${orderId} từ "${currentStatus}" sang "${nextStatus}"?`)) {
+                    const success = await updateOrderStatusAPI(orderId, nextStatus);
+                    if (success) alert(`Đơn hàng #${orderId} đã được chuyển sang "${nextStatus}".`);
+                }
+            };
+
+            window.handleCancelOrder = async function (orderId) {
+                if (confirm(`Bạn có chắc chắn muốn HỦY đơn hàng #${orderId} không?`)) {
+                    const success = await updateOrderStatusAPI(orderId, ORDER_STATUSES.DA_HUY);
+                    if (success) alert(`Đơn hàng #${orderId} đã được hủy.`);
+                }
+            };
+
+            window.handleConfirmRefundRequest = async function (orderId) {
+                if (confirm(`Xác nhận yêu cầu trả hàng và hoàn tiền cho đơn hàng #${orderId}? \nĐơn hàng sẽ được chuyển sang "Đã hoàn tiền".`)) {
+                    const success = await updateOrderStatusAPI(orderId, ORDER_STATUSES.DA_HOAN_TIEN);
+                    if (success) alert(`Đơn hàng #${orderId} đã được xác nhận hoàn tiền.`);
+                }
+            };
+
+            async function fetchOrders(page = 1) {
+                orderTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-6"><i class="fas fa-spinner fa-spin text-blue-500 text-xl mr-2"></i>Đang tải dữ liệu...</td></tr>`;
+                [prevPageBtn, nextPageBtn, goToPageBtn].forEach(btn => btn.disabled = true);
+
+                currentPage = page;
+                const selectedPageSize = pageSizeSelect.value;
+                const params = new URLSearchParams({
+                    pageNumber: currentPage.toString(),
+                    pageSizeInput: selectedPageSize
+                });
+
+                const searchTerm = searchTermInput.value.trim();
+                if (searchTerm) params.append('SearchTerm', searchTerm);
+
+                const status = statusFilter.value;
+                if (status) params.append('Status', status);
+
+                const startDate = startDateFilter.value;
+                if (startDate) params.append('StartDate', startDate);
+
+                const endDate = endDateFilter.value;
+                if (endDate) params.append('EndDate', endDate);
+
+                const minPrice = minPriceFilter.value;
+                if (minPrice) params.append('MinPrice', minPrice);
+
+                const maxPrice = maxPriceFilter.value;
+                if (maxPrice) params.append('MaxPrice', maxPrice);
+
+                const sortBy = sortByFilter.value;
+                if (sortBy) params.append('SortBy', sortBy)
+
+                if (typeof API_BASE_URL === 'undefined') {
+                    orderTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-red-500">Lỗi cấu hình ứng dụng.</td></tr>`;
+                    return;
+                }
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    alert('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+                    window.location.href = "/Customer/templates/login.html";
+                    return;
+                }
+
+                const url = `${API_BASE_URL}/Orders/all?${params.toString()}`;
+                console.log("Fetching orders with URL:", url);
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            alert('Bạn không có quyền truy cập hoặc phiên đăng nhập đã hết hạn.');
+                            window.location.href = "/Customer/templates/login.html";
+                            return;
+                        }
+                        const errorData = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorData || response.statusText}`);
+                    }
+                    const data = await response.json();
+                    renderOrderTable(data.items);
+                    updatePaginationUI(data);
+                } catch (error) {
+                    console.error('Lỗi khi lấy dữ liệu đơn hàng:', error);
+                    orderTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-red-500">Không thể tải dữ liệu. Lỗi: ${error.message}</td></tr>`;
+                    updatePaginationUI(null);
+                }
+            }
+
+            function renderOrderTable(orders) {
+    orderTableBody.innerHTML = '';
+    if (!orders || orders.length === 0) {
+        orderTableBody.innerHTML = '<tr><td colspan="9" class="text-center py-6 text-gray-500">Không tìm thấy đơn hàng nào phù hợp.</td></tr>';
+        return;
+    }
+
+    const currentPgSize = parseInt(pageSizeSelect.value);
+
+    orders.forEach((order, index) => {
+        const row = document.createElement('tr');
+        row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50 hover:bg-gray-100 transition-colors duration-150';
+        const stt = (currentPage - 1) * currentPgSize + index + 1;
+
+        // ✅ SỬ DỤNG DROPDOWN
+        const statusDropdownHtml = createStatusDropdown(order.orderID, order.status);
+
+        // ✅ BETTER ACTION BUTTONS WITH EXPLICIT EVENT HANDLING
+        let actionButtonsHtml = `
+            <a href="order-detail.html?id=${order.orderID}" 
+               class="action-button action-button-view" 
+               title="Xem chi tiết đơn hàng #${order.orderID}"
+               onclick="console.log('Navigating to detail for order:', ${order.orderID}); return true;">
+               <i class="fas fa-eye"></i> Xem
+            </a>`;
+
+        if (order.status === ORDER_STATUSES.CHO_XAC_NHAN || order.status === ORDER_STATUSES.DANG_XU_LY) {
+            actionButtonsHtml += `
+                <button onclick="window.handleCancelOrder(${order.orderID})" 
+                        class="action-button action-button-cancel ml-2" title="Hủy đơn hàng">
+                    <i class="fas fa-times-circle"></i> Hủy
+                </button>`;
+        }
+
+        if (order.status === ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN) {
+            actionButtonsHtml += `
+                <button onclick="window.handleConfirmRefundRequest(${order.orderID})" 
+                        class="action-button action-button-refund ml-2" title="Xác nhận yêu cầu & hoàn tiền">
+                    <i class="fas fa-check-circle"></i> XN Hoàn tiền
+                </button>`;
+        }
+
+        row.innerHTML = `
+            <td class="py-3 px-4 border-b border-gray-200 text-left">${stt}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-left font-medium">
+                <a href="detail.html?id=${order.orderID}" 
+                   class="table-order-link" 
+                   title="Xem chi tiết đơn hàng #${order.orderID}"
+                   onclick="console.log('Order link clicked:', ${order.orderID}); return true;">
+                   #${order.orderID}
+                </a>
+            </td>
+            <td class="py-3 px-4 border-b border-gray-200 text-left">${formatDate(new Date(order.orderDate))}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-left">${order.customerName || 'N/A'}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-right">${formatLocalCurrency(order.totalAmount)}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-right">${formatLocalCurrency(order.totalPayment)}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-center">${order.numberOfItems}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-center">${statusDropdownHtml}</td>
+            <td class="py-3 px-4 border-b border-gray-200 text-left space-x-1 whitespace-nowrap">
+                ${actionButtonsHtml}
+            </td>
+        `;
+        orderTableBody.appendChild(row);
+    });
+}
+
+
+function updatePaginationUI(data) {
+                if (data) {
+                    currentPageInfo.textContent = data.pageNumber;
+                    totalPagesInfo.textContent = data.totalPages;
+                    totalItemsInfo.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber;
+                    pageInput.max = data.totalPages;
+                    prevPageBtn.disabled = !data.hasPreviousPage;
+                    nextPageBtn.disabled = !data.hasNextPage;
+                    goToPageBtn.disabled = (data.totalPages <= 1);
+                } else {
+                    currentPageInfo.textContent = '0';
+                    totalPagesInfo.textContent = '0';
+                    totalItemsInfo.textContent = '0';
+                    pageInput.value = '1';
+                    pageInput.max = '1';
+                    [prevPageBtn, nextPageBtn, goToPageBtn].forEach(btn => btn.disabled = true);
+                }
+            }
+
+            orderFilterForm.addEventListener('submit', (e) => { e.preventDefault(); fetchOrders(1); });
+            pageSizeSelect.addEventListener('change', () => { fetchOrders(1); });
+            prevPageBtn.addEventListener('click', () => { if (currentPage > 1) fetchOrders(currentPage - 1); });
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = parseInt(totalPagesInfo.textContent) || 1;
+                if (currentPage < totalPages) fetchOrders(currentPage + 1);
+            });
+            goToPageBtn.addEventListener('click', () => {
+                const targetPage = parseInt(pageInput.value);
+                const totalPages = parseInt(totalPagesInfo.textContent) || 1;
+                if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
+                    fetchOrders(targetPage);
+                } else if (targetPage !== currentPage) {
+                    alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${totalPages}.`);
+                    pageInput.value = currentPage;
+                }
+            });
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goToPageBtn.click();
+                }
+            });
+
+            checkAuthToken();
+            populateStatusFilter();
+            fetchOrders(currentPage);
+        });
+    </script>
+</body>
+
+</html>

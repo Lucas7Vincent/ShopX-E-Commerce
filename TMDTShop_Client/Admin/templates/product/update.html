@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Cập nhật sản phẩm</title> <!-- Sửa title -->
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="../../assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <!-- Sidebar -->
+        <div id="sidebar">
+            <!-- Sidebar động sẽ load vào đây -->
+        </div>
+
+        <div class="content-area flex-1">
+
+            <!-- Header -->
+            <div id="header">
+                <!-- Header động sẽ load vào đây -->
+            </div>
+
+            <!-- Content -->
+            <div id="app">
+                <main class="p-6 mx-auto">
+                    <section class="mt-10 bg-white p-6 rounded-lg shadow-md">
+                        <h2 class="text-2xl font-bold mb-6 text-blue-700">Cập nhật thông tin sản phẩm</h2>
+                        <!-- Sửa tiêu đề section -->
+                        <form id="updateProductForm" class="grid grid-cols-1 md:grid-cols-2 gap-6"> <!-- Đổi ID form -->
+
+                            <div>
+                                <label class="block mb-1 font-medium">Tên sản phẩm <span
+                                        class="text-red-500">*</span></label>
+                                <input type="text" name="productName" id="productName" maxlength="100" required
+                                    class="w-full border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block mb-1 font-medium">Danh mục <span
+                                        class="text-red-500">*</span></label>
+                                <select name="categoryID" id="categoryID" required
+                                    class="w-full border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- Đang tải danh mục... --</option>
+                                    <!-- Dynamically load categories and select current one -->
+                                </select>
+                            </div>
+                            <!-- THÊM INPUT CHO SELLER CATEGORY ID (NẾU CÓ TRONG ProductUpdateDto) -->
+                            <div>
+                                <label class="block mb-1 font-medium">Danh mục người bán <span
+                                        class="text-red-500">*</span></label>
+                                <select name="sellercategoryID" id="sellercategoryID"
+                                    class="w-full border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    <option value="">-- Đang tải danh mục người bán... --</option>
+                                </select>
+                            </div>
+
+
+                            <div class="md:col-span-2">
+                                <label class="block mb-1 font-medium">Mô tả</label>
+                                <textarea name="description" id="description" maxlength="4000"
+                                    class="w-full border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    rows="4"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block mb-1 font-medium">Giá (VNĐ) <span
+                                        class="text-red-500">*</span></label>
+                                <input type="number" name="price" id="price" step="0.01" min="0.01" required
+                                    class="w-full border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block mb-1 font-medium">Số lượng tồn <span
+                                        class="text-red-500">*</span></label>
+                                <input type="number" name="stockQuantity" id="stockQuantity" min="0" required
+                                    class="w-full border px-4 py-2 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            </div>
+
+                            <div>
+                                <label class="block mb-1 font-medium">Ảnh sản phẩm</label>
+                                <input type="file" id="imageInput" accept="image/*"
+                                    class="block w-full text-sm text-gray-600 file:mr-4 file:py-2 file:px-4
+                                                      file:rounded file:border-0 file:text-sm file:font-semibold
+                                                      file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer">
+                                <input type="hidden" name="imageURL" id="imageURL">
+                                <!-- Giữ nguyên để lưu URL ảnh hiện tại hoặc ảnh mới -->
+                                <div class="mt-3">
+                                    <img id="previewImage"
+                                        class="w-24 h-24 object-cover rounded hidden border border-gray-300" />
+                                    <p id="currentImageText" class="text-sm text-gray-500 mt-1">Ảnh hiện tại sẽ được giữ
+                                        nếu không chọn ảnh mới.</p>
+                                </div>
+                            </div>
+
+
+                            <div class="flex items-center space-x-2 mt-7">
+                                <input type="checkbox" name="isActive" id="isActive"
+                                    class="form-checkbox h-5 w-5 text-blue-600">
+                                <label class="font-medium">Kích hoạt sản phẩm</label>
+                            </div>
+
+                            <div class="md:col-span-2 flex justify-end mt-4">
+                                <a href="list.html"
+                                    class="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition font-semibold mr-6">Quay
+                                    lại</a>
+                                <button type="submit"
+                                    class="bg-yellow-500 text-white px-6 py-2 rounded hover:bg-yellow-600 transition font-semibold">
+                                    <!-- Sửa màu nút -->
+                                    <i class="fas fa-save mr-1"></i> Lưu thay đổi <!-- Sửa text nút -->
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </main>
+            </div>
+            <!-- Footer -->
+            <div id="footer">
+                <!-- Footer động sẽ load vào đây -->
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+    <!-- Bỏ defer cho product-form.js nếu update.html dùng script riêng -->
+    <!-- <script src="/Admin/assets/js/product-form.js" defer></script> -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const updateProductForm = document.getElementById('updateProductForm');
+            const imageInput = document.getElementById('imageInput');
+            const previewImage = document.getElementById('previewImage');
+            const imageURLInput = document.getElementById('imageURL');
+            const currentImageText = document.getElementById('currentImageText');
+
+            // Input fields (thêm ID cho các input trong HTML)
+            const productNameInput = document.getElementById('productName');
+            const categoryIDSelect = document.getElementById('categoryID');
+            const sellercategoryIDSelect = document.getElementById('sellercategoryID'); // Thêm
+            const descriptionTextarea = document.getElementById('description');
+            const priceInput = document.getElementById('price');
+            const stockQuantityInput = document.getElementById('stockQuantity');
+            const isActiveCheckbox = document.getElementById('isActive');
+
+
+            
+            const CLOUDINARY_CLOUD_NAME = "chipchipstore21112023";
+            const CLOUDINARY_UPLOAD_PRESET = "ShopX_Images";
+            const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+            let productId = null;
+            let currentProductimageURL = null; // Lưu URL ảnh hiện tại của sản phẩm
+
+            // --- Lấy Product ID từ URL ---
+            function getProductIdFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('id');
+            }
+
+            // --- Hàm tải danh mục chung ---
+            async function loadCategories(selectedcategoryID) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Categories/all`); // API lấy tất cả category
+                    if (!response.ok) throw new Error('Không thể tải danh mục.');
+                    const categories = await response.json();
+
+                    categoryIDSelect.innerHTML = '<option value="">-- Chọn danh mục --</option>';
+                    categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat.categoryID;
+                        option.textContent = cat.categoryName;
+                        if (cat.categoryID == selectedcategoryID) {
+                            option.selected = true;
+                        }
+                        console.log(selectedcategoryID)
+                        categoryIDSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Lỗi tải danh mục:", error);
+                    categoryIDSelect.innerHTML = '<option value="">-- Lỗi tải danh mục --</option>';
+                }
+            }
+            // --- Hàm tải danh mục người bán ---
+            async function loadSellerCategories(selectedsellercategoryID) {
+                const token = sessionStorage.getItem('token');
+                if (!token) return; // Cần token để biết seller nào
+                try {
+                    // Giả sử bạn có endpoint /api/seller/categories để lấy category của seller hiện tại
+                    const response = await fetch(`${API_BASE_URL}/seller/categories`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) throw new Error('Không thể tải danh mục người bán.');
+                    const sellerCategories = await response.json();
+
+                    sellercategoryIDSelect.innerHTML = '<option value="">-- Chọn danh mục người bán --</option>';
+                    sellerCategories.forEach(sc => {
+                        const option = document.createElement('option');
+                        option.value = sc.sellercategoryID; // Đảm bảo tên trường ID đúng
+                        option.textContent = sc.categoryName; // Đảm bảo tên trường Name đúng
+                        if (sc.sellercategoryID === selectedsellercategoryID) {
+                            option.selected = true;
+                        }
+                        sellercategoryIDSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Lỗi tải danh mục người bán:", error);
+                    sellercategoryIDSelect.innerHTML = '<option value="">-- Lỗi tải danh mục người bán --</option>';
+                }
+            }
+
+
+            // --- Hàm tải chi tiết sản phẩm ---
+            async function fetchProductDetails(id) {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Products/${id}`);
+                    if (!response.ok) {
+                        if (response.status === 404) throw new Error('Không tìm thấy sản phẩm.');
+                        throw new Error(`Lỗi ${response.status} khi tải sản phẩm.`);
+                    }
+                    const product = await response.json(); // ProductDto
+                    populateForm(product);
+                    await loadCategories(product.categoryID); // Truyền categoryID để chọn đúng
+                    console.log(product)
+                    // ProductDto của bạn cần có sellercategoryID để chọn đúng
+                    await loadSellerCategories(product.sellercategoryID);
+                } catch (error) {
+                    console.error("Lỗi tải chi tiết sản phẩm:", error);
+                    alert(error.message);
+                    // Có thể chuyển hướng về trang list nếu không tìm thấy sản phẩm
+                    // window.location.href = 'list.html';
+                }
+            }
+
+            // --- Điền dữ liệu vào form ---
+            function populateForm(product) {
+                productNameInput.value = product.productName || '';
+                // categoryIDSelect sẽ được xử lý bởi loadCategories
+                // sellercategoryIDSelect sẽ được xử lý bởi loadSellerCategories
+                descriptionTextarea.value = product.description || '';
+                priceInput.value = product.price || 0;
+                stockQuantityInput.value = product.stockQuantity || 0;
+                isActiveCheckbox.checked = product.isActive;
+
+                currentProductimageURL = product.imageURL; // Lưu URL ảnh hiện tại
+                imageURLInput.value = product.imageURL || ''; // Đặt giá trị cho input ẩn
+
+                if (product.imageURL) {
+                    previewImage.src = product.imageURL;
+                    previewImage.classList.remove('hidden');
+                    currentImageText.textContent = 'Ảnh hiện tại. Chọn ảnh mới để thay thế.';
+                } else {
+                    previewImage.classList.add('hidden');
+                    currentImageText.textContent = 'Sản phẩm chưa có ảnh. Chọn ảnh để thêm.';
+                }
+            }
+
+            // --- Logic xem trước ảnh và tải lên Cloudinary (tương tự create.html) ---
+            imageInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        previewImage.src = e.target.result;
+                        previewImage.classList.remove('hidden');
+                        currentImageText.textContent = 'Ảnh mới đã chọn. Ảnh này sẽ được tải lên.';
+                        // KHÔNG đặt imageURLInput.value = e.target.result (base64) ở đây nữa
+                        // imageURLInput sẽ được cập nhật sau khi tải lên Cloudinary thành công
+                    }
+                    reader.readAsDataURL(file);
+                } else if (currentProductimageURL) { // Nếu hủy chọn file mới, quay lại ảnh cũ
+                    previewImage.src = currentProductimageURL;
+                    currentImageText.textContent = 'Ảnh hiện tại sẽ được giữ nếu không chọn ảnh mới.';
+                } else {
+                    previewImage.src = '';
+                    previewImage.classList.add('hidden');
+                    currentImageText.textContent = 'Sản phẩm chưa có ảnh. Chọn ảnh để thêm.';
+                }
+            });
+
+            async function uploadImageToCloudinary(file) {
+                if (!file) return null;
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+                try {
+                    const response = await fetch(CLOUDINARY_UPLOAD_URL, { method: 'POST', body: formData });
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(`Cloudinary: ${errorData.error.message}`);
+                    }
+                    const data = await response.json();
+                    return data.secure_url;
+                } catch (error) {
+                    console.error('Lỗi tải ảnh Cloudinary:', error);
+                    throw error;
+                }
+            }
+
+            // --- Xử lý submit form cập nhật ---
+            updateProductForm.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                const token = localStorage.getItem('authToken') || sessionStorage.getItem('token');
+                if (!token) {
+                    alert('Vui lòng đăng nhập lại.');
+                    return;
+                }
+
+                const submitButton = updateProductForm.querySelector('button[type="submit"]');
+                const originalButtonText = submitButton.innerHTML;
+                submitButton.disabled = true;
+                submitButton.innerHTML = '<i class="fas fa-spinner fa-spin mr-1"></i> Đang lưu...';
+
+                let finalimageURL = currentProductimageURL; // Mặc định giữ ảnh cũ
+                const selectedFile = imageInput.files[0];
+
+                if (selectedFile) { // Nếu có chọn file mới
+                    try {
+                        const newimageURL = await uploadImageToCloudinary(selectedFile);
+                        if (newimageURL) {
+                            finalimageURL = newimageURL;
+                        }
+                        // Nếu upload lỗi, finalimageURL vẫn là ảnh cũ (hoặc null nếu trước đó không có)
+                    } catch (uploadError) {
+                        alert(`Lỗi tải ảnh mới: ${uploadError.message}\nẢnh cũ (nếu có) sẽ được giữ lại.`);
+                        // Không dừng hẳn, cho phép cập nhật các thông tin khác
+                    }
+                }
+
+                const updatedProductData = {
+                    productName: productNameInput.value,
+                    categoryID: parseInt(categoryIDSelect.value),
+                    //sellercategoryID: parseInt(sellercategoryIDSelect.value != NaN ? sellercategoryIDSelect.value : 1), // Lấy giá trị
+                    sellercategoryID: 1,
+                    description: descriptionTextarea.value,
+                    price: parseFloat(priceInput.value),
+                    stockQuantity: parseInt(stockQuantityInput.value),
+                    isActive: isActiveCheckbox.checked,
+                    imageURL: finalimageURL // URL từ Cloudinary hoặc URL cũ
+                };
+                console.log("Dữ liệu cập nhật gửi đi:", updatedProductData);
+
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Products/${productId}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedProductData)
+                    });
+
+                    if (response.ok) { // Hoặc response.status === 204 (No Content) là thành công cho PUT
+                        alert('Cập nhật sản phẩm thành công!');
+                        // Cập nhật currentProductimageURL nếu ảnh đã thay đổi
+                        currentProductimageURL = finalimageURL;
+                        imageURLInput.value = finalimageURL; // Cập nhật input ẩn
+                        currentImageText.textContent = 'Ảnh hiện tại sẽ được giữ nếu không chọn ảnh mới.';
+                        if (selectedFile) imageInput.value = null; // Reset file input nếu đã tải ảnh mới
+                        // Tùy chọn: Chuyển về trang list hoặc làm mới trang
+                        // window.location.href = 'list.html';
+                    } else {
+                        let errorMessage = `Lỗi ${response.status}: ${response.statusText}`;
+                        try { const errorData = await response.json(); /* ... xử lý lỗi chi tiết ... */ }
+                        catch (e) { /* ... */ }
+                        alert(`Cập nhật thất bại:\n${errorMessage}`);
+                    }
+                } catch (error) {
+                    alert('Lỗi mạng hoặc lỗi khi gửi yêu cầu cập nhật: ' + error.message);
+                } finally {
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                }
+            });
+
+
+            // --- Khởi tạo ---
+            productId = getProductIdFromUrl();
+            if (productId) {
+                // Tải danh mục trước, sau đó tải chi tiết sản phẩm
+                // vì populateForm sẽ cần category đã được chọn đúng nếu ProductDto có categoryID
+                // Tuy nhiên, fetchProductDetails sẽ gọi lại loadCategories với ID được chọn
+                // await loadCategories(); 
+                // await loadSellerCategories();
+                await fetchProductDetails(productId);
+            } else {
+                alert('Không tìm thấy ID sản phẩm trên URL.');
+                // Chuyển hướng về trang list
+                window.location.href = 'list.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

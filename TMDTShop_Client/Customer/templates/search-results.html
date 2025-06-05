@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kết quả tìm kiếm - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        /* Thêm CSS tùy chỉnh nếu cần, ví dụ cho card sản phẩm */
+        .product-card-image {
+            height: 200px;
+            /* Hoặc một chiều cao cố định khác */
+            object-fit: cover;
+        }
+
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <main id="mainContent" class="container mx-auto px-4 py-8">
+        <section class="bg-white p-6 md:p-8 rounded-lg shadow-md">
+            <!-- Breadcrumbs -->
+            <nav class="text-sm mb-6" aria-label="Breadcrumb">
+                <ol class="list-none p-0 inline-flex">
+                    <li class="flex items-center">
+                        <a href="index.html" class="text-gray-500 hover:text-blue-600">Trang chủ</a>
+                        <i class="fas fa-chevron-right mx-2 text-gray-400 text-xs"></i>
+                    </li>
+                    <li class="flex items-center">
+                        <span class="text-gray-700 font-medium">Kết quả tìm kiếm</span>
+                    </li>
+                </ol>
+            </nav>
+
+            <div id="searchResultsInfo" class="mb-6">
+                <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Kết quả tìm kiếm cho "<span
+                        id="searchTermDisplay" class="text-blue-600"></span>"</h1>
+                <p id="searchResultCount" class="text-gray-600 mt-1"></p>
+            </div>
+
+            <div id="loadingIndicator" class="text-center py-10">
+                <div class="loader"></div>
+                <p class="text-gray-600 mt-2">Đang tìm kiếm sản phẩm...</p>
+            </div>
+
+            <div id="productsGrid"
+                class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 hidden">
+                <!-- Product cards will be rendered here -->
+            </div>
+
+            <div id="noResultsMessage" class="text-center py-10 hidden">
+                <i class="fas fa-search fa-3x text-gray-400 mb-4"></i>
+                <p class="text-xl text-gray-700">Không tìm thấy sản phẩm nào phù hợp.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div id="paginationControls"
+                class="flex flex-col md:flex-row justify-between items-center mt-8 pt-6 border-t border-gray-200 hidden">
+                <div class="text-sm text-gray-600 mb-2 md:mb-0">
+                    Hiển thị <span id="currentPageInfo">1</span> / <span id="totalPagesInfo">1</span> trang
+                    (Tổng số <span id="totalItemsInfo">0</span> sản phẩm)
+                </div>
+                <div class="flex items-center space-x-2">
+                    <button id="prevPageBtn"
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-md disabled:opacity-50"
+                        disabled>
+                        <i class="fas fa-chevron-left mr-1"></i> Trước
+                    </button>
+                    <span id="pageNumbersContainer" class="flex items-center space-x-1">
+                        <!-- Page numbers will be rendered here -->
+                    </span>
+                    <button id="nextPageBtn"
+                        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md disabled:opacity-50"
+                        disabled>
+                        Sau <i class="fas fa-chevron-right ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+
+    <script type="module" src="../assets/js/components.js"></script>
+    <!-- index.js cần được load để có API_BASE_URL và các hàm helper -->
+    <script src="../assets/js/index.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const searchTermDisplay = document.getElementById('searchTermDisplay');
+            const searchResultCount = document.getElementById('searchResultCount');
+            const productsGrid = document.getElementById('productsGrid');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const noResultsMessage = document.getElementById('noResultsMessage');
+            const paginationControls = document.getElementById('paginationControls');
+            const currentPageInfo = document.getElementById('currentPageInfo');
+            const totalPagesInfo = document.getElementById('totalPagesInfo');
+            const totalItemsInfo = document.getElementById('totalItemsInfo');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageNumbersContainer = document.getElementById('pageNumbersContainer');
+
+
+            let currentPage = 1;
+            const pageSize = 10; // Hoặc lấy từ một control nếu muốn
+
+            function getSearchTermFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                return params.get('searchTerm');
+            }
+
+            function renderProductCard(product) {
+                // Sử dụng lại hàm getImageUrl và formatCurrency từ index.js
+                const imageUrl = window.getImageUrl ? window.getImageUrl(product.imageURL) : '../assets/images/placeholder.png';
+                const priceFormatted = window.formatCurrency ? window.formatCurrency(product.price) : `${product.price}đ`;
+
+                return `
+                    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition-shadow duration-300 flex flex-col">
+                        <a href="product-detail.html?productId=${product.productID}" class="block">
+                            <img src="${imageUrl}" alt="${product.productName}" class="w-full product-card-image">
+                        </a>
+                        <div class="p-4 flex flex-col flex-grow">
+                            <h3 class="text-md font-semibold text-gray-800 mb-1 truncate" title="${product.productName}">
+                                <a href="product-detail.html?productId=${product.productID}" class="hover:text-blue-600">${product.productName}</a>
+                            </h3>
+                            <a href="https://127.0.0.1:5500/Customer/templates/seller-profile.html?sellerId=${product.sellerID}" class="text-sm text-gray-500 mb-2 flex-grow-0 hover:text-blue-500 hover:underline">${product.shopName || 'ShopX'}</a>
+                            <div class="mt-auto">
+                                <p class="text-lg font-bold text-red-600 mb-2">${priceFormatted}</p>
+                                <button onclick="addToCartFromSearch(${product.productID}, '${product.productName}', ${product.stockQuantity})" 
+                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-150 ease-in-out text-sm flex items-center justify-center ${product.stockQuantity > 0 ? '' : 'bg-gray-400 cursor-not-allowed'}"
+                                    ${product.stockQuantity > 0 ? '' : 'disabled'}>
+                                    <i class="fas fa-cart-plus mr-2"></i>${product.stockQuantity > 0 ? 'Thêm vào giỏ' : 'Hết hàng'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Hàm thêm vào giỏ hàng (cần logic tương tự product-detail.html)
+            window.addToCartFromSearch = async function (productId, productName, stockQuantity) {
+                if (stockQuantity < 1) {
+                    alert(`Sản phẩm "${productName}" đã hết hàng.`);
+                    return;
+                }
+                const token = getSession('token'); // Lấy token từ index.js
+                if (!token) {
+                    alert("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng.");
+                    window.location.href = 'login.html'; // Chuyển đến trang đăng nhập
+                    return;
+                }
+                const quantity = 1; // Mặc định thêm 1 sản phẩm
+                const cartItemPayload = { productID: productId, quantity: quantity };
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Cart/items`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(cartItemPayload)
+                    });
+                    if (response.ok) {
+                        const updatedCart = await response.json();
+                        alert(`Đã thêm "${productName}" vào giỏ hàng!`);
+                        document.dispatchEvent(new CustomEvent('cartUpdated', { detail: updatedCart })); // Gửi sự kiện để header cập nhật
+                    } else {
+                        const errorData = await response.json().catch(() => ({ message: "Lỗi không xác định." }));
+                        alert(`Lỗi thêm vào giỏ: ${errorData.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error('Lỗi network khi thêm vào giỏ hàng:', error);
+                    alert("Lỗi kết nối khi thêm vào giỏ hàng.");
+                }
+            }
+
+
+            async function fetchSearchResults(term, page = 1) {
+                if (!term) {
+                    searchTermDisplay.textContent = '(chưa có từ khóa)';
+                    searchResultCount.textContent = '';
+                    productsGrid.classList.add('hidden');
+                    loadingIndicator.classList.add('hidden');
+                    noResultsMessage.classList.remove('hidden');
+                    noResultsMessage.innerHTML = '<p class="text-xl text-gray-700">Vui lòng nhập từ khóa để tìm kiếm.</p>';
+                    paginationControls.classList.add('hidden');
+                    return;
+                }
+
+                searchTermDisplay.textContent = term;
+                loadingIndicator.classList.remove('hidden');
+                productsGrid.innerHTML = '';
+                productsGrid.classList.add('hidden');
+                noResultsMessage.classList.add('hidden');
+                paginationControls.classList.add('hidden');
+
+                currentPage = page;
+                const url = `${API_BASE_URL}/Products/Customer?SearchTerm=${encodeURIComponent(term)}&pageNumber=${currentPage}&pageSizeInput=${pageSize}`;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Lỗi ${response.status}: Không thể tải kết quả tìm kiếm.`);
+                    }
+                    const pagedResult = await response.json(); // PagedResult<ProductSummaryDto>
+
+                    loadingIndicator.classList.add('hidden');
+
+                    if (pagedResult && pagedResult.items && pagedResult.items.length > 0) {
+                        pagedResult.items.forEach(product => {
+                            productsGrid.innerHTML += renderProductCard(product);
+                        });
+                        productsGrid.classList.remove('hidden');
+                        searchResultCount.textContent = `Tìm thấy ${pagedResult.totalCount} sản phẩm.`;
+                        updatePagination(pagedResult);
+                        paginationControls.classList.remove('hidden');
+                    } else {
+                        searchResultCount.textContent = 'Không tìm thấy sản phẩm nào.';
+                        noResultsMessage.classList.remove('hidden');
+                        noResultsMessage.querySelector('p').textContent = `Không tìm thấy sản phẩm nào phù hợp với từ khóa "${term}".`;
+                    }
+                    const mainContentElement = document.getElementById('mainContent');
+                    if (mainContentElement) {
+                        mainContentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tìm kiếm sản phẩm:", error);
+                    loadingIndicator.classList.add('hidden');
+                    productsGrid.innerHTML = `<p class="col-span-full text-center text-red-500">${error.message}</p>`;
+                    productsGrid.classList.remove('hidden');
+                    searchResultCount.textContent = 'Đã xảy ra lỗi khi tìm kiếm.';
+                }
+            }
+
+            function updatePagination(pagedResult) {
+                currentPageInfo.textContent = pagedResult.pageNumber;
+                totalPagesInfo.textContent = pagedResult.totalPages;
+                totalItemsInfo.textContent = pagedResult.totalCount;
+
+                prevPageBtn.disabled = !pagedResult.hasPreviousPage;
+                nextPageBtn.disabled = !pagedResult.hasNextPage;
+
+                prevPageBtn.onclick = () => fetchSearchResults(getSearchTermFromUrl(), pagedResult.pageNumber - 1);
+                nextPageBtn.onclick = () => fetchSearchResults(getSearchTermFromUrl(), pagedResult.pageNumber + 1);
+
+                renderPageNumbers(pagedResult.pageNumber, pagedResult.totalPages);
+            }
+
+            function renderPageNumbers(currentPageNum, totalPagesNum) {
+                pageNumbersContainer.innerHTML = '';
+                const maxPagesToShow = 5; // Số lượng nút trang hiển thị tối đa
+                let startPage, endPage;
+
+                if (totalPagesNum <= maxPagesToShow) {
+                    startPage = 1;
+                    endPage = totalPagesNum;
+                } else {
+                    if (currentPageNum <= Math.ceil(maxPagesToShow / 2)) {
+                        startPage = 1;
+                        endPage = maxPagesToShow;
+                    } else if (currentPageNum + Math.floor(maxPagesToShow / 2) >= totalPagesNum) {
+                        startPage = totalPagesNum - maxPagesToShow + 1;
+                        endPage = totalPagesNum;
+                    } else {
+                        startPage = currentPageNum - Math.floor(maxPagesToShow / 2);
+                        endPage = currentPageNum + Math.floor(maxPagesToShow / 2);
+                    }
+                }
+
+                if (startPage > 1) {
+                    pageNumbersContainer.appendChild(createPageButton(1));
+                    if (startPage > 2) {
+                        pageNumbersContainer.insertAdjacentHTML('beforeend', `<span class="px-2 py-1">...</span>`);
+                    }
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pageNumbersContainer.appendChild(createPageButton(i, i === currentPageNum));
+                }
+
+                if (endPage < totalPagesNum) {
+                    if (endPage < totalPagesNum - 1) {
+                        pageNumbersContainer.insertAdjacentHTML('beforeend', `<span class="px-2 py-1">...</span>`);
+                    }
+                    pageNumbersContainer.appendChild(createPageButton(totalPagesNum));
+                }
+            }
+
+            function createPageButton(pageNumber, isActive = false) {
+                const button = document.createElement('button');
+                button.textContent = pageNumber;
+                button.className = `px-3 py-1 rounded-md text-sm ${isActive ? 'bg-blue-600 text-white cursor-default' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`;
+                if (!isActive) {
+                    button.onclick = () => fetchSearchResults(getSearchTermFromUrl(), pageNumber);
+                }
+                return button;
+            }
+
+
+            // Initial load
+            const initialSearchTerm = getSearchTermFromUrl();
+            fetchSearchResults(initialSearchTerm, 1);
+        });
+    </script>
+</body>
+
+</html>

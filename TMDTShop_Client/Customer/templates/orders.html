@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css"> <!-- CSS chung của Customer -->
+    <style>
+        /* Style cho status badges, có thể dùng chung với Admin hoặc tùy chỉnh */
+        .status-badge {
+            padding: 0.25em 0.6em;
+            border-radius: 0.25rem;
+            font-size: 0.8em;
+            font-weight: 500;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            display: inline-block;
+            min-width: 100px;
+            /* Cho độ rộng tối thiểu */
+        }
+
+        .status-cho-xac-nhan {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-dang-xu-ly {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-dang-giao {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-da-giao {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-yeu-cau-tra-hang-hoan-tien {
+            background-color: #fffbeb;
+            color: #b45309;
+        }
+
+        .status-da-hoan-tien {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .status-da-huy {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-default {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        /* Nút chi tiết */
+        .detail-button {
+            background-color: #eff6ff;
+            color: #2563eb;
+            padding: 0.3rem 0.75rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+        }
+
+        .detail-button:hover {
+            background-color: #dbeafe;
+        }
+
+        .detail-button i {
+            margin-right: 0.25rem;
+        }
+
+        .order-card-action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.25rem;
+            /* rounded-sm của Tailwind */
+            font-size: 0.875rem;
+            /* text-sm */
+            font-weight: 500;
+            /* font-medium */
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <!-- Container cho Header, sẽ được components.js điền vào -->
+    <div id="header-container">
+        <!-- Nội dung header sẽ được tải vào đây -->
+    </div>
+
+    <main id="mainContent" class="container mx-auto px-4 py-8">
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="/Customer/index.html" class="text-blue-600 hover:underline">Trang chủ</a>
+                    <i class="fas fa-chevron-right fa-xs mx-2 text-gray-500"></i>
+                </li>
+                <li class="text-gray-500" aria-current="page">Đơn hàng của tôi</li>
+            </ol>
+        </nav>
+
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-6">Đơn hàng của tôi</h1>
+
+        <!-- Filters -->
+        <div class="bg-white p-4 md:p-6 rounded-lg shadow-md mb-6">
+            <form id="customerOrderFilterForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
+                <div>
+                    <label for="customerStatusFilter" class="block text-sm font-medium text-gray-700 mb-1">Trạng
+                        thái</label>
+                    <select id="customerStatusFilter" name="status"
+                        class="w-full border border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                        <option value="">Tất cả</option>
+                        <!-- Options sẽ được điền bởi JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="customerStartDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Từ
+                        ngày</label>
+                    <input type="date" id="customerStartDateFilter" name="startDate"
+                        class="w-full border border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                </div>
+                <div>
+                    <label for="customerEndDateFilter" class="block text-sm font-medium text-gray-700 mb-1">Đến
+                        ngày</label>
+                    <input type="date" id="customerEndDateFilter" name="endDate"
+                        class="w-full border border-gray-300 px-3 py-2 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                </div>
+                <div class="sm:col-span-2 lg:col-span-1 flex justify-end items-end">
+                    <button type="submit"
+                        class="bg-indigo-600 text-white px-5 py-2 rounded-md hover:bg-indigo-700 transition font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 w-full sm:w-auto">
+                        <i class="fas fa-filter mr-2"></i>Lọc
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Order List -->
+        <div id="customerOrderListContainer" class="space-y-4">
+            <div id="customerLoadingOrders" class="text-center py-10">
+                <i class="fas fa-spinner fa-spin text-indigo-500 text-3xl"></i>
+                <p class="mt-2 text-gray-600">Đang tải đơn hàng...</p>
+            </div>
+        </div>
+
+        <div id="customerNoOrders" class="hidden text-center py-10 bg-white rounded-lg shadow-md">
+            <i class="fas fa-box-open text-gray-400 text-4xl mb-3"></i>
+            <p class="text-gray-600">Bạn chưa có đơn hàng nào.</p>
+            <a href="/Customer/index.html"
+                class="mt-4 inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+
+        <!-- Pagination -->
+        <div id="customerPaginationContainer"
+            class="hidden flex flex-col sm:flex-row justify-between items-center mt-8 text-sm text-gray-600">
+            <div id="customerPaginationInfo" class="mb-2 sm:mb-0">
+                Hiển thị <span id="customerCurrentPageInfo" class="font-medium">0</span> / <span
+                    id="customerTotalPagesInfo" class="font-medium">0</span> trang
+                (Tổng <span id="customerTotalItemsInfo" class="font-medium">0</span> đơn hàng)
+            </div>
+            <div class="flex items-center space-x-1">
+                <button id="customerPrevPageBtn"
+                    class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div class="flex items-center">
+                    <input type="number" id="customerPageInput" min="1"
+                        class="p-2 border border-gray-300 rounded-md w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                    <button id="customerGoToPageBtn"
+                        class="bg-indigo-500 hover:bg-indigo-600 text-white font-medium py-2 px-3 rounded-md ml-1 transition-colors">Đi</button>
+                </div>
+                <button type="button" id="customerNextPageBtn"
+                    class="bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 font-medium py-2 px-3 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    disabled>
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Container cho Footer, sẽ được components.js điền vào -->
+    <div id="footer-container">
+        <!-- Nội dung footer sẽ được tải vào đây -->
+    </div>
+
+    <!-- index.js phải được load TRƯỚC components.js và script của trang này -->
+    <script src="../assets/js/index.js"></script>
+    <script type="module" src="../assets/js/components.js"></script>
+    <script src="../assets/js/rebuy-handler.js"></script>
+    <script>
+        // Đảm bảo rằng script này chạy SAU KHI index.js và components.js đã thực thi
+        // và DOMContentLoaded đã hoàn tất.
+        // components.js sẽ load header/footer, index.js sẽ định nghĩa các hàm toàn cục.
+
+        // Bọc trong một hàm để đảm bảo các hàm từ index.js đã sẵn sàng
+        function initializeCustomerOrdersPage() {
+            // DOM Elements
+            const orderListContainer = document.getElementById('customerOrderListContainer');
+            const loadingOrdersElement = document.getElementById('customerLoadingOrders');
+            const noOrdersElement = document.getElementById('customerNoOrders');
+
+            const filterForm = document.getElementById('customerOrderFilterForm');
+            const statusFilter = document.getElementById('customerStatusFilter');
+            const startDateFilter = document.getElementById('customerStartDateFilter');
+            const endDateFilter = document.getElementById('customerEndDateFilter');
+
+            const paginationContainer = document.getElementById('customerPaginationContainer');
+            const paginationInfoElement = document.getElementById('customerPaginationInfo');
+            const currentPageInfoElement = document.getElementById('customerCurrentPageInfo');
+            const totalPagesInfoElement = document.getElementById('customerTotalPagesInfo');
+            const totalItemsInfoElement = document.getElementById('customerTotalItemsInfo');
+            const prevPageBtn = document.getElementById('customerPrevPageBtn');
+            const nextPageBtn = document.getElementById('customerNextPageBtn');
+            const pageInput = document.getElementById('customerPageInput');
+            const goToPageBtn = document.getElementById('customerGoToPageBtn');
+
+            const relatedProductsGridEl = document.getElementById('relatedProductsGrid');
+
+            let currentProductData = null;
+            let currentPage = 1;
+            const DEFAULT_PAGE_SIZE = 5;
+
+            const ORDER_STATUSES = Object.freeze({
+                CHO_XAC_NHAN: "Chờ xác nhận",
+                DANG_XU_LY: "Đang xử lý",
+                DANG_GIAO: "Đang giao",
+                DA_GIAO: "Đã giao",
+                YEU_CAU_TRA_HANG_HOAN_TIEN: "Yêu cầu trả hàng/ hoàn tiền",
+                DA_HOAN_TIEN: "Đã hoàn tiền",
+                DA_HUY: "Đã hủy"
+            });
+            const ALL_VALID_STATUSES_FOR_FILTER = Object.values(ORDER_STATUSES);
+
+            // Kiểm tra xem các hàm từ index.js có tồn tại không
+            if (typeof formatDate !== 'function' || typeof formatCurrency !== 'function' || typeof getSession !== 'function' || typeof API_BASE_URL === 'undefined') {
+                console.error("Một số hàm hoặc biến toàn cục từ index.js chưa sẵn sàng. Trang có thể không hoạt động đúng.");
+                loadingOrdersElement.innerHTML = '<p class="text-red-500 text-center">Lỗi tải trang. Vui lòng thử lại.</p>';
+                return; // Dừng thực thi nếu các phụ thuộc chưa sẵn sàng
+            }
+
+
+            function getStatusClass(status) {
+                switch (status) {
+                    case ORDER_STATUSES.CHO_XAC_NHAN: return 'status-cho-xac-nhan';
+                    case ORDER_STATUSES.DANG_XU_LY: return 'status-dang-xu-ly';
+                    case ORDER_STATUSES.DANG_GIAO: return 'status-dang-giao';
+                    case ORDER_STATUSES.DA_GIAO: return 'status-da-giao';
+                    case ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN: return 'status-yeu-cau-tra-hang-hoan-tien';
+                    case ORDER_STATUSES.DA_HOAN_TIEN: return 'status-da-hoan-tien';
+                    case ORDER_STATUSES.DA_HUY: return 'status-da-huy';
+                    default:
+                        console.warn(`Trạng thái không xác định trong getStatusClass: "${status}"`);
+                        return 'status-default';
+                }
+            }
+
+            function populateStatusFilter() {
+                ALL_VALID_STATUSES_FOR_FILTER.forEach(status => {
+                    const option = document.createElement('option');
+                    option.value = status;
+                    option.textContent = status;
+                    statusFilter.appendChild(option);
+                });
+            }
+
+           
+
+async function updateOrderStatusViaAPI(orderId, newStatus, successMessage, refreshCallback) {
+    const token = getSession('token');
+    if (!token && token != null) { 
+        alert('Bạn cần đăng nhập để có thể sử dụng chức năng này')
+        sessionStorage.clear();
+        window.location.assign('/Customer/templates/login.html')
+        return;
+    }
+    
+    try {
+        // ✅ FIXED: Sử dụng endpoint đúng cho Customer
+        let apiEndpoint;
+        let requestData;
+        
+        if (newStatus === 'Yêu cầu trả hàng/ hoàn tiền' || newStatus === 'Đã hủy') {
+            // ✅ Customer requests (hoàn tiền, hủy)
+            apiEndpoint = `${API_BASE_URL}/Orders/${orderId}/customer-status`;
+            requestData = { newStatus: newStatus };
+        } else {
+            // ✅ General status updates (cho seller/admin - không dành cho customer)
+            apiEndpoint = `${API_BASE_URL}/Orders/${orderId}/status`;
+            requestData = { newStatus: newStatus };
+        }
+        
+        console.log(`🌐 Calling API: ${apiEndpoint}`, requestData);
+        
+        const response = await fetch(apiEndpoint, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json', 
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify(requestData)
+        });
+        
+        console.log('📦 API Response Status:', response.status);
+        
+        if (response.ok) {
+            const responseData = await response.json();
+            console.log('✅ API Response Data:', responseData);
+            
+            alert(successMessage || responseData.message || `Cập nhật trạng thái đơn hàng #${orderId} thành công!`);
+            if (refreshCallback) refreshCallback();
+        } else {
+            const errorData = await response.json().catch(() => ({}));
+            console.error('❌ API Error Response:', errorData);
+            
+            // ✅ Enhanced error handling
+            let errorMessage = 'Có lỗi xảy ra khi cập nhật đơn hàng';
+            
+            if (response.status === 400) {
+                errorMessage = errorData.message || 'Yêu cầu không hợp lệ. Vui lòng kiểm tra lại thông tin đơn hàng.';
+            } else if (response.status === 401) {
+                errorMessage = 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.';
+                sessionStorage.clear();
+                window.location.assign('/Customer/templates/login.html');
+                return;
+            } else if (response.status === 403) {
+                errorMessage = 'Bạn không có quyền thực hiện thao tác này.';
+            } else if (response.status === 404) {
+                errorMessage = 'Không tìm thấy đơn hàng hoặc đơn hàng đã bị xóa.';
+            } else {
+                errorMessage = errorData.message || `Lỗi ${response.status}: ${response.statusText}`;
+            }
+            
+            alert(`Lỗi: ${errorMessage}`);
+        }
+    } catch (error) {
+        console.error('❌ Network/Request Error:', error);
+        alert(`Lỗi kết nối: ${error.message}`);
+    }
+}
+
+            // Hàm xử lý yêu cầu trả hàng/ hoàn tiền
+            window.customerRequestReturn = (orderId) => {
+                if (confirm(`Bạn có muốn gửi Yêu cầu trả hàng/ hoàn tiền cho đơn hàng #${orderId} không?`)) {
+                    updateOrderStatusViaAPI(orderId, ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN,
+                        `Yêu cầu trả hàng/ hoàn tiền cho đơn hàng #${orderId} đã được gửi. Shop sẽ liên hệ với bạn.`,
+                        () => fetchCustomerOrders(page = 1)
+                    );
+                }
+            };
+            // Hàm xử lý hủy đơn hàng
+            window.customerCancelOrder = (orderId) => {
+                if (confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderId} không?`)) {
+                    updateOrderStatusViaAPI(
+                        orderId,
+                        ORDER_STATUSES.DA_HUY,
+                        `Đơn hàng #${orderId} đã được hủy thành công.`,
+                        () => fetchCustomerOrders(1)
+                    );
+                }
+            };
+
+            async function fetchCustomerOrders(page = 1) {
+                loadingOrdersElement.classList.remove('hidden');
+                orderListContainer.innerHTML = '';
+                noOrdersElement.classList.add('hidden');
+                paginationContainer.classList.add('hidden');
+
+                currentPage = page;
+                const params = new URLSearchParams({
+                    pageNumber: currentPage.toString(),
+                    pageSize: DEFAULT_PAGE_SIZE.toString()
+                });
+
+                const status = statusFilter.value;
+                if (status) params.append('Status', status);
+                const startDate = startDateFilter.value;
+                if (startDate) params.append('StartDate', startDate);
+                const endDate = endDateFilter.value;
+                if (endDate) params.append('EndDate', endDate);
+
+                const token = getSession('token');
+                if (!token) {
+                    // checkAuthTokenForPage sẽ xử lý redirect, ở đây chỉ dừng
+                    console.log("Không có token, không tải đơn hàng.");
+                    loadingOrdersElement.classList.add('hidden');
+                    noOrdersElement.innerHTML = '<p class="text-gray-600">Vui lòng <a href="/Customer/templates/login.html" class="text-indigo-600 hover:underline">đăng nhập</a> để xem đơn hàng.</p>';
+                    noOrdersElement.classList.remove('hidden');
+                    return;
+                }
+
+                const url = `${API_BASE_URL}/Orders/my-orders?${params.toString()}`;
+
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    loadingOrdersElement.classList.add('hidden');
+
+                    if (!response.ok) {
+                        if (response.status === 401) {
+                            alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                            window.location.href = "/Customer/templates/login.html";
+                            return;
+                        }
+                        const errorText = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorText || "Không thể tải đơn hàng."}`);
+                    }
+                    const data = await response.json();
+                    console.log(data)
+
+                    if (data.items && data.items.length > 0) {
+                        renderOrderList(data.items);
+                        updatePaginationUI(data);
+                        paginationContainer.classList.remove('hidden');
+                    } else {
+                        noOrdersElement.classList.remove('hidden');
+                        paginationContainer.classList.add('hidden');
+                    }
+                    const mainContentElement = document.getElementById('mainContent');
+                    if (mainContentElement) {
+                        mainContentElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+
+                } catch (error) {
+                    console.error('Lỗi khi tải đơn hàng của khách hàng:', error);
+                    orderListContainer.innerHTML = `<p class="text-red-500 text-center p-4 bg-red-100 rounded-md">${error.message}</p>`;
+                    loadingOrdersElement.classList.add('hidden');
+                    paginationContainer.classList.add('hidden');
+                }
+            }
+
+            function renderOrderList(orders) { // orders giờ là một mảng các OrderDto
+                orderListContainer.innerHTML = '';
+                orders.forEach(order => {
+                    const orderCard = document.createElement('div');
+                    orderCard.className = 'bg-white rounded-lg shadow-md mb-6 overflow-hidden';
+
+                    const currentStatus = order.status;
+                    const statusClass = getStatusClass(currentStatus);
+
+                    let representativeShopName = "ShopX Mall";
+                    let representativeSellerID = null;
+                    if (order.items && order.items.length > 0 && order.items[0].shopName && order.items[0].shopName !== "N/A") {
+                        const allSameShop = order.items.every(item => item.shopName === order.items[0].shopName);
+                        if (allSameShop) {
+                            representativeShopName = order.items[0].shopName;
+                            representativeSellerID = order.items[0].sellerID
+                        } else {
+                            representativeShopName = "Nhiều người bán";
+                        }
+                    }
+
+                    let orderHeaderHTML = `
+            <div class="flex justify-between items-center p-4 border-b border-gray-200 bg-gray-50">
+                <div class="flex items-center">
+                    <i class="fas fa-store text-indigo-600 mr-2"></i>
+                    <a href="https://127.0.0.1:5500/Customer/templates/seller-profile.html?sellerId=${representativeSellerID}" class="font-semibold text-gray-700 text-sm hover:text-blue-500 hover:underline">${representativeShopName}</a>
+                </div>
+                <div class="text-xs font-medium uppercase ${statusClass === 'status-da-giao' ? 'text-green-600' : (statusClass === 'status-da-huy' ? 'text-red-600' : 'text-orange-500')}">
+                    ${currentStatus}
+                </div>
+            </div>
+        `;
+
+                    let itemsHtml = '';
+                    if (order.items && order.items.length > 0) {
+                        order.items.forEach(item => {
+                            itemsHtml += `
+                    <div class="flex items-start p-4 border-b border-gray-100 last:border-b-0">
+                        <img src="${getImageUrl(item.productImageURL)}" alt="${item.productName}" class="w-16 h-16 object-cover rounded mr-4 flex-shrink-0">
+                        <div class="flex-grow">
+                            <a href="/Customer/templates/product-detail.html?productId=${item.productID}" 
+                            class="mb-2 text-lg text-gray-800 leading-tight hover:text-indigo-600 rounded-full ${!item.isActive ? 'no-event' : ''}">
+                            ${item.productName}
+                            ${!item.isActive ? `<span class="text-xs font-medium px-3 py-1 ml-8 bg-gray-500 rounded-full w-24 text-center text-white">Đã ngừng bán</span>` : ''}
+                            </a>
+                            <p class="text-sm text-gray-500">Phân loại hàng: ${item.categoryName}</p>
+                            <p class="text-xs text-gray-500">Số lượng: x${item.quantity}</p>
+                            ${item.shopName && item.shopName !== "N/A" && representativeShopName === "Nhiều người bán" ? `<p class="text-xs text-gray-500">Shop: ${item.shopName}</p>` : ''}
+                        </div>
+                        <div class="text-sm text-right ml-4 flex-shrink-0">
+                            <span class="text-indigo-600 font-medium">${formatCurrency(item.unitPrice * item.quantity)}</span>
+                        </div>
+                    </div>
+                `;
+                        });
+                    } else {
+                        itemsHtml = '<p class="p-4 text-sm text-gray-500">Không có sản phẩm trong đơn hàng này.</p>';
+                    }
+
+                    // --- Footer: Thêm nút Hủy đơn hàng nếu trạng thái là "Chờ xác nhận", bỏ nút Mua lại ---
+                    let orderFooterHTML = `
+            <div class="p-4 bg-gray-50">
+                <div class="flex justify-between items-center mb-3">
+                    <span class="text-sm text-gray-600 mr-2">${date(order.orderDate)}</span>
+                    <div>
+                        <span class="text-sm text-gray-600 mr-2">Thành tiền:</span>
+                        <span class="text-xl font-bold text-red-500">${formatCurrency(order.totalPayment)}</span>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-end items-center gap-2">
+                    <!-- Nút yêu cầu trả hàng/ hoàn tiền -->
+                    ${order.status === ORDER_STATUSES.DA_GIAO && order?.orderDate && getDateDifference(order.orderDate) < 3 ? `
+                        <button onclick="customerRequestReturn(${order.orderID})" class="customer-return-request-btn w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-sm text-sm font-medium transition-colors">
+                            <i class="fas fa-undo-alt mr-2"></i> Yêu cầu trả hàng/ hoàn tiền
+                        </button>` : ''
+                        }
+                    <!-- Nút Hủy đơn hàng -->
+                    ${order.status === ORDER_STATUSES.CHO_XAC_NHAN ? `
+                        <button onclick="customerCancelOrder(${order.orderID})" class="w-full sm:w-auto bg-red-500 hover:bg-red-600 text-white border border-red-500 px-4 py-2 rounded-sm text-sm font-medium transition-colors">
+                            <i class="fas fa-times-circle mr-2"></i>Hủy đơn hàng
+                        </button>
+                    ` : ''}
+                    <a href="/Customer/templates/order-detail.html?id=${order.orderID}" 
+                       class="w-full sm:w-auto text-center bg-white hover:bg-gray-100 text-indigo-600 border border-indigo-300 px-4 py-2 rounded-sm text-sm font-medium transition-colors">
+                       Xem Chi Tiết Đơn
+                    </a>
+                </div>
+            </div>
+        `;
+
+                    orderCard.innerHTML = orderHeaderHTML + itemsHtml + orderFooterHTML;
+                    orderListContainer.appendChild(orderCard);
+                });
+            }
+
+            
+
+            async function fetchProductDetails(productIdParam) {
+                try {
+                    console.log(`🔍 Fetching product details for ID: ${productIdParam}`);
+                    const response = await fetch(`${API_BASE_URL}/Products/Customer/${productIdParam}`); // Sử dụng endpoint customer
+
+                    if (!response.ok) {
+                        // ... (Xử lý lỗi fetchProductDetails giữ nguyên) ...
+                        let errorMessage = `Lỗi ${response.status}: Không thể tải sản phẩm.`;
+                        if (response.status === 404) errorMessage = 'Sản phẩm không tồn tại hoặc đã ngừng bán.';
+                        else if (response.status === 403) errorMessage = 'Bạn không có quyền truy cập sản phẩm này.';
+                        else if (response.status === 500) errorMessage = 'Lỗi máy chủ. Vui lòng thử lại sau.';
+                        else {
+                            try { const errData = await response.json(); errorMessage = errData.message || errorMessage; } catch (e) { /* ignore */ }
+                        }
+                        throw new Error(errorMessage);
+                    }
+
+                    const productData = await response.json();
+                    console.log(`✅ Product data received:`, productData);
+
+                    if (!productData.isActive) { // Kiểm tra thêm ở client
+                        throw new Error('Sản phẩm này hiện không còn kinh doanh.');
+                    }
+
+                    currentProductData = productData;
+                    displayProductDetails(currentProductData);
+
+                    // SAU KHI HIỂN THỊ CHI TIẾT SẢN PHẨM CHÍNH, TẢI SẢN PHẨM LIÊN QUAN
+                    if (currentProductData && typeof currentProductData.categoryID === 'number') {
+                        fetchRelatedProducts(currentProductData.categoryID, currentProductData.productID);
+                    }
+
+                } catch (error) {
+                    console.error('❌ Error fetching product details:', error);
+                    const productDetailContainer = document.getElementById('productDetailContainer');
+                    if (productDetailContainer) {
+                        productDetailContainer.innerHTML = `<p class="text-center text-red-500 col-span-full py-8 text-lg">${error.message}</p>`;
+                    }
+                    // Ẩn các phần không cần thiết nếu lỗi
+                    const descriptionSection = document.querySelector('.mt-12.pt-8.border-t');
+                    if (descriptionSection) descriptionSection.style.display = 'none';
+                    const relatedSection = document.querySelector('section.mt-12.pt-8.border-t');
+                    if (relatedSection) relatedSection.style.display = 'none';
+                }
+            }
+
+            function displayProductDetails(product) {
+                // ... (Hàm displayProductDetails giữ nguyên như cậu đã cung cấp) ...
+                if (!product) return;
+
+                console.log('🎨 Displaying product details:', product);
+
+                document.title = `${product.productName || 'Chi tiết sản phẩm'} - ShopX`;
+
+                if (productIdHiddenEl) productIdHiddenEl.value = product.productID;
+                if (mainProductImage) mainProductImage.src = getProductImageUrl(product.imageURL);
+                if (productNameEl) productNameEl.textContent = product.productName || 'N/A';
+                if (productPriceEl) productPriceEl.textContent = formatCurrency(product.price);
+
+                if (sellerStoreNameEl) sellerStoreNameEl.textContent = product.sellerStoreName || 'Không rõ';
+                if (document.getElementById('sellerLink')) {
+                    document.getElementById('sellerLink').href = `seller-profile.html?id=${product.sellerID}`;
+                }
+
+                if (categoryNameDetailEl) categoryNameDetailEl.textContent = product.categoryName || 'Không rõ';
+                if (categoryLinkDetailEl) {
+                    categoryLinkDetailEl.href = `category-products.html?categoryId=${product.categoryID}`;
+                }
+
+                if (stockQuantityInfoEl) stockQuantityInfoEl.textContent = product.stockQuantity || 0;
+                if (quantityInput) {
+                    quantityInput.max = product.stockQuantity || 1;
+                    if (product.stockQuantity < 1) {
+                        quantityInput.value = 0;
+                        quantityInput.min = 0;
+                        quantityInput.disabled = true;
+                        if (addToCartBtn) {
+                            addToCartBtn.disabled = true;
+                            addToCartBtn.innerHTML = '<i class="fas fa-times-circle mr-2"></i>Hết hàng';
+                            addToCartBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+                            addToCartBtn.classList.add('bg-gray-400', 'cursor-not-allowed');
+                        }
+                        stockQuantityInfoEl.textContent = "Hết hàng";
+                    } else {
+                        quantityInput.value = 1;
+                        quantityInput.min = 1;
+                        quantityInput.disabled = false;
+                        if (addToCartBtn) {
+                            addToCartBtn.disabled = false;
+                            addToCartBtn.innerHTML = '<i class="fas fa-cart-plus mr-2"></i>Thêm vào giỏ hàng';
+                            addToCartBtn.classList.remove('bg-gray-400', 'cursor-not-allowed');
+                            addToCartBtn.classList.add('bg-blue-600', 'hover:bg-blue-700');
+                        }
+                    }
+                }
+
+                if (productDescriptionEl) {
+                    const description = product.description || 'Không có mô tả chi tiết cho sản phẩm này.';
+                    productDescriptionEl.innerHTML = description.replace(/\n/g, '<br>');
+                }
+
+                if (breadcrumbCategoryNameEl) breadcrumbCategoryNameEl.textContent = product.categoryName || 'Danh mục';
+                if (breadcrumbProductNameEl) breadcrumbProductNameEl.textContent = product.productName || 'Sản phẩm';
+                if (breadcrumbCategoryLinkEl) {
+                    breadcrumbCategoryLinkEl.href = `category-products.html?categoryId=${product.categoryID}`;
+                }
+
+                console.log('✅ Product details displayed successfully');
+            }
+
+            // --- HÀM MỚI ĐỂ TẢI VÀ HIỂN THỊ SẢN PHẨM LIÊN QUAN ---
+            async function fetchRelatedProducts(categoryId, currentProductId) {
+                if (!relatedProductsGridEl || !categoryId) return;
+
+                relatedProductsGridEl.innerHTML = '<p class="col-span-full text-center text-gray-500">Đang tải sản phẩm liên quan...</p>';
+                const pageSize = 5; // Số lượng sản phẩm liên quan muốn hiển thị
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Products/Category/${categoryId}?pageNumber=1&pageSize=${pageSize}`);
+                    if (!response.ok) {
+                        throw new Error(`Không thể tải sản phẩm liên quan (Lỗi ${response.status})`);
+                    }
+                    const pagedResult = await response.json(); // API của cậu có thể trả về PagedResult<ProductSummaryDto>
+
+                    if (pagedResult && pagedResult.items && pagedResult.items.length > 0) {
+                        relatedProductsGridEl.innerHTML = ''; // Xóa thông báo "Đang tải..."
+                        let countDisplayed = 0;
+                        pagedResult.items.forEach(product => {
+                            // Chỉ hiển thị nếu khác sản phẩm hiện tại VÀ còn active VÀ còn hàng
+                            if (product.productID !== currentProductId && product.isActive && product.stockQuantity > 0 && countDisplayed < pageSize) {
+                                relatedProductsGridEl.innerHTML += renderRelatedProductItem(product);
+                                countDisplayed++;
+                            }
+                        });
+                        if (countDisplayed === 0) {
+                            relatedProductsGridEl.innerHTML = '<p class="col-span-full text-center text-gray-500">Không có sản phẩm liên quan nào.</p>';
+                        }
+                    } else {
+                        relatedProductsGridEl.innerHTML = '<p class="col-span-full text-center text-gray-500">Không có sản phẩm liên quan nào.</p>';
+                    }
+                } catch (error) {
+                    console.error('Lỗi tải sản phẩm liên quan:', error);
+                    relatedProductsGridEl.innerHTML = `<p class="col-span-full text-center text-red-500">Lỗi: ${error.message}</p>`;
+                }
+            }
+
+            // --- HÀM MỚI ĐỂ RENDER MỘT SẢN PHẨM LIÊN QUAN ---
+            // Giả sử sản phẩm liên quan là ProductSummaryDto hoặc có các thuộc tính tương tự
+            function renderRelatedProductItem(product) {
+                const imageUrl = getProductImageUrl(product.imageURL); // Tái sử dụng hàm getProductImageUrl
+                const productUrl = `product-detail.html?productId=${product.productID}`;
+
+                return `
+            <div class="related-product-card bg-white rounded-lg shadow-md overflow-hidden transition-all hover:shadow-lg">
+                <a href="${productUrl}" class="block">
+                    <img src="${imageUrl}" alt="${product.productName}" class="w-full h-40 object-cover">
+                </a>
+                <div class="p-3">
+                    <h3 class="text-sm font-semibold text-gray-800 mb-1 truncate" title="${product.productName}">
+                        <a href="${productUrl}" class="hover:text-blue-600">${product.productName}</a>
+                    </h3>
+                    <p class="text-xs text-gray-500 mb-2 truncate">
+                        ${product.categoryName || 'N/A'} <!-- Giả sử DTO có CategoryName -->
+                    </p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-red-600 font-bold text-sm">${formatCurrency(product.price)}</span>
+                        <!-- Có thể thêm nút "Xem" nhỏ hoặc icon giỏ hàng nếu muốn -->
+                    </div>
+                </div>
+            </div>
+        `;
+            }
+
+            function updatePaginationUI(data) {
+                if (data && data.totalCount > 0) {
+                    paginationInfoElement.classList.remove('hidden');
+                    paginationContainer.classList.remove('hidden'); // Ensure pagination container is visible
+                    currentPageInfoElement.textContent = data.pageNumber;
+                    totalPagesInfoElement.textContent = data.totalPages;
+                    totalItemsInfoElement.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber;
+                    pageInput.max = data.totalPages;
+
+                    prevPageBtn.disabled = !data.hasPreviousPage;
+                    nextPageBtn.disabled = !data.hasNextPage;
+                    goToPageBtn.disabled = (data.totalPages <= 1);
+                } else {
+                    paginationInfoElement.classList.add('hidden');
+                    paginationContainer.classList.add('hidden'); // Hide if no data
+                    currentPageInfoElement.textContent = '0';
+                    totalPagesInfoElement.textContent = '0';
+                    totalItemsInfoElement.textContent = '0';
+                    pageInput.value = '1';
+                    pageInput.max = '1';
+                    [prevPageBtn, nextPageBtn, goToPageBtn].forEach(btn => btn.disabled = true);
+                }
+            }
+
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchCustomerOrders(1);
+            });
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) fetchCustomerOrders(currentPage - 1);
+            });
+            nextPageBtn.addEventListener('click', () => {
+                const totalPages = parseInt(totalPagesInfoElement.textContent) || 1;
+                if (currentPage < totalPages) fetchCustomerOrders(currentPage + 1);
+            });
+            goToPageBtn.addEventListener('click', () => {
+                const targetPage = parseInt(pageInput.value);
+                const totalPages = parseInt(totalPagesInfoElement.textContent) || 1;
+                if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
+                    fetchCustomerOrders(targetPage);
+                } else if (targetPage !== currentPage) {
+                    alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${totalPages}.`);
+                    pageInput.value = currentPage;
+                }
+            });
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goToPageBtn.click();
+                }
+            });
+
+            // Initial Load
+            if (checkAuthTokenForPage()) { // Hàm này đã có trong index.js
+                populateStatusFilter();
+                fetchCustomerOrders(currentPage);
+            } else {
+                loadingOrdersElement.classList.add('hidden');
+                noOrdersElement.innerHTML = '<p class="text-gray-600">Vui lòng <a href="/Customer/templates/login.html" class="text-indigo-600 hover:underline">đăng nhập</a> để xem đơn hàng.</p>';
+                noOrdersElement.classList.remove('hidden');
+                paginationContainer.classList.add('hidden');
+            }
+        }
+
+        // Đợi cho đến khi các script khác (index.js, components.js) có thể đã chạy xong
+        // và DOMContentLoaded của chúng đã hoàn tất.
+        // Một cách đơn giản là dùng setTimeout, nhưng không lý tưởng.
+        // Cách tốt hơn là components.js phát ra một sự kiện tùy chỉnh khi nó load xong.
+        // Hoặc, đảm bảo thứ tự load script là index.js -> components.js -> script của trang này.
+
+        // Vì components.js load bất đồng bộ, chúng ta cần đảm bảo nó hoàn thành
+        // trước khi gọi initializeCustomerOrdersPage.
+        // Cách đơn giản là chờ một chút.
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCustomerOrdersPage);
+        } else {
+            // DOMContentLoaded đã xảy ra, nhưng components.js có thể vẫn đang load
+            // Nếu components.js không có cơ chế báo hiệu hoàn thành, dùng setTimeout
+            // là một giải pháp tạm thời.
+            setTimeout(initializeCustomerOrdersPage, 200); // Chờ 200ms để components load xong
+        }
+    </script>
+    
+</body>
+
+</html>

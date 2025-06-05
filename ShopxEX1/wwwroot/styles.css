@@ -1,0 +1,11 @@
+﻿#productDto-list, #cart-list {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.productDto, .cart-item {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 10px;
+    width: 200px;
+}

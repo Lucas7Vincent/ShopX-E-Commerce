@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang người bán - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <style>
+        /* ✨ CORE ANIMATIONS */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Main Layout */
+.main-container {
+    padding: 1rem;
+}
+
+/* Categories Sidebar */
+.categories-sidebar {
+    transition: transform 0.3s ease;
+}
+
+.categories-sidebar.md\\:sticky {
+    top: 1rem;
+    max-height: calc(100vh - 2rem);
+}
+
+.categories-container {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Category Items */
+.category-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background-color: #f9fafb;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.category-item:hover {
+    background-color: #e5e7eb;
+    transform: translateX(4px);
+}
+
+.category-item.active {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.category-item.active .category-icon,
+.category-item.active .category-count {
+    color: white;
+}
+
+.category-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.category-icon {
+    color: #3b82f6;
+    font-size: 1rem;
+}
+
+.category-count {
+    background-color: #e5e7eb;
+    color: #374151;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.category-item.active .category-count {
+    background-color: #2563eb;
+}
+
+/* Mobile Sidebar Toggle */
+@media (max-width: 767px) {
+    .categories-sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 80%;
+        max-width: 300px;
+        height: 100%;
+        z-index: 1000;
+        transform: translateX(-100%);
+        background: white;
+        box-shadow: 2px 0 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .categories-sidebar.active {
+        transform: translateX(0);
+    }
+
+    .main-content {
+        transition: margin-left 0.3s ease;
+    }
+
+    .categories-sidebar.active + .main-content {
+        margin-left: 0;
+    }
+
+    #sidebar-toggle {
+        display: block;
+    }
+}
+
+/* Overlay for Mobile Sidebar */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+    display: none;
+}
+
+.sidebar-overlay.active {
+    display: block;
+}
+
+/* Product Grid and Search (unchanged from previous response) */
+#products-grid {
+    position: relative;
+}
+
+.product-card {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.product-image-container {
+    position: relative;
+    aspect-ratio: 1/1;
+    overflow: hidden;
+}
+
+.product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: white;
+}
+
+.product-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+}
+
+.product-card:hover .product-overlay {
+    opacity: 1;
+}
+
+.product-quick-view {
+    background: #3b82f6;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: background 0.2s ease;
+}
+
+.product-quick-view:hover {
+    background: #2563eb;
+}
+
+.product-content {
+    padding: 12px;
+}
+
+.product-title {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #1f2937;
+    margin-bottom: 4px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.product-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #3b82f6;
+    margin-bottom: 4px;
+}
+
+.product-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.product-category {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.product-loading {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    animation: pulse 1.5s infinite ease-in-out;
+}
+
+.product-loading-image {
+    width: 100%;
+    aspect-ratio: 1/1;
+    background: #e5e7eb;
+}
+
+.product-loading-content {
+    padding: 12px;
+}
+
+.product-loading-title,
+.product-loading-price,
+.product-loading-meta {
+    background: #e5e7eb;
+    height: 16px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+}
+
+.product-loading-title {
+    width: 80%;
+}
+
+.product-loading-price {
+    width: 50%;
+}
+
+.product-loading-meta {
+    width: 30%;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.search-filter-section .relative {
+    position: relative;
+}
+
+.search-filter-section select {
+    background-image: none;
+}
+
+.search-filter-section .fa-chevron-down {
+    pointer-events: none;
+}
+
+#advanced-filters {
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+#advanced-filters:not(.hidden) {
+    opacity: 1;
+    max-height: 200px;
+}
+
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.pagination-info {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.pagination-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.pagination-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-btn:hover:not(.disabled) {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.pagination-btn.active {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+    font-weight: 600;
+}
+
+.pagination-btn.disabled {
+    background: #f3f4f6;
+    color: #d1d5db;
+    cursor: not-allowed;
+}
+
+.pagination-ellipsis {
+    display: flex;
+    align-items: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+    </style>
+</head>
+
+<body class="bg-gradient-to-br from-gray-50 via-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black/70 backdrop-blur-lg z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 flex items-center space-x-6 border border-blue-200">
+            <div class="relative">
+                <div class="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600"></div>
+                <div class="absolute inset-0 rounded-full border-4 border-transparent border-t-blue-300 animate-ping"></div>
+            </div>
+            <span class="text-gray-700 font-bold text-xl">Đang tải thông tin cửa hàng...</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8 mt-20 max-w-7xl">
+        
+        <!-- ✨ SELLER INFO SECTION -->
+        <section class="bg-white rounded-3xl shadow-2xl overflow-hidden mb-10 border border-gray-100">
+            <!-- Premium Header -->
+            <div class="relative h-40 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700"></div>
+                <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                
+                <div class="relative h-full flex items-end p-8">
+                    <div class="flex items-end space-x-6 flex-1">
+                        <div class="relative group">
+                            <div class="w-20 h-20 rounded-3xl border-4 border-white/90 bg-white overflow-hidden shadow-2xl">
+                                <img class="shop-avatar w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                                     src="/Customer/assets/images/default-avatar.png" 
+                                     alt="Shop avatar">
+                            </div>
+                            <div class="absolute -bottom-2 -right-2 w-6 h-6 bg-green-500 rounded-full border-3 border-white shadow-xl"></div>
+                        </div>
+                        <div class="pb-2 flex-1 min-w-0">
+                            <h1 class="shop-name text-2xl font-black text-white drop-shadow-lg mb-2 truncate">Đang tải...</h1>
+                            <div class="flex items-center space-x-3">
+                                <span class="shop-rating-text text-blue-100 text-base font-bold">Đang tải...</span>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white px-6 py-3 rounded-2xl transition-all duration-300 font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 border border-white/30 text-base">
+                        <i class="fas fa-store mr-3"></i>Theo dõi cửa hàng
+                    </button>
+                </div>
+            </div>
+            
+            <!-- INFO GRID -->
+            <div class="p-8">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Contact & Address Info -->
+                    <div class="lg:col-span-2">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Contact Info -->
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-100 rounded-2xl p-6 border border-blue-200 shadow-xl">
+                                <h3 class="font-black text-gray-800 mb-4 text-base uppercase tracking-wide flex items-center">
+                                    <i class="fas fa-user-circle mr-3 text-blue-600 text-xl"></i>Thông tin liên hệ
+                                </h3>
+                                <div class="space-y-3 text-base">
+                                    <div>
+                                        <span class="text-gray-500 text-sm font-medium">Chủ shop:</span>
+                                        <span class="shop-owner block font-black text-gray-800">Đang tải...</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 text-sm font-medium">Email:</span>
+                                        <span class="shop-email block font-bold text-blue-600">Đang tải...</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500 text-sm font-medium">Điện thoại:</span>
+                                        <span class="shop-phone block font-bold text-gray-700">Đang tải...</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Address Info -->
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-100 rounded-2xl p-6 border border-green-200 shadow-xl">
+                                <h3 class="font-black text-gray-800 mb-4 text-base uppercase tracking-wide flex items-center">
+                                    <i class="fas fa-map-marker-alt mr-3 text-green-600 text-xl"></i>Địa chỉ & Thời gian
+                                </h3>
+                                <p class="shop-address text-base text-gray-700 leading-relaxed mb-4">Đang tải...</p>
+                                <div>
+                                    <span class="text-gray-500 text-sm font-medium">Tham gia:</span>
+                                    <span class="shop-join-date block text-base font-black text-purple-600">Đang tải...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                  <!-- Stats Section -->
+                <div class="stats-section bg-white shadow-lg rounded-lg p-6 mb-6">
+                    <h3 class="text-xl font-semibold text-gray-800 mb-4 flex items-center justify-center">
+                        <i class="fas fa-chart-bar mr-2 text-blue-600"></i>
+                        Thống kê cửa hàng
+                    </h3>
+                    <div class="stats-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="stat-card bg-gray-50 rounded-lg p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200">
+                            <div class="stat-icon bg-blue-500 text-white p-3 rounded-full">
+                                <i class="fas fa-box text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number products text-2xl font-bold text-gray-800">0</div>
+                                <div class="stat-label text-sm font-medium text-gray-600">Sản phẩm</div>
+                                <div class="stat-sublabel text-xs text-white-500">Đang kinh doanh</div>
+                            </div>
+                        </div>
+                        <div class="stat-card bg-gray-50 rounded-lg p-4 flex items-center gap-4 hover:shadow-md transition-all duration-200">
+                            <div class="stat-icon bg-green-500 text-white p-3 rounded-full">
+                                <i class="fas fa-reply text-lg"></i>
+                            </div>
+                            <div>
+                                <div class="stat-number response-rate text-2xl font-bold text-gray-800">98%</div>
+                                <div class="stat-label text-sm font-medium text-gray-600">Phản hồi</div>
+                                <div class="stat-sublabel text-xs text-gray-500">Tỷ lệ phản hồi</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                </div>
+
+                <!-- Description Section -->
+                <div class="mt-8 p-6 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-100 rounded-3xl border border-blue-200 shadow-xl">
+                    <h3 class="font-black text-gray-800 mb-4 text-xl flex items-center">
+                        <i class="fas fa-store mr-4 text-blue-600 text-2xl"></i>Giới thiệu cửa hàng
+                    </h3>
+                    <p class="shop-description text-gray-700 leading-relaxed mb-6 text-base">
+                        Đang tải thông tin cửa hàng...
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <span class="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-xl">
+                            <i class="fas fa-shield-alt mr-2"></i>Chính hãng 100%
+                        </span>
+                        <span class="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-xl">
+                            <i class="fas fa-award mr-2"></i>Cửa hàng uy tín
+                        </span>
+                        <span class="bg-gradient-to-r from-purple-500 to-purple-600 text-white px-4 py-2 rounded-2xl text-sm font-black shadow-xl">
+                            <i class="fas fa-shipping-fast mr-2"></i>Giao hàng siêu tốc
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ✨ MAIN LAYOUT -->
+        <!-- Main Layout with Sidebar -->
+    <div class="main-container flex flex-col md:flex-row gap-6 max-w-7xl mx-auto">
+        <!-- Categories Sidebar -->
+        <aside class="categories-sidebar md:w-64 bg-white shadow-lg rounded-lg p-4 md:sticky md:top-4">
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-lg font-semibold text-gray-800 flex items-center">
+                    <i class="fas fa-list-ul mr-2 text-blue-600"></i>
+                    Danh mục sản phẩm
+                </h3>
+                <button id="sidebar-toggle" class="md:hidden text-gray-600 hover:text-blue-600">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="categories-container space-y-2 max-h-[calc(100vh-8rem)] overflow-y-auto"></div>
+        </aside>
+
+        <!-- Main Content (Search and Products) -->
+        <div class="main-content flex-1">
+            <!-- Search and Sort -->
+            <div class="search-filter-section bg-white shadow-md rounded-lg p-4 mb-6">
+                <div class="flex flex-col md:flex-row gap-4">
+                    <!-- Search Bar -->
+                    <div class="flex-1 relative">
+                        <input
+                            type="text"
+                            id="search-input"
+                            class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200"
+                            placeholder="Tìm kiếm sản phẩm..."
+                        />
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                        <button
+                            id="search-btn"
+                            class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition duration-200"
+                        >
+                            Tìm
+                        </button>
+                    </div>
+
+                    <!-- Sort Dropdown -->
+                    <div class="relative">
+                        <select
+                            id="sort-select"
+                            class="w-full md:w-48 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-200 appearance-none"
+                        >
+                            <option value="newest">🆕 Mới nhất</option>
+                            <option value="priceAsc">💰 Giá thấp → cao</option>
+                            <option value="priceDesc">💎 Giá cao → thấp</option>
+                            <option value="nameAsc">🔤 Tên A → Z</option>
+                        </select>
+                        <i class="fas fa-chevron-down absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+                    </div>
+
+                    <!-- Advanced Filters Toggle -->
+                    <button
+                        id="toggle-advanced-filters"
+                        class="flex items-center bg-gray-100 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-200 transition duration-200"
+                    >
+                        <i class="fas fa-filter mr-2"></i>
+                        Bộ lọc nâng cao
+                    </button>
+                </div>
+
+                <!-- Advanced Filters (Collapsible) -->
+                <div
+                    id="advanced-filters"
+                    class="hidden mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200 transition-all duration-300"
+                >
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Giá từ (VNĐ)</label>
+                            <input
+                                type="number"
+                                id="min-price"
+                                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="0"
+                            />
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Giá đến (VNĐ)</label>
+                            <input
+                                type="number"
+                                id="max-price"
+                                class="w-full p-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                placeholder="∞"
+                            />
+                        </div>
+                        <div class="flex items-end gap-2">
+                            <button
+                                id="filter-price-btn"
+                                class="flex-1 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                            >
+                                Áp dụng
+                            </button>
+                            <button
+                                id="clear-filters-btn"
+                                class="flex-1 bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300 transition duration-200 hidden"
+                            >
+                                Xóa bộ lọc
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Section -->
+            <div class="products-section">
+                <h3 class="text-lg font-semibold text-gray-800 mb-3">
+                    <span class="products-count">Đang tải...</span>
+                </h3>
+                <div id="products-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"></div>
+                <div class="pagination-container mt-6 flex justify-between items-center"></div>
+            </div>
+        </div>
+    </div>
+    </main>
+
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+
+    <!-- Error Modal -->
+    <div id="error-modal" class="fixed inset-0 bg-black/70 backdrop-blur-lg z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-3xl shadow-2xl p-10 max-w-lg mx-4 border border-red-200">
+            <div class="flex items-center text-red-600 mb-8">
+                <div class="w-16 h-16 bg-red-100 rounded-2xl flex items-center justify-center mr-6">
+                    <i class="fas fa-exclamation-triangle text-2xl"></i>
+                </div>
+                <h3 class="text-2xl font-black">Có lỗi xảy ra</h3>
+            </div>
+            <p id="error-message" class="text-gray-700 mb-10 leading-relaxed text-lg">Đã xảy ra lỗi không mong muốn.</p>
+            <div class="flex justify-end space-x-4">
+                <button id="close-error-modal" class="filter-btn secondary">
+                    <i class="fas fa-times mr-2"></i>Đóng
+                </button>
+                <button id="retry-btn" class="filter-btn primary">
+                    <i class="fas fa-redo mr-2"></i>Thử lại
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="/Customer/assets/js/index.js"></script>
+    <script type="module" src="/Customer/assets/js/components.js"></script>
+    <script src="/Customer/assets/js/seller-profile.js"></script>
+</body>
+</html>

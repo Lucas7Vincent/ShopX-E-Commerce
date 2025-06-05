@@ -1,0 +1,35 @@
+header{
+  border-radius: 40px;
+}
+.sidebar {
+    transition: all 0.3s ease;
+  }
+  
+  .sidebar.collapsed {
+    width: 80px;
+  }
+  
+  .sidebar.collapsed .sidebar-text {
+    display: none;
+  }
+  
+  .sidebar.collapsed .logo-text {
+    display: none;
+  }
+  
+  .sidebar.collapsed .nav-item {
+    justify-content: center;
+  }
+  
+  .content {
+    transition: all 0.3s ease;
+  }
+  
+  .content.expanded {
+    margin-left: 80px;
+  }
+  
+  .chart-container {
+    height: 300px;
+  }
+  

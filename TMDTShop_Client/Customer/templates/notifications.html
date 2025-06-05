@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông báo - ShopX</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <style>
+    .pagination-button {
+      @apply px-3 py-1 border rounded-md hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed;
+    }
+    .loading-spinner {
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans" x-data="notificationSystem()">
+  <!-- Header Container -->
+  <div id="header-container"></div>
+
+  <!-- Main Content -->
+  <div class="container mx-auto px-4 py-8 flex flex-col md:flex-row gap-6">
+    <!-- Sidebar -->
+    <aside class="w-full md:w-1/4 bg-white rounded-xl shadow-lg p-6 h-fit">
+      <h3 class="text-xl font-bold text-gray-800 mb-4">Danh mục thông báo</h3>
+      <ul class="space-y-2">
+        <li>
+          <a href="#" @click.prevent="currentFilter.type = 'all'; currentFilter.status = 'all'; fetchNotifications(1)" class="flex items-center p-2 rounded-lg transition" :class="{'text-blue-600 bg-blue-50': currentFilter.type === 'all' && currentFilter.status === 'all', 'text-gray-600 hover:bg-blue-50': !(currentFilter.type === 'all' && currentFilter.status === 'all')}">
+            <i class="fas fa-bell mr-2"></i> Tất cả thông báo
+            <span class="ml-auto bg-blue-600 text-white text-xs font-semibold rounded-full px-2 py-1" x-text="unreadCount"></span>
+          </a>
+        </li>
+        <li>
+          <a href="#" @click.prevent="currentFilter.type = 'order'; fetchNotifications(1)" class="flex items-center p-2 text-gray-600 hover:bg-blue-50 rounded-lg transition" :class="{'text-blue-600 bg-blue-50': currentFilter.type === 'order'}">
+            <i class="fas fa-shopping-cart mr-2"></i> Đơn hàng
+          </a>
+        </li>
+        <li>
+          <a href="#" @click.prevent="currentFilter.type = 'promotion'; fetchNotifications(1)" class="flex items-center p-2 text-gray-600 hover:bg-blue-50 rounded-lg transition" :class="{'text-blue-600 bg-blue-50': currentFilter.type === 'promotion'}">
+            <i class="fas fa-tags mr-2"></i> Khuyến mãi
+          </a>
+        </li>
+        <li>
+          <a href="#" @click.prevent="currentFilter.type = 'shipping'; fetchNotifications(1)" class="flex items-center p-2 text-gray-600 hover:bg-blue-50 rounded-lg transition" :class="{'text-blue-600 bg-blue-50': currentFilter.type === 'shipping'}">
+            <i class="fas fa-truck mr-2"></i> Vận chuyển
+          </a>
+        </li>
+         <li>
+          <a href="#" @click.prevent="currentFilter.status = 'unread'; currentFilter.type = 'all'; fetchNotifications(1)" class="flex items-center p-2 text-gray-600 hover:bg-blue-50 rounded-lg transition" :class="{'text-blue-600 bg-blue-50': currentFilter.status === 'unread' && currentFilter.type === 'all'}">
+            <i class="fas fa-envelope-open mr-2"></i> Chưa đọc
+          </a>
+        </li>
+      </ul>
+    </aside>
+
+    <!-- Notifications Section -->
+    <main class="w-full md:w-3/4">
+      <!-- Hero Section -->
+      <section class="bg-white rounded-xl shadow-lg p-6 mb-6">
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-2">Thông báo</h1>
+        <p class="text-gray-600">Cập nhật về đơn hàng, khuyến mãi và các thông tin mới nhất từ ShopX.</p>
+      </section>
+
+      <!-- Notification List -->
+      <section class="bg-white rounded-xl shadow-lg p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-xl font-bold text-gray-800">Tất cả thông báo</h2>
+          <button @click="markAllAsRead()" class="text-blue-600 hover:text-blue-800 flex items-center text-sm font-medium" :disabled="isLoading || notifications.filter(n => n.status === 'unread').length === 0">
+            Đánh dấu tất cả đã đọc <i class="fas fa-check-circle ml-1"></i>
+          </button>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div x-show="isLoading" class="flex justify-center items-center py-10">
+          <div class="loading-spinner w-8 h-8 border-4 border-blue-500 rounded-full"></div>
+          <p class="ml-2 text-gray-600">Đang tải thông báo...</p>
+        </div>
+        
+        <!-- Error Message -->
+        <div x-show="error" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Lỗi!</strong>
+            <span class="block sm:inline" x-text="error"></span>
+        </div>
+
+        <div class="space-y-4" x-show="!isLoading && !error">
+          <template x-for="notification in notifications" :key="notification.id">
+            <div class="flex items-start p-4 rounded-lg transition hover:bg-gray-50" :class="{ 'bg-blue-50': notification.status === 'unread' }">
+              <div class="flex-shrink-0">
+                <i :class="'fas ' + notification.icon + ' text-blue-600 text-xl mt-1'"></i>
+              </div>
+              <div class="flex-1 ml-4">
+                <div class="flex items-center justify-between">
+                  <h3 class="text-lg font-semibold text-gray-800" x-text="notification.title"></h3>
+                  <div class="flex items-center space-x-2">
+                    <span class="text-gray-500 text-sm" x-text="formatTime(notification.created_at)"></span>
+                    <!-- ✅ THÊM NÚT XÓA -->
+                    <button @click="deleteNotification(notification.id)" 
+                            class="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition"
+                            title="Xóa thông báo">
+                      <i class="fas fa-trash text-sm"></i>
+                    </button>
+                  </div>
+                </div>
+                <p class="text-gray-600 mt-1" x-html="notification.message"></p>
+                <div class="mt-2 flex items-center space-x-4">
+                  <a :href="notification.action_url || '#!'" target="_blank" 
+                     class="text-blue-600 hover:text-blue-800 font-medium" 
+                     x-text="notification.action_text || 'Xem chi tiết'" 
+                     x-show="notification.action_text"></a>
+                  
+                  <!-- ✅ NÚT ĐÁNH DẤU ĐÃ ĐỌC -->
+                  <button x-show="notification.status === 'unread'" 
+                          @click="markAsRead(notification.id)" 
+                          class="text-gray-500 hover:text-blue-600 text-sm flex items-center">
+                    <i class="fas fa-eye mr-1"></i>Đánh dấu đã đọc
+                  </button>
+                  
+                  <!-- ✅ HIỂN THỊ TRẠNG THÁI ĐÃ ĐỌC -->
+                  <span x-show="notification.status === 'read'" 
+                        class="text-green-600 text-sm flex items-center">
+                    <i class="fas fa-check-circle mr-1"></i>Đã đọc
+                  </span>
+                </div>
+              </div>
+              
+              <!-- ✅ DẤU CHẤM XANH CHO THÔNG BÁO CHƯA ĐỌC -->
+              <div x-show="notification.status === 'unread'" class="flex-shrink-0 ml-2">
+                <span class="bg-blue-600 h-3 w-3 rounded-full inline-block"></span>
+              </div>
+            </div>
+          </template>
+          <div x-show="!isLoading && notifications.length === 0 && !error" class="text-center text-gray-600 py-4">
+            Không có thông báo nào.
+          </div>
+        </div>
+
+        <!-- Pagination -->
+        <div x-show="!isLoading && totalPages > 1 && !error" class="mt-6 flex justify-center items-center space-x-2">
+          <button @click="fetchNotifications(currentPage - 1)" :disabled="currentPage === 1" class="pagination-button">
+            <i class="fas fa-chevron-left"></i>
+          </button>
+          <template x-for="page in Array.from({ length: totalPages }, (_, i) => i + 1)">
+            <button @click="fetchNotifications(page)" 
+                    class="pagination-button" 
+                    :class="{ 'bg-blue-600 text-white': page === currentPage }">
+              <span x-text="page"></span>
+            </button>
+          </template>
+          <button @click="fetchNotifications(currentPage + 1)" :disabled="currentPage === totalPages" class="pagination-button">
+            <i class="fas fa-chevron-right"></i>
+          </button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+
+  <!-- Chatbot -->
+  <div class="fixed bottom-6 right-6 z-50">
+    <button class="bg-blue-600 hover:bg-blue-700 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg transition transform hover:scale-110">
+      <i class="fas fa-robot text-2xl"></i>
+    </button>
+  </div>
+
+  <!-- Footer Container -->
+  <div id="footer-container"></div>
+  <script src="../assets/js/noti.js"></script>
+  <script src="../assets/js/index.js"></script> 
+ <script src="../assets/js/components.js"></script>
+ 
+</body>
+</html>

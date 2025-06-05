@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Quản lý Danh mục</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css"> <!-- Điều chỉnh đường dẫn nếu cần -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar">
+            <!-- Sidebar động sẽ load vào đây (từ custom.js hoặc index.js) -->
+        </div>
+
+        <div class="content-area flex-1">
+            <div id="header">
+                <!-- Header động sẽ load vào đây -->
+            </div>
+
+            <div id="app">
+                <main class="p-6 mx-auto">
+                    <section class="mt-10 bg-white shadow rounded-lg p-6">
+                        <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+                            <h2 class="text-2xl font-bold text-gray-800 whitespace-nowrap">Quản lý danh mục</h2>
+                            <a href="create.html" id="addCategoryBtn"
+                                class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 whitespace-nowrap ml-auto">
+                                <i class="fas fa-plus-circle mr-1"></i>Thêm danh mục
+                            </a>
+                        </div>
+
+                        <!-- Search and Filters Form -->
+                        <form id="filterForm" class="mb-6">
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                                <!-- Search Input -->
+                                <div class="lg:col-span-1">
+                                    <label for="searchInput" class="block text-sm font-medium text-gray-700 mb-1">Tìm
+                                        kiếm:</label>
+                                    <div class="flex">
+                                        <input type="text" id="searchInput" name="searchTerm"
+                                            placeholder="Tên danh mục..."
+                                            class="p-2 border border-gray-300 rounded-l w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <button type="submit"
+                                            class="bg-blue-600 text-white px-5 rounded-r hover:bg-blue-700 transition duration-150 ease-in-out shadow-sm">
+                                            <i class="fas fa-search"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Sort By -->
+                                <div>
+                                    <label for="sortFilter" class="block text-sm font-medium text-gray-700 mb-1">Sắp
+                                        xếp:</label>
+                                    <select id="sortFilter" name="sortBy"
+                                        class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="">Mặc định (ID)</option>
+                                        <option value="nameAsc">Tên: A-Z</option>
+                                        <option value="nameDesc">Tên: Z-A</option>
+                                    </select>
+                                </div>
+
+                                <!-- Page Size -->
+                                <div>
+                                    <label for="pageSizeSelect"
+                                        class="block text-sm font-medium text-gray-700 mb-1">Hiển thị:</label>
+                                    <select id="pageSizeSelect" name="pageSize"
+                                        class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                        <option value="10">10 danh mục</option>
+                                        <option value="25">25 danh mục</option>
+                                        <option value="50">50 danh mục</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="overflow-x-auto">
+                            <table
+                                class="w-full table-auto bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
+                                <thead
+                                    class="bg-gray-50 text-gray-600 text-left text-sm font-semibold uppercase tracking-wider">
+                                    <tr>
+                                        <th class="px-6 py-3 border-b">STT</th>
+                                        <th class="px-6 py-3 border-b">Tên danh mục</th>
+                                        <th class="px-6 py-3 border-b">Mô tả</th>
+                                        <th class="px-6 py-3 border-b">Hình ảnh</th>
+                                        <th class="px-6 py-3 border-b text-center">Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="categoryTableBody" class="text-gray-700 text-sm divide-y divide-gray-200">
+                                    <!-- Dữ liệu danh mục -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Pagination -->
+                        <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
+                            <div class="text-sm text-gray-600">
+                                Hiển thị <span id="currentPageInfo">1</span> / <span id="totalPagesInfo">1</span> trang
+                                (Tổng số <span id="totalItemsInfo">0</span> danh mục)
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button id="prevPageBtn"
+                                    class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                    disabled>Trước</button>
+                                <div class="flex items-center">
+                                    <input type="number" id="pageInput" min="1"
+                                        class="p-1 border border-gray-300 rounded w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    <button id="goToPageBtn"
+                                        class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded ml-1">Đi</button>
+                                </div>
+                                <button id="nextPageBtn"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                    disabled>Sau</button>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+
+            <div id="footer">
+                <!-- Footer động -->
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const categoryTableBody = document.getElementById('categoryTableBody');
+            const filterForm = document.getElementById('filterForm');
+            const searchInput = document.getElementById('searchInput');
+            const sortFilter = document.getElementById('sortFilter');
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+
+            const currentPageInfo = document.getElementById('currentPageInfo');
+            const totalPagesInfo = document.getElementById('totalPagesInfo');
+            const totalItemsInfo = document.getElementById('totalItemsInfo');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInput = document.getElementById('pageInput');
+            const goToPageBtn = document.getElementById('goToPageBtn');
+
+            let currentPage = 1;
+
+            async function fetchCategories(page = 1, searchTerm = '', sortBy = '', pageSize = '10') {
+                categoryTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải danh mục...</td></tr>`;
+                prevPageBtn.disabled = true;
+                nextPageBtn.disabled = true;
+                goToPageBtn.disabled = true;
+
+                currentPage = page; // Cập nhật trang hiện tại để các hàm khác sử dụng
+
+                const params = new URLSearchParams({
+                    pageNumber: page.toString(),
+                    pageSizeInput: pageSize // API CategoriesController nhận pageSizeInput
+                });
+
+                if (searchTerm) {
+                    params.append('filter.SearchTerm', searchTerm);
+                }
+                if (sortBy) {
+                    params.append('filter.SortBy', sortBy); // Backend cần hỗ trợ
+                }
+
+                const url = `${API_BASE_URL}/Categories?${params.toString()}`;
+                console.log("Fetching categories with URL:", url);
+
+                try {
+                    const token = sessionStorage.getItem('token');
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+                    const response = await fetch(url, { headers });
+
+                    if (!response.ok) {
+                        const errorData = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorData || response.statusText}`);
+                    }
+                    const data = await response.json();
+                    renderTable(data.items);
+                    updatePaginationUI(data);
+                } catch (error) {
+                    console.error('Lỗi khi lấy dữ liệu danh mục:', error);
+                    categoryTableBody.innerHTML = `<tr><td colspan="5" class="text-center py-4 text-red-500">Không thể tải dữ liệu. Lỗi: ${error.message}</td></tr>`;
+                    updatePaginationUI(null);
+                }
+            }
+
+            function renderTable(categories) {
+                categoryTableBody.innerHTML = '';
+                if (!categories || categories.length === 0) {
+                    categoryTableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4">Không tìm thấy danh mục nào.</td></tr>';
+                    return;
+                }
+
+                const getImageUrl = (imageFilename) => {
+                    if (!imageFilename || imageFilename === "string") {
+                        return '/Admin/assets/images/placeholder.png';
+                    }
+                    if (/^(https?:)?\/\//i.test(imageFilename)) {
+                        return imageFilename;
+                    }
+                    // Điều chỉnh base path này nếu ảnh danh mục của bạn được lưu ở nơi khác
+                    return `/Admin/assets/images/categories/${imageFilename.startsWith('/') ? imageFilename.substring(1) : imageFilename}`;
+                };
+
+                categories.forEach((category, index) => {
+                    const row = document.createElement('tr');
+                    row.classList.add('hover:bg-gray-50', 'transition');
+                    const stt = (currentPage - 1) * parseInt(pageSizeSelect.value) + index + 1;
+                    const imageDisplayUrl = getImageUrl(category.image);
+
+                    row.innerHTML = `
+                        <td class="px-6 py-3 border-b">${stt}</td>
+                        <td class="px-6 py-3 border-b">${category.categoryName || 'N/A'}</td>
+                        <td class="px-6 py-3 border-b">${category.description || 'Không có mô tả'}</td>
+                        <td class="px-6 py-3 border-b">
+                            <img src="${imageDisplayUrl}" alt="${category.categoryName || 'Danh mục'}" class="w-16 h-16 object-contain rounded">
+                        </td>
+                        <td class="px-6 py-3 border-b text-center space-x-2 whitespace-nowrap">
+                            <a href="update.html?id=${category.categoryID}"
+                                class="text-yellow-500 hover:text-yellow-700 action-icon">
+                                <i class="fas fa-edit fa-fw"></i>
+                            </a>
+                            <button type="button" class="delete-category-btn" data-id="${category.categoryID}"
+                                class="text-red-600 hover:text-red-700 action-icon">
+                                <i class="fas fa-trash-alt fa-fw"></i>
+                            </button>
+                        </td>
+                    `;
+                    categoryTableBody.appendChild(row);
+                });
+            }
+
+            function updatePaginationUI(data) {
+                if (data) {
+                    currentPageInfo.textContent = data.pageNumber;
+                    totalPagesInfo.textContent = data.totalPages;
+                    totalItemsInfo.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber; // Cập nhật giá trị ô input
+                    pageInput.max = data.totalPages;    // Đặt max cho ô input
+
+                    prevPageBtn.disabled = !data.hasPreviousPage;
+                    nextPageBtn.disabled = !data.hasNextPage;
+                    goToPageBtn.disabled = (data.totalPages <= 1);
+                } else {
+                    currentPageInfo.textContent = '0';
+                    totalPagesInfo.textContent = '0';
+                    totalItemsInfo.textContent = '0';
+                    pageInput.value = '1'; pageInput.max = '1';
+                    prevPageBtn.disabled = true; nextPageBtn.disabled = true; goToPageBtn.disabled = true;
+                }
+            }
+
+            async function deleteCategory(categoryId) {
+                if (!confirm(`Bạn có chắc chắn muốn xóa danh mục ID: ${categoryId} không?`)) return;
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+
+                const url = `${API_BASE_URL}/Categories?categoryId=${categoryId}`;
+                console.log("Deleting category with URL:", url);
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.status === 204) {
+                        alert(`Đã xóa danh mục ID: ${categoryId} thành công.`);
+                        // Tải lại với các filter hiện tại
+                        fetchCategories(currentPage, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+                    } else if (response.status === 401 || response.status === 403) {
+                        alert('Bạn không có quyền hoặc phiên đăng nhập đã hết hạn.');
+                    } else if (response.status === 404) {
+                        alert(`Không tìm thấy danh mục ID: ${categoryId}.`);
+                    } else {
+                        const errorText = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorText || 'Xóa danh mục thất bại.'}`);
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi xóa danh mục ID ${categoryId}:`, error);
+                    alert(error.message);
+                }
+            }
+
+            // --- Event Listeners ---
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchCategories(1, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+            });
+
+            sortFilter.addEventListener('change', () => {
+                fetchCategories(1, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+            });
+
+            pageSizeSelect.addEventListener('change', () => {
+                fetchCategories(1, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+            });
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    fetchCategories(currentPage - 1, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+                }
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                if (currentPage < parseInt(totalPagesInfo.textContent)) {
+                    fetchCategories(currentPage + 1, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+                }
+            });
+
+            goToPageBtn.addEventListener('click', () => {
+                const targetPage = parseInt(pageInput.value);
+                const totalPages = parseInt(totalPagesInfo.textContent);
+                if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
+                    fetchCategories(targetPage, searchInput.value.trim(), sortFilter.value, pageSizeSelect.value);
+                } else if (targetPage !== currentPage) { // Chỉ báo lỗi nếu trang nhập khác trang hiện tại và không hợp lệ
+                    alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${totalPages}.`);
+                    pageInput.value = currentPage; // Reset về trang hiện tại
+                }
+            });
+
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goToPageBtn.click();
+                }
+            });
+
+            categoryTableBody.addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-category-btn');
+                if (deleteButton) {
+                    const categoryId = deleteButton.dataset.id;
+                    if (categoryId) {
+                        deleteCategory(categoryId);
+                    }
+                }
+            });
+
+            // --- Initial Load ---
+            fetchCategories(currentPage, '', '', pageSizeSelect.value); // Tải lần đầu với pageSize mặc định
+        });
+    </script>
+</body>
+
+</html>

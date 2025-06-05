@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng điều khiển - ShopX Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css"> <!-- Đảm bảo đường dẫn này đúng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .chart-container {
+            height: 350px;
+            position: relative;
+        }
+
+        .stat-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div> <!-- Component sidebar sẽ được load vào đây -->
+        <div class="content-area flex-1 min-h-screen flex flex-col">
+            <div id="header"></div> <!-- Component header sẽ được load vào đây -->
+            <div id="app" class="flex-grow">
+                <main class="p-4 md:p-6 mx-auto w-full">
+                    <div class="mb-6">
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Tổng quan Bảng điều khiển</h1>
+                        <p class="text-gray-600">Chào mừng trở lại, Quản trị viên!</p>
+                    </div>
+
+                    <!-- Statistics Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase font-medium">Tổng Doanh Thu (Năm hiện tại)
+                                    </p>
+                                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="statTotalRevenueCurrentYear">
+                                        Đang tải...
+                                    </h3>
+                                </div>
+                                <div class="bg-green-100 p-4 rounded-full mb-8"><i
+                                        class="fas fa-wallet text-green-600 text-2xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase font-medium">Tổng Đơn Hàng (Năm hiện tại)
+                                    </p>
+                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="statTotalOrdersCurrentYear">
+                                        Đang tải...
+                                    </h3>
+                                </div>
+                                <div class="bg-blue-100 p-4 rounded-full mb-8"><i
+                                        class="fas fa-shopping-cart text-blue-600 text-2xl"></i></div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase font-medium">Doanh Thu (Tháng Hiện Tại)
+                                    </p>
+                                    <h3 class="text-2xl font-bold text-gray-800 mt-1" id="statTotalRevenueCurrentMonth">
+                                        Đang tải...</h3>
+                                </div>
+                                <div class="bg-purple-100 p-4 rounded-full mb-8"><i
+                                        class="fas fa-calendar-alt text-purple-600 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="bg-white rounded-xl shadow-lg p-6 stat-card">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-500 uppercase font-medium">Đơn Hàng (Tháng Hiện Tại)</p>
+                                    <h3 class="text-3xl font-bold text-gray-800 mt-1" id="statTotalOrdersCurrentMonth">
+                                        Đang tải...</h3>
+                                </div>
+                                <div class="bg-orange-100 p-4 rounded-full mb-8"><i
+                                        class="fas fa-clipboard-list text-orange-600 text-2xl"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Revenue Chart Section (Doanh thu theo tháng của một năm) -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                        <div class="flex flex-col sm:flex-row items-center justify-between mb-4 gap-3">
+                            <h3 class="text-xl font-bold text-gray-700">Biểu đồ Doanh Thu Hàng Tháng</h3>
+                            <div class="flex items-center gap-2">
+                                <label for="adminYearSelectChart" class="text-sm font-medium text-gray-600">Năm:</label>
+                                <select id="adminYearSelectChart"
+                                    class="border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                                </select>
+                                <button id="exportMonthlyRevenueBtn" title="Xuất ra Excel"
+                                    class="ml-2 bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-3 rounded-md shadow-sm flex items-center justify-center">
+                                    <i class="fas fa-file-excel"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="chart-container">
+                            <canvas id="adminMonthlyRevenueChart"></canvas>
+                        </div>
+                        <div id="chartError" class="text-red-500 text-center mt-4 hidden"></div>
+                    </div>
+
+
+                    <!-- Custom Revenue Report Section -->
+                    <div class="bg-white rounded-xl shadow-lg p-6 mb-8">
+                        <h3 class="text-xl font-bold text-gray-700 mb-6">Báo cáo Doanh thu Tùy chỉnh</h3>
+                        <form id="customReportForm"
+                            class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4 items-end mb-6">
+                            <div class="lg:col-span-1">
+                                <label for="reportIntervalSelect" class="block text-sm font-medium text-gray-600">Khoảng
+                                    thời gian:</label>
+                                <select id="reportIntervalSelect" name="interval"
+                                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                    <option value="AllTime">Toàn bộ thời gian</option>
+                                    <option value="Yearly" selected>Theo Năm</option>
+                                    <option value="Quarterly">Theo Quý (10 quý gần nhất)</option>
+                                    <option value="Monthly">Theo Tháng</option>
+                                </select>
+                            </div>
+                            <div id="reportYearGroup" class="hidden lg:col-span-1">
+                                <label for="reportYearInput"
+                                    class="block text-sm font-medium text-gray-600">Năm:</label>
+                                <input type="number" id="reportYearInput" name="year"
+                                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+                                    placeholder="VD: 2024">
+                            </div>
+                            <div id="reportQuarterGroup" class="hidden lg:col-span-1">
+                                <label for="reportQuarterInput" class="block text-sm font-medium text-gray-600">Quý (Kết
+                                    thúc):</label>
+                                <select id="reportQuarterInput" name="quarter"
+                                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+                                    <option value="1">Quý 1</option>
+                                    <option value="2">Quý 2</option>
+                                    <option value="3">Quý 3</option>
+                                    <option value="4">Quý 4</option>
+                                </select>
+                            </div>
+                            <div id="reportMonthGroup" class="hidden lg:col-span-1">
+                                <label for="reportMonthInput"
+                                    class="block text-sm font-medium text-gray-600">Tháng:</label>
+                                <input type="month" id="reportMonthInput" name="monthYear"
+                                    class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm">
+                            </div>
+                            <div class="lg:col-span-1">
+                                <button type="submit" id="generateReportBtn"
+                                    class="w-full bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded-md shadow-sm flex items-center justify-center">
+                                    <i class="fas fa-search-dollar mr-2"></i>Xem Báo cáo
+                                </button>
+                            </div>
+                            <div class="lg:col-span-1">
+                                <button type="button" id="exportCustomReportBtn" title="Xuất ra Excel"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md shadow-sm flex items-center justify-center">
+                                    <i class="fas fa-file-excel mr-2"></i>Xuất Excel
+                                </button>
+                            </div>
+                        </form>
+
+                        <div id="customReportResult" class="mt-6 border-t pt-6 hidden">
+                            <h4 class="text-lg font-semibold text-gray-700 mb-2" id="reportResultTitle">Kết quả Báo cáo
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                <div class="bg-gray-50 p-4 rounded-md">
+                                    <p class="text-sm text-gray-500">Tổng Doanh Thu:</p>
+                                    <p class="text-2xl font-bold text-indigo-600" id="reportResultTotalRevenue">---</p>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-md">
+                                    <p class="text-sm text-gray-500">Tổng Số Đơn Hàng:</p>
+                                    <p class="text-2xl font-bold text-indigo-600" id="reportResultTotalOrders">---</p>
+                                </div>
+                            </div>
+                            <div id="customLineChartContainer" class="chart-container mt-6 hidden"
+                                style="height: 400px;">
+                                <canvas id="customRevenueOrderLineChart"></canvas>
+                            </div>
+                            <div id="reportResultBreakdownContainer" class="hidden mt-4">
+                                <h5 class="text-md font-semibold text-gray-600 mb-2">Chi tiết Doanh thu (Theo tháng của
+                                    năm):
+                                </h5>
+                                <ul id="reportResultBreakdownList"
+                                    class="list-disc pl-5 space-y-1 text-sm text-gray-700">
+                                </ul>
+                            </div>
+                            <div id="customReportError" class="text-red-500 mt-2 hidden"></div>
+                        </div>
+                        <div id="customReportLoading" class="text-center py-4 hidden">
+                            <i class="fas fa-spinner fa-spin text-green-500 text-2xl"></i>
+                            <p class="text-gray-600 mt-1">Đang tạo báo cáo...</p>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="footer" class="mt-auto"></div> <!-- Component footer sẽ được load vào đây -->
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+    <!-- File này chứa hàm loadSidebarAndHeader, API_BASE_URL, formatCurrency -->
+    <script type="module" src="/Admin/assets/js/custom.js"></script> <!-- Nếu có, và không xung đột -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Elements for monthly revenue chart
+            const yearSelectChartElement = document.getElementById('adminYearSelectChart');
+            const chartErrorElement = document.getElementById('chartError');
+            const monthlyRevenueChartCanvas = document.getElementById('adminMonthlyRevenueChart');
+            let adminMonthlyRevenueChartInstance;
+            const exportMonthlyRevenueBtn = document.getElementById('exportMonthlyRevenueBtn');
+
+
+            // Elements for overall stats cards
+            const statTotalRevenueCurrentYearEl = document.getElementById('statTotalRevenueCurrentYear');
+            const statTotalOrdersCurrentYearEl = document.getElementById('statTotalOrdersCurrentYear');
+            const statTotalRevenueCurrentMonthEl = document.getElementById('statTotalRevenueCurrentMonth');
+            const statTotalOrdersCurrentMonthEl = document.getElementById('statTotalOrdersCurrentMonth');
+
+
+            // Elements for custom report
+            const customReportForm = document.getElementById('customReportForm');
+            const reportIntervalSelect = document.getElementById('reportIntervalSelect');
+            const reportYearGroup = document.getElementById('reportYearGroup');
+            const reportYearInput = document.getElementById('reportYearInput');
+            const reportQuarterGroup = document.getElementById('reportQuarterGroup');
+            const reportQuarterInput = document.getElementById('reportQuarterInput');
+            const reportMonthGroup = document.getElementById('reportMonthGroup');
+            const reportMonthInput = document.getElementById('reportMonthInput');
+            const generateReportBtn = document.getElementById('generateReportBtn');
+            const exportCustomReportBtn = document.getElementById('exportCustomReportBtn');
+            const customReportResultDiv = document.getElementById('customReportResult');
+            const reportResultTitle = document.getElementById('reportResultTitle');
+            const reportResultTotalRevenue = document.getElementById('reportResultTotalRevenue');
+            const reportResultTotalOrders = document.getElementById('reportResultTotalOrders');
+            const customLineChartContainer = document.getElementById('customLineChartContainer');
+            const customRevenueOrderLineChartCanvas = document.getElementById('customRevenueOrderLineChart');
+            let customRevenueOrderLineChartInstance;
+            const reportResultBreakdownContainer = document.getElementById('reportResultBreakdownContainer');
+            const reportResultBreakdownList = document.getElementById('reportResultBreakdownList');
+            const customReportError = document.getElementById('customReportError');
+            const customReportLoading = document.getElementById('customReportLoading');
+
+
+            // --- Helper Function to Format Currency (Nếu chưa có trong index.js) ---
+            if (!window.formatCurrency) {
+                window.formatCurrency = function (value) {
+                    if (typeof value !== 'number') return value;
+                    return value.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+                }
+            }
+
+            // --- Hàm xử lý xuất Excel ---
+            function triggerExcelDownload(url, token) {
+                fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                    .then(async res => {
+                        if (!res.ok) {
+                            const errorData = await res.json().catch(() => ({ message: `Lỗi ${res.status} khi tải file.` }));
+                            throw new Error(errorData.message || `Không thể tải file: ${res.statusText}`);
+                        }
+                        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+                        const disposition = res.headers.get('content-disposition');
+                        let filename = "report.xlsx";
+                        if (disposition) {
+                            const matches = filenameRegex.exec(disposition);
+                            if (matches != null && matches[1]) {
+                                filename = matches[1].replace(/['"]/g, '');
+                            }
+                        }
+                        return res.blob().then(blob => ({ blob, filename }));
+                    })
+                    .then(({ blob, filename }) => {
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = filename;
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(link.href);
+                    })
+                    .catch(error => {
+                        console.error('Lỗi xuất Excel:', error);
+                        const errorDisplay = document.getElementById('customReportError') || document.getElementById('chartError');
+                        if (errorDisplay) {
+                            errorDisplay.textContent = `Lỗi xuất Excel: ${error.message}`;
+                            errorDisplay.classList.remove('hidden');
+                        } else {
+                            alert(`Lỗi xuất Excel: ${error.message}`);
+                        }
+                    });
+            }
+
+
+            // --- Monthly Revenue Chart Functions ---
+            async function fetchAdminMonthlyRevenue(year) {
+                if (chartErrorElement) chartErrorElement.classList.add('hidden');
+                const token = sessionStorage.getItem('token');
+                if (!token && yearSelectChartElement) { // Thêm kiểm tra yearSelectChartElement để không lỗi khi hàm được gọi từ nơi khác
+                    yearSelectChartElement.disabled = true;
+                    if (exportMonthlyRevenueBtn) exportMonthlyRevenueBtn.disabled = true;
+                    if (chartErrorElement) {
+                        chartErrorElement.textContent = 'Vui lòng đăng nhập để xem biểu đồ.';
+                        chartErrorElement.classList.remove('hidden');
+                    }
+                    return new Array(12).fill(0);
+                }
+
+                const url = `${API_BASE_URL}/Reports/admin/revenue/monthly-by-year/${year}`;
+                console.log(url)
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) {
+                        const errorData = await response.json().catch(() => ({ message: `Lỗi ${response.status} khi tải doanh thu tháng` }));
+                        throw new Error(errorData.message);
+                    }
+                    const data = await response.json();
+                    return data[year] || new Array(12).fill(0);
+                } catch (error) {
+                    console.error(`Lỗi tải doanh thu tháng cho năm ${year}:`, error);
+                    if (chartErrorElement) {
+                        chartErrorElement.textContent = `Biểu đồ hàng tháng: ${error.message}`;
+                        chartErrorElement.classList.remove('hidden');
+                    }
+                    return new Array(12).fill(0);
+                }
+            }
+
+            function createOrUpdateAdminMonthlyChart(year, monthlyData) {
+                if (!monthlyRevenueChartCanvas) return;
+                const ctx = monthlyRevenueChartCanvas.getContext('2d');
+                const labels = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
+                if (adminMonthlyRevenueChartInstance) {
+                    adminMonthlyRevenueChartInstance.data.datasets[0].label = `Doanh thu ${year} (triệu VND)`;
+                    adminMonthlyRevenueChartInstance.data.datasets[0].data = monthlyData;
+                    adminMonthlyRevenueChartInstance.update();
+                } else {
+                    adminMonthlyRevenueChartInstance = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: `Doanh thu ${year} (triệu VND)`,
+                                data: monthlyData,
+                                backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                borderWidth: 1, borderRadius: 5
+                            }]
+                        },
+                        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { callback: value => value + ' tr' } } } }
+                    });
+                }
+            }
+
+            // --- Overall Stats Functions ---
+            async function fetchAndDisplayOverallStats() {
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    console.error("Không tìm thấy token xác thực cho Overall Stats.");
+                    if (statTotalRevenueCurrentYearEl) statTotalRevenueCurrentYearEl.textContent = 'N/A';
+                    if (statTotalOrdersCurrentYearEl) statTotalOrdersCurrentYearEl.textContent = 'N/A';
+                    if (statTotalRevenueCurrentMonthEl) statTotalRevenueCurrentMonthEl.textContent = 'N/A';
+                    if (statTotalOrdersCurrentMonthEl) statTotalOrdersCurrentMonthEl.textContent = 'N/A';
+                    return;
+                }
+
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentMonth = now.getMonth() + 1;
+
+                const currentYearUrl = `${API_BASE_URL}/Reports/admin/revenue/overall?interval=Yearly&year=${currentYear}`;
+                try {
+                    const response = await fetch(currentYearUrl, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (response.ok) {
+                        const report = await response.json();
+                        if (statTotalRevenueCurrentYearEl) statTotalRevenueCurrentYearEl.textContent = window.formatCurrency(report.totalRevenue) || '0 đ';
+                        if (statTotalOrdersCurrentYearEl) statTotalOrdersCurrentYearEl.textContent = report.totalOrders?.toLocaleString('vi-VN') || '0';
+                    } else {
+                        const errorData = await response.json().catch(() => ({ message: `Lỗi ${response.status} tải thống kê năm` }));
+                        throw new Error(errorData.message);
+                    }
+                } catch (error) {
+                    console.error("Lỗi tải Thống kê Năm Hiện Tại:", error);
+                    if (statTotalRevenueCurrentYearEl) statTotalRevenueCurrentYearEl.textContent = 'Lỗi';
+                    if (statTotalOrdersCurrentYearEl) statTotalOrdersCurrentYearEl.textContent = 'Lỗi';
+                }
+
+                const currentMonthUrl = `${API_BASE_URL}/Reports/admin/revenue/overall?interval=Monthly&year=${currentYear}&month=${currentMonth}`;
+                try {
+                    const response = await fetch(currentMonthUrl, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (response.ok) {
+                        const report = await response.json();
+                        if (statTotalRevenueCurrentMonthEl) statTotalRevenueCurrentMonthEl.textContent = window.formatCurrency(report.totalRevenue) || '0 đ';
+                        if (statTotalOrdersCurrentMonthEl) statTotalOrdersCurrentMonthEl.textContent = report.totalOrders?.toLocaleString('vi-VN') || '0';
+                    } else {
+                        const errorData = await response.json().catch(() => ({ message: `Lỗi ${response.status} tải thống kê tháng` }));
+                        throw new Error(errorData.message);
+                    }
+                } catch (error) {
+                    console.error("Lỗi tải Thống kê Tháng Hiện Tại:", error);
+                    if (statTotalRevenueCurrentMonthEl) statTotalRevenueCurrentMonthEl.textContent = 'Lỗi';
+                    if (statTotalOrdersCurrentMonthEl) statTotalOrdersCurrentMonthEl.textContent = 'Lỗi';
+                }
+            }
+
+            // --- Custom Report Functions ---
+            function toggleCustomReportDateInputs() {
+                const interval = reportIntervalSelect.value;
+                reportYearGroup.classList.toggle('hidden', interval !== 'Yearly' && interval !== 'Quarterly');
+                reportQuarterGroup.classList.toggle('hidden', interval !== 'Quarterly');
+                reportMonthGroup.classList.toggle('hidden', interval !== 'Monthly');
+
+                const now = new Date();
+                if (reportYearInput && !reportYearGroup.classList.contains('hidden')) {
+                    if (!reportYearInput.value) reportYearInput.value = now.getFullYear();
+                }
+                if (reportMonthInput && !reportMonthGroup.classList.contains('hidden')) {
+                    if (!reportMonthInput.value) {
+                        const monthValue = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+                        reportMonthInput.value = monthValue;
+                    }
+                }
+                if (reportQuarterInput && !reportQuarterGroup.classList.contains('hidden')) {
+                    if (!reportQuarterInput.value) reportQuarterInput.value = Math.ceil((now.getMonth() + 1) / 3);
+                }
+            }
+
+            async function generateCustomReport(event) {
+                if (event) event.preventDefault(); // Kiểm tra event tồn tại trước khi gọi
+                customReportResultDiv.classList.add('hidden');
+                customLineChartContainer.classList.add('hidden');
+                reportResultBreakdownContainer.classList.add('hidden');
+                customReportError.classList.add('hidden');
+                customReportLoading.classList.remove('hidden');
+                if (generateReportBtn) generateReportBtn.disabled = true;
+                if (exportCustomReportBtn) exportCustomReportBtn.disabled = true;
+
+
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    customReportError.textContent = "Lỗi xác thực. Vui lòng đăng nhập lại.";
+                    customReportError.classList.remove('hidden');
+                    customReportLoading.classList.add('hidden');
+                    if (generateReportBtn) generateReportBtn.disabled = false;
+                    if (exportCustomReportBtn) exportCustomReportBtn.disabled = false;
+                    return;
+                }
+
+                const interval = reportIntervalSelect.value;
+                const params = new URLSearchParams({ interval: interval });
+                let year, month, quarter;
+                let titleSuffix = "Toàn bộ thời gian";
+
+                if (interval === 'Monthly') {
+                    const monthYearValue = reportMonthInput.value;
+                    if (!monthYearValue) { /* ... */ return; } // Đã có xử lý lỗi ở trên
+                    const [mYear, mMonth] = monthYearValue.split('-');
+                    year = parseInt(mYear); month = parseInt(mMonth);
+                    if (!year || year < 1900 || year > new Date().getFullYear() + 10 || !month || month < 1 || month > 12) { /* ... */ return; }
+                    params.append('year', year); params.append('month', month);
+                    titleSuffix = `Tháng ${month}/${year}`;
+                } else if (interval === 'Yearly' || interval === 'Quarterly') {
+                    year = parseInt(reportYearInput.value);
+                    if (!year || year < 1900 || year > new Date().getFullYear() + 10) { /* ... */ return; }
+                    params.append('year', year);
+                    titleSuffix = `Năm ${year}`;
+                    if (interval === 'Quarterly') {
+                        if (!year) { /* ... */ return; }
+                        quarter = parseInt(reportQuarterInput.value);
+                        params.append('quarter', quarter);
+                        titleSuffix = `10 Quý gần nhất (kết thúc Q${quarter}/${year})`;
+                    }
+                }
+
+                const url = `${API_BASE_URL}/Reports/admin/revenue/overall?${params.toString()}`;
+                console.log(url)
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) {
+                        const err = await response.json().catch(() => ({ message: `Lỗi ${response.status}` }));
+                        throw new Error(err.message || `Lỗi ${response.status} khi tải dữ liệu báo cáo.`);
+                    }
+                    const report = await response.json();
+                    displayCustomReport(report, titleSuffix, interval);
+                } catch (error) {
+                    customReportError.textContent = `Lỗi tạo báo cáo: ${error.message}`;
+                    customReportError.classList.remove('hidden');
+                } finally {
+                    customReportLoading.classList.add('hidden');
+                    if (generateReportBtn) generateReportBtn.disabled = false;
+                    if (exportCustomReportBtn) exportCustomReportBtn.disabled = false;
+                }
+            }
+
+            function displayCustomReport(report, titleSuffix, interval) {
+                reportResultTitle.textContent = `Kết quả Báo cáo - ${titleSuffix}`;
+                reportResultTotalRevenue.textContent = window.formatCurrency(report.totalRevenue) || '0 đ';
+                reportResultTotalOrders.textContent = report.totalOrders?.toLocaleString('vi-VN') || '0';
+
+                reportResultBreakdownList.innerHTML = '';
+                if (report.revenueBreakdown && Object.keys(report.revenueBreakdown).length > 0 && interval === 'Yearly') {
+                    for (const key in report.revenueBreakdown) {
+                        const listItem = document.createElement('li');
+                        listItem.textContent = `${key}: ${window.formatCurrency(report.revenueBreakdown[key])}`;
+                        reportResultBreakdownList.appendChild(listItem);
+                    }
+                    reportResultBreakdownContainer.classList.remove('hidden');
+                } else {
+                    reportResultBreakdownContainer.classList.add('hidden');
+                }
+
+                if (report.chartLabels && report.chartLabels.length > 0 && customRevenueOrderLineChartCanvas) {
+                    const ctx = customRevenueOrderLineChartCanvas.getContext('2d');
+                    if (customRevenueOrderLineChartInstance) {
+                        customRevenueOrderLineChartInstance.destroy();
+                    }
+                    customRevenueOrderLineChartInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: report.chartLabels,
+                            datasets: [
+                                {
+                                    label: 'Doanh thu (triệu VND)',
+                                    data: report.chartRevenueData,
+                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                                    yAxisID: 'yRevenue',
+                                    tension: 0.1, fill: true, pointRadius: 3, pointHoverRadius: 5
+                                },
+                                {
+                                    label: 'Tổng Số Đơn Hàng',
+                                    data: report.chartOrderData,
+                                    borderColor: 'rgba(255, 99, 132, 1)',
+                                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                                    yAxisID: 'yOrders',
+                                    tension: 0.1, fill: true, pointRadius: 3, pointHoverRadius: 5
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false, },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: function (context) {
+                                            let label = context.dataset.label || '';
+                                            if (label) { label += ': '; }
+                                            if (context.parsed.y !== null) {
+                                                if (context.dataset.yAxisID === 'yRevenue') {
+                                                    label += window.formatCurrency(context.parsed.y * 1000000);
+                                                } else {
+                                                    label += context.parsed.y.toLocaleString('vi-VN');
+                                                }
+                                            }
+                                            return label;
+                                        }
+                                    }
+                                }
+                            },
+                            scales: {
+                                x: { display: true, title: { display: true, text: interval === 'Monthly' ? 'Ngày trong tháng' : (interval === 'Yearly' ? 'Tháng' : (interval === 'AllTime' ? 'Năm' : 'Quý')) } },
+                                yRevenue: { type: 'linear', display: true, position: 'left', title: { display: true, text: 'Doanh thu (triệu VND)' }, ticks: { callback: function (value) { return value + ' tr'; } }, beginAtZero: true },
+                                yOrders: { type: 'linear', display: true, position: 'right', title: { display: true, text: 'Số Đơn Hàng' }, grid: { drawOnChartArea: false, }, ticks: { callback: function (value) { if (Number.isInteger(value) && value >= 0) { return value; } }, stepSize: 1 }, beginAtZero: true }
+                            }
+                        }
+                    });
+                    customLineChartContainer.classList.remove('hidden');
+                } else {
+                    customLineChartContainer.classList.add('hidden');
+                    if (customRevenueOrderLineChartInstance) { customRevenueOrderLineChartInstance.destroy(); }
+                }
+                customReportResultDiv.classList.remove('hidden');
+            }
+
+            async function initializeDashboard() {
+                if (yearSelectChartElement) {
+                    const currentYearOnLoad = new Date().getFullYear();
+                    const startYear = 2020; // Năm bắt đầu có dữ liệu
+                    const totalYearsToShow = currentYearOnLoad - startYear + 1;
+                    for (let i = 0; i < totalYearsToShow; i++) {
+                        const yearOptionVal = currentYearOnLoad - i;
+                        if (yearOptionVal >= startYear) {
+                            yearSelectChartElement.add(new Option(`Năm ${yearOptionVal}`, yearOptionVal.toString()));
+                        }
+                    }
+                    if (yearSelectChartElement.options.length > 0) {
+                        yearSelectChartElement.value = currentYearOnLoad.toString();
+                        try {
+                            const initialRevenueData = await fetchAdminMonthlyRevenue(currentYearOnLoad);
+                            createOrUpdateAdminMonthlyChart(currentYearOnLoad, initialRevenueData);
+                        } catch (e) { /* Lỗi đã được xử lý */ }
+                    } else {
+                        if (chartErrorElement) {
+                            chartErrorElement.textContent = 'Biểu đồ hàng tháng: Không có dữ liệu năm để hiển thị.';
+                            chartErrorElement.classList.remove('hidden');
+                        }
+                    }
+                    yearSelectChartElement.addEventListener('change', async function () {
+                        const selectedYear = parseInt(this.value);
+                        try {
+                            const newData = await fetchAdminMonthlyRevenue(selectedYear);
+                            createOrUpdateAdminMonthlyChart(selectedYear, newData);
+                        } catch (e) { /* Lỗi đã được xử lý */ }
+                    });
+                    if (exportMonthlyRevenueBtn) {
+                        exportMonthlyRevenueBtn.addEventListener('click', () => {
+                            const selectedYear = yearSelectChartElement.value;
+                            const token = sessionStorage.getItem('token');
+                            if (!token) { alert("Vui lòng đăng nhập lại."); return; }
+                            if (!selectedYear) { alert("Vui lòng chọn năm."); return; }
+                            const excelUrl = `${API_BASE_URL}/Reports/admin/revenue/monthly-by-year/${selectedYear}/excel`;
+                            triggerExcelDownload(excelUrl, token);
+                        });
+                    }
+                }
+
+                fetchAndDisplayOverallStats();
+
+                reportIntervalSelect.addEventListener('change', toggleCustomReportDateInputs);
+                customReportForm.addEventListener('submit', generateCustomReport);
+                if (exportCustomReportBtn) {
+                    exportCustomReportBtn.addEventListener('click', () => {
+                        const token = sessionStorage.getItem('token');
+                        if (!token) { alert("Vui lòng đăng nhập lại."); return; }
+                        const interval = reportIntervalSelect.value;
+                        const params = new URLSearchParams({ interval: interval });
+                        let year, month, quarter;
+                        if (interval === 'Monthly') {
+                            const monthYearValue = reportMonthInput.value;
+                            if (!monthYearValue) { alert("Vui lòng chọn tháng và năm cho báo cáo tháng."); return; }
+                            const [mYear, mMonth] = monthYearValue.split('-');
+                            year = parseInt(mYear); month = parseInt(mMonth);
+                            if (!year || !month) { alert("Tháng hoặc năm không hợp lệ."); return; }
+                            params.append('year', year); params.append('month', month);
+                        } else if (interval === 'Yearly' || interval === 'Quarterly') {
+                            year = parseInt(reportYearInput.value);
+                            if (!year) { alert("Vui lòng chọn năm."); return; }
+                            params.append('year', year);
+                            if (interval === 'Quarterly') {
+                                quarter = parseInt(reportQuarterInput.value);
+                                params.append('quarter', quarter);
+                            }
+                        }
+                        const excelUrl = `${API_BASE_URL}/Reports/admin/revenue/overall/excel?${params.toString()}`;
+                        triggerExcelDownload(excelUrl, token);
+                    });
+                }
+
+                const now = new Date();
+                const currentYearForCustomReport = now.getFullYear();
+                reportIntervalSelect.value = 'Yearly';
+                if (reportYearInput) {
+                    reportYearInput.value = currentYearForCustomReport;
+                }
+                toggleCustomReportDateInputs();
+                if (generateReportBtn) {
+                    const mockEvent = { preventDefault: () => { } }; // Cần event giả nếu hàm có event.preventDefault()
+                    await generateCustomReport(mockEvent);
+                }
+            }
+
+            // Gọi hàm loadSidebarAndHeader từ file index.js của bạn (nếu có)
+            // Ví dụ: if (typeof window.loadSidebarAndHeader === 'function') { window.loadSidebarAndHeader(); }
+            // Sau đó mới khởi tạo dashboard để đảm bảo API_BASE_URL và các hàm khác sẵn sàng
+            // Nếu các hàm đó không phụ thuộc vào loadSidebarAndHeader thì có thể gọi initializeDashboard() trực tiếp.
+
+            // Đảm bảo API_BASE_URL đã được định nghĩa trước khi gọi initializeDashboard
+            // Thông thường, điều này được thực hiện trong /Admin/assets/js/index.js
+            if (typeof window.loadSidebarAndHeader === 'function') {
+                window.loadSidebarAndHeader().then(() => {
+                    initializeDashboard(); // Gọi sau khi sidebar và header đã load (nếu API_BASE_URL được set ở đó)
+                }).catch(error => {
+                    console.error("Lỗi khi tải sidebar/header:", error);
+                    initializeDashboard(); // Vẫn thử khởi tạo dashboard
+                });
+            } else {
+                initializeDashboard(); // Gọi trực tiếp nếu không có hàm load chung
+            }
+        });
+    </script>
+</body>
+
+</html>

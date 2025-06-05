@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Bảng điều khiển</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Thêm style cho product name ellipsis nếu chưa có trong index.css */
+        .product-name-ellipsis {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            /* Số dòng tối đa */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.4em;
+            /* Điều chỉnh cho phù hợp với font */
+            max-height: 2.8em;
+            /* line-height * số dòng */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+
+        <div id="sidebar">
+            <!-- Tự động load -->
+        </div>
+
+        <div class="content-area flex-1">
+            <div id="header">
+                <!-- Tự động load -->
+            </div>
+
+            <div id="app">
+                <main class="p-6 mx-auto">
+                    <section class="mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold mb-6 text-gray-800">Quản lý sản phẩm</h2>
+
+                            <!-- Search and Filters Form -->
+                            <form id="filterForm" class="mb-6">
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 items-end">
+                                    <!-- Search Input -->
+                                    <div class="lg:col-span-2 xl:col-span-2">
+                                        <label for="searchInput"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm:</label>
+                                        <div class="flex">
+                                            <input type="text" id="searchInput" name="searchTerm"
+                                                placeholder="Tên sản phẩm..."
+                                                class="p-2 border border-gray-300 rounded-l w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <button type="submit" id="searchBtn"
+                                                class="bg-blue-600 text-white px-5 rounded-r hover:bg-blue-700 transition duration-150 ease-in-out shadow-sm">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Category Filter -->
+                                    <div>
+                                        <label for="categoryFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Danh mục:</label>
+                                        <select id="categoryFilter" name="categoryId"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="">Tất cả danh mục</option>
+                                            <!-- Categories populated by JS -->
+                                        </select>
+                                    </div>
+
+                                    <!-- Min Price -->
+                                    <div>
+                                        <label for="minPriceFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Giá từ:</label>
+                                        <input type="number" id="minPriceFilter" name="minPrice"
+                                            placeholder="VD: 100000"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+
+                                    <!-- Max Price -->
+                                    <div>
+                                        <label for="maxPriceFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Giá đến:</label>
+                                        <input type="number" id="maxPriceFilter" name="maxPrice"
+                                            placeholder="VD: 5000000"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                    </div>
+
+                                    <!-- Sort By -->
+                                    <div class="md:col-start-1 xl:col-start-auto">
+                                        <label for="sortFilter" class="block text-sm font-medium text-gray-700 mb-1">Sắp
+                                            xếp:</label>
+                                        <select id="sortFilter" name="sortBy"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="">Mặc định</option>
+                                            <option value="priceAsc">Giá: Thấp đến Cao</option>
+                                            <option value="priceDesc">Giá: Cao đến Thấp</option>
+                                            <option value="nameAsc">Tên: A-Z</option>
+                                            <!-- Thêm các tùy chọn sắp xếp khác nếu API hỗ trợ -->
+                                        </select>
+                                    </div>
+
+                                    <!-- Page Size -->
+                                    <div>
+                                        <label for="pageSizeSelect"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Hiển thị:</label>
+                                        <select id="pageSizeSelect" name="pageSize"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="10">10 sản phẩm</option>
+                                            <option value="25">25 sản phẩm</option>
+                                            <option value="50">50 sản phẩm</option>
+                                            <option value="100">100 sản phẩm</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Apply Filters Button - có thể bỏ nếu muốn tự động lọc khi thay đổi -->
+                                    <div class="xl:col-span-2 flex justify-end items-end">
+                                        <button type="button" id="applyFiltersBtn"
+                                            class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition duration-150 ease-in-out shadow-sm w-full md:w-auto">
+                                            Áp dụng bộ lọc & Tìm kiếm
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            STT</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Tên sản phẩm</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Ảnh</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Giá</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Tên shop</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Danh mục</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Số lượng</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Trạng thái</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Rows will be populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Pagination -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
+                        <div class="text-sm text-gray-600">
+                            Hiển thị <span id="currentPageInfo">1</span> / <span id="totalPagesInfo">1</span> trang
+                            (Tổng số <span id="totalItemsInfo">0</span> sản phẩm)
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prevPageBtn"
+                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                disabled>Trước</button>
+                            <div class="flex items-center">
+                                <input type="number" id="pageInput" min="1"
+                                    class="p-1 border border-gray-300 rounded w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button id="goToPageBtn"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded ml-1">Đi</button>
+                            </div>
+                            <button id="nextPageBtn"
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                disabled>Sau</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="footer">
+                <!-- Tự động load -->
+            </div>
+            
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+    <!-- <script src="../../assets/js/product-form.js" defer></script> -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const productTableBody = document.getElementById('productTableBody');
+            const filterForm = document.getElementById('filterForm'); // Form chứa tất cả bộ lọc
+            const searchInput = document.getElementById('searchInput');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const minPriceFilter = document.getElementById('minPriceFilter');
+            const maxPriceFilter = document.getElementById('maxPriceFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn'); // Nút áp dụng bộ lọc
+
+            // Pagination elements
+            const currentPageInfo = document.getElementById('currentPageInfo');
+            const totalPagesInfo = document.getElementById('totalPagesInfo');
+            const totalItemsInfo = document.getElementById('totalItemsInfo');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInput = document.getElementById('pageInput');
+            const goToPageBtn = document.getElementById('goToPageBtn');
+
+            let currentPage = 1;
+            // pageSize sẽ được đọc từ pageSizeSelect.value
+
+            function formatCurrency(amount) {
+                if (typeof amount !== 'number') return 'N/A';
+                return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            }
+
+            async function fetchCategories() {
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Categories/all`);
+                    if (!response.ok) throw new Error(`Lỗi tải danh mục: ${response.status}`);
+                    const categories = await response.json();
+
+                    while (categoryFilter.options.length > 1) categoryFilter.remove(1); // Xóa option cũ trừ "Tất cả"
+
+                    categories.forEach(category => {
+                        const option = document.createElement('option');
+                        option.value = category.categoryID; // Đảm bảo key là categoryID
+                        option.textContent = category.categoryName; // Đảm bảo key là categoryName
+                        categoryFilter.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error("Không thể tải danh mục:", error);
+                }
+            }
+
+            async function fetchProducts(page = 1) {
+                productTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải...</td></tr>`;
+                prevPageBtn.disabled = true;
+                nextPageBtn.disabled = true;
+                goToPageBtn.disabled = true;
+
+                currentPage = page; // Cập nhật trang hiện tại
+                const selectedPageSize = pageSizeSelect.value;
+
+                const params = new URLSearchParams({
+                    pageNumber: currentPage.toString(),
+                    pageSizeInput: selectedPageSize
+                });
+
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm) params.append('SearchTerm', searchTerm);
+
+                const categoryId = categoryFilter.value;
+                if (categoryId) params.append('CategoryId', categoryId);
+
+                const minPrice = minPriceFilter.value;
+                if (minPrice) params.append('MinPrice', minPrice);
+
+                const maxPrice = maxPriceFilter.value;
+                if (maxPrice) params.append('MaxPrice', maxPrice);
+
+                const sortBy = sortFilter.value;
+                if (sortBy) params.append('SortBy', sortBy);
+
+                const url = `${API_BASE_URL}/Products?${params.toString()}`;
+                console.log("Fetching products with URL:", url);
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        const errorData = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorData || response.statusText}`);
+                    }
+                    const data = await response.json(); // PagedResult<ProductSummaryDto>
+                    renderTable(data.items);
+                    updatePaginationUI(data);
+                } catch (error) {
+                    console.error('Lỗi khi lấy dữ liệu sản phẩm:', error);
+                    productTableBody.innerHTML = `<tr><td colspan="9" class="text-center py-4 text-red-500">Không thể tải dữ liệu. Lỗi: ${error.message}</td></tr>`;
+                    updatePaginationUI(null); // Xóa thông tin pagination khi có lỗi
+                }
+            }
+
+            function renderTable(products) {
+                productTableBody.innerHTML = '';
+                if (!products || products.length === 0) {
+                    productTableBody.innerHTML = '<tr><td colspan="9" class="text-center py-4">Không tìm thấy sản phẩm nào.</td></tr>';
+                    return;
+                }
+                const getImageUrl = (imageURL) => {
+                    if (!imageURL || imageURL === "/images/string") return '../../assets/images/placeholder.png'; // Sửa path nếu cần
+                    const isFullUrl = /^(https?:)?\/\//i.test(imageURL);
+                    if (isFullUrl) return imageURL;
+                    const basePath = '../../assets/images/'; // Sửa path nếu cần
+                    const cleanPath = imageURL.startsWith('/') ? imageURL.slice(1) : imageURL;
+                    return `${basePath}${cleanPath}`;
+                };
+
+                products.forEach((product, index) => {
+                    const row = document.createElement('tr');
+                    // STT tính dựa trên trang hiện tại và pageSize
+                    const stt = (currentPage - 1) * parseInt(pageSizeSelect.value) + index + 1;
+                    const imageDisplayUrl = getImageUrl(product.imageURL);
+                    const statusButtonHtml = product.isActive
+                        ? `<button onclick="window.changeProductStatus(${product.productID}, false)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white justify-center bg-green-500 w-24 hover:bg-green-600" title="Nhấp để ngừng bán">Đang bán</button>`
+                        : `<button onclick="window.changeProductStatus(${product.productID}, true)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white justify-center bg-gray-500 w-24 hover:bg-gray-600" title="Nhấp để bán lại">Ngừng bán</button>`;
+
+                    row.innerHTML = `
+                        <td class="py-3 px-4 border-b text-center">${stt}</td>
+                        <td class="py-4 px-6 border-b"><div class="product-name-ellipsis">${product.productName || 'N/A'}</div></td>
+                        <td class="py-3 px-4 border-b"><img src="${imageDisplayUrl}" alt="${product.productName || 'Sản phẩm'}" class="w-20 h-20 object-cover rounded"></td>
+                        <td class="py-3 px-4 border-b">${formatCurrency(product.price)}</td>
+                        <td class="py-2 px-4 border-b">${product.shopName || 'N/A'}</td>
+                        <td class="py-2 px-4 border-b">${product.categoryName || 'N/A'}</td>
+                        <td class="py-3 px-4 border-b">${product.stockQuantity !== undefined ? product.stockQuantity : 'N/A'}</td>
+                        <td class="py-3 px-4 border-b">${statusButtonHtml}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-3">
+                            <a href="view.html?id=${product.productID}" class="text-blue-600 hover:text-blue-900" title="Xem chi tiết"><i class="fas fa-eye fa-fw"></i></a>
+                            <a href="update.html?id=${product.productID}" class="text-yellow-500 hover:text-yellow-700" title="Sửa"><i class="fas fa-edit fa-fw"></i></a>
+                            <button type="button" class="text-red-600 hover:text-red-800 delete-btn" data-id="${product.productID}" title="Xóa vĩnh viễn"><i class="fas fa-trash-alt fa-fw"></i></button>
+                        </td>
+                    `;
+                    productTableBody.appendChild(row);
+                });
+            }
+
+            function updatePaginationUI(data) {
+                if (data) {
+                    currentPageInfo.textContent = data.pageNumber;
+                    totalPagesInfo.textContent = data.totalPages;
+                    totalItemsInfo.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber;
+                    pageInput.max = data.totalPages;
+
+                    prevPageBtn.disabled = !data.hasPreviousPage;
+                    nextPageBtn.disabled = !data.hasNextPage;
+                    goToPageBtn.disabled = (data.totalPages <= 1);
+                } else { // Reset UI khi có lỗi hoặc không có dữ liệu
+                    currentPageInfo.textContent = '0';
+                    totalPagesInfo.textContent = '0';
+                    totalItemsInfo.textContent = '0';
+                    pageInput.value = '1';
+                    pageInput.max = '1';
+                    prevPageBtn.disabled = true;
+                    nextPageBtn.disabled = true;
+                    goToPageBtn.disabled = true;
+                }
+            }
+
+            window.changeProductStatus = async function (productId, newIsActiveDesired) {
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+                const apiStatusParam = newIsActiveDesired ? 'active' : 'notActive';
+                const actionDescription = newIsActiveDesired ? 'BÁN LẠI' : 'NGỪNG BÁN';
+                if (!confirm(`Bạn có chắc chắn muốn ${actionDescription} sản phẩm không?`)) return;
+
+                const url = `${API_BASE_URL}/Products/${productId}?status=${apiStatusParam}`;
+                try {
+                    const response = await fetch(url, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    if (response.status === 204) {
+                        alert(`Đã ${actionDescription.toLowerCase()} sản phẩm.`);
+                        fetchProducts(currentPage);
+                    } else if (response.status === 401 || response.status === 403) {
+                        alert('Bạn không có quyền hoặc phiên đăng nhập đã hết hạn.');
+                    } else if (response.status === 404) {
+                        alert(`Không tìm thấy sản phẩm.`);
+                    } else {
+                        const errorText = await response.text(); throw new Error(`Lỗi ${response.status}: ${errorText}`);
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi ${actionDescription.toLowerCase()} sản phẩm:`, error);
+                    alert(`${actionDescription} sản phẩm thất bại. Lỗi: ${error.message}`);
+                }
+            }
+
+            async function hardDeleteProduct(productId) {
+                if (!confirm(`BẠN CÓ CHẮC CHẮN MUỐN XÓA VĨNH VIỄN sản phẩm không?`)) return;
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+                const url = `${API_BASE_URL}/Products/${productId}?status=delete`;
+                try {
+                    const response = await fetch(url, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    if (response.status === 204) {
+                        alert(`Đã XÓA VĨNH VIỄN sản phẩm.`);
+                        fetchProducts(currentPage); // Tải lại trang hiện tại
+                    } else if (response.status === 401 || response.status === 403) {
+                        alert('Bạn không có quyền hoặc phiên đăng nhập đã hết hạn.');
+                    } else if (response.status === 404) {
+                        alert(`Không tìm thấy sản phẩm.`);
+                    } else {
+                        const errorText = await response.text(); throw new Error(`Lỗi ${response.status}: ${errorText}`);
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi xóa vĩnh viễn sản phẩm:`, error);
+                    alert(`Xóa vĩnh viễn sản phẩm thất bại. Lỗi: ${error.message}`);
+                }
+            }
+
+            // --- Event Listeners ---
+            filterForm.addEventListener('submit', (e) => { // Ngăn submit mặc định của form
+                e.preventDefault();
+                fetchProducts(1); // Luôn về trang 1 khi áp dụng bộ lọc/tìm kiếm mới
+            });
+
+            applyFiltersBtn.addEventListener('click', () => { // Nút riêng để áp dụng
+                fetchProducts(1);
+            });
+
+            pageSizeSelect.addEventListener('change', () => {
+                fetchProducts(1); // Khi thay đổi page size, về trang 1
+            });
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) fetchProducts(currentPage - 1);
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                // Kiểm tra với totalPagesInfo.textContent vì data.totalPages có thể chưa cập nhật ngay
+                if (currentPage < parseInt(totalPagesInfo.textContent)) fetchProducts(currentPage + 1);
+            });
+
+            goToPageBtn.addEventListener('click', () => {
+                const targetPage = parseInt(pageInput.value);
+                const totalPages = parseInt(totalPagesInfo.textContent);
+                if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
+                    fetchProducts(targetPage);
+                } else if (targetPage === currentPage) {
+                    // Không làm gì nếu nhập trang hiện tại
+                }
+                else {
+                    alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${totalPages}.`);
+                    pageInput.value = currentPage; // Reset về trang hiện tại
+                }
+            });
+
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault(); // Ngăn submit form (nếu input nằm trong form)
+                    goToPageBtn.click(); // Kích hoạt nút "Đi"
+                }
+            });
+
+            productTableBody.addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    const productId = deleteButton.dataset.id;
+                    if (productId) hardDeleteProduct(productId);
+                }
+            });
+
+            // --- Initial Load ---
+            fetchCategories(); // Tải danh mục
+            fetchProducts(currentPage); // Tải sản phẩm ban đầu
+        });
+    </script>
+</body>
+
+</html>

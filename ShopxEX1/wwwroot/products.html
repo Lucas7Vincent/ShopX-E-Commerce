@@ -1,0 +1,259 @@
+﻿<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopX - Sản phẩm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* ... (CSS styles của bạn giữ nguyên) ... */
+        .productDto-card:hover .productDto-actions {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .productDto-actions {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+        /* CSS để đảm bảo chiều cao ảnh đồng nhất */
+        .productDto-card img {
+            height: 12rem; /* 192px, tương đương h-48 của Tailwind */
+            object-fit: cover; /* Đảm bảo ảnh che phủ hết khung mà không bị méo */
+        }
+        /* Thêm style cho loading và error messages */
+        #productDto-list-status {
+            text-align: center;
+            padding: 2rem;
+            font-style: italic;
+            color: #6b7280; /* gray-500 */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-50">
+    <!-- ... (Toàn bộ Header của bạn giữ nguyên) ... -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <!-- ... Header code ... -->
+    </header>
+
+    <!-- ... (Mobile Menu, Hero Banner, Categories giữ nguyên) ... -->
+    <!-- Featured Products -->
+    <section class="py-12 bg-gray-50">
+        <div class="container mx-auto px-4">
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-2xl font-bold">Sản phẩm nổi bật</h2>
+                <a href="#" class="text-blue-600 hover:text-blue-800 flex items-center">
+                    Xem tất cả <i class="fas fa-chevron-right ml-1 text-sm"></i>
+                </a>
+            </div>
+            <!-- Sửa đổi khu vực này để JS điền dữ liệu vào -->
+            <div id="productDto-list" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
+                <!-- Product cards sẽ được thêm vào đây bằng JavaScript -->
+                <div id="productDto-list-status">Đang tải sản phẩm...</div> <!-- Thêm dòng trạng thái -->
+            </div>
+        </div>
+    </section>
+
+    <!-- ... (Banner, New Arrivals giữ nguyên) ... -->
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white pt-12 pb-6">
+        <!-- ... Footer code ... -->
+    </footer>
+
+    <!-- Chatbot -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <!-- ... Chatbot code ... -->
+    </div>
+
+    <script>
+        // --- CODE JAVASCRIPT HIỆN CÓ CỦA BẠN ---
+        // Toggle cart dropdown
+        // ... (code hiện tại của bạn) ...
+
+        // Fade in animation on scroll
+        // ... (code hiện tại của bạn) ...
+
+        // Toggle user menu
+        // ... (code hiện tại của bạn) ...
+
+        // Close menu when clicking outside
+        // ... (code hiện tại của bạn) ...
+
+        // Keyboard support
+        // ... (code hiện tại của bạn) ...
+
+
+        // --- CODE JAVASCRIPT MỚI ĐỂ GỌI API VÀ HIỂN THỊ SẢN PHẨM ---
+
+        const API_BASE_URL = 'https://localhost:7088'; // !!! URL API BACKEND CỦA BẠN !!!
+        const productListContainer = document.getElementById('productDto-list');
+        const productListStatus = document.getElementById('productDto-list-status');
+
+        /**
+         * Định dạng tiền tệ Việt Nam
+         * @param {number} amount - Số tiền cần định dạng
+         * @returns {string} Chuỗi tiền tệ đã định dạng (ví dụ: 1.000.000đ)
+         */
+        function formatCurrency(amount) {
+            if (typeof amount !== 'number') {
+                return 'N/A'; // Hoặc giá trị mặc định khác
+            }
+            return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+        }
+
+        /**
+         * Tạo HTML cho một thẻ sản phẩm
+         * @param {object} productDto - Đối tượng sản phẩm từ API
+         * @returns {string} Chuỗi HTML của thẻ sản phẩm
+         */
+        function createProductCardHTML(productDto) {
+            const formattedPrice = formatCurrency(productDto.price);
+            const imageUrl = productDto.imageURL ? `${API_BASE_URL}${productDto.imageURL}` : 'https://via.placeholder.com/500x500.png?text=No+Image'; // Xử lý ảnh null/placeholder
+            // Thêm URL gốc cho ảnh nếu imageURL là đường dẫn tương đối
+
+            // Lấy 5 sao rating (ví dụ đơn giản)
+            const ratingStars = '<i class="fas fa-star"></i>'.repeat(Math.round(productDto.ratingAverage || 0)) +
+                              '<i class="far fa-star"></i>'.repeat(5 - Math.round(productDto.ratingAverage || 0));
+
+            return `
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition productDto-card fade-in">
+                    <div class="relative">
+                        <img src="${imageUrl}" alt="${productDto.productName}" class="w-full h-48 object-cover" loading="lazy">
+                        ${productDto.discountPercent > 0 ? `<div class="absolute top-2 left-2 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded">-${productDto.discountPercent}%</div>` : ''}
+                        ${productDto.isNew ? `<div class="absolute top-2 ${productDto.discountPercent > 0 ? 'right-2' : 'left-2'} bg-green-500 text-white text-xs font-bold px-2 py-1 rounded">Mới</div>` : ''}
+
+                        <div class="productDto-actions absolute bottom-0 left-0 right-0 bg-white/90 flex justify-center space-x-2 p-2">
+                            <button title="Yêu thích" class="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition">
+                                <i class="far fa-heart text-sm"></i>
+                            </button>
+                            <button title="Xem nhanh" class="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition">
+                                <i class="fas fa-search text-sm"></i>
+                            </button>
+                            <button title="Thêm vào giỏ" onclick="addToCart(${productDto.productID})" class="w-8 h-8 rounded-full bg-white border border-gray-300 flex items-center justify-center hover:bg-blue-600 hover:text-white hover:border-blue-600 transition">
+                                <i class="fas fa-shopping-cart text-sm"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="p-4">
+                        <a href="#" class="text-gray-800 hover:text-blue-600 font-medium block mb-1 truncate" title="${productDto.productName}">${productDto.productName}</a>
+                         <div class="flex items-center mb-2">
+                            <div class="flex text-yellow-400 text-sm">
+                                ${ratingStars}
+                            </div>
+                            <span class="text-gray-500 text-xs ml-1">(${productDto.reviewCount || 0})</span>
+                        </div>
+                        <div class="flex items-center">
+                            <span class="text-red-500 font-bold">${formattedPrice}</span>
+                            ${productDto.originalPrice > productDto.price ? `<span class="text-gray-500 text-sm line-through ml-2">${formatCurrency(productDto.originalPrice)}</span>` : ''}
+                        </div>
+                         <p class="text-xs text-gray-500 mt-1">Kho: ${productDto.stockQuantity}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        /**
+         * Hàm bất đồng bộ để gọi API và hiển thị sản phẩm
+         */
+        async function fetchAndDisplayProducts() {
+            if (!productListContainer || !productListStatus) {
+                console.error("Product list container or status element not found.");
+                return;
+            }
+
+            productListStatus.textContent = 'Đang tải sản phẩm...'; // Cập nhật trạng thái
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/Product`);
+
+                if (!response.ok) {
+                    throw new Error(`Lỗi HTTP: ${response.status} ${response.statusText}`);
+                }
+
+                const products = await response.json();
+
+                productListContainer.innerHTML = ''; // Xóa thông báo "Đang tải..." hoặc nội dung cũ
+
+                if (!products || products.length === 0) {
+                    productListContainer.innerHTML = '<p id="productDto-list-status">Không tìm thấy sản phẩm nào.</p>';
+                    return;
+                }
+
+                // Tạo HTML cho từng sản phẩm và thêm vào container
+                products.forEach(productDto => {
+                    const productCardHTML = createProductCardHTML(productDto);
+                    productListContainer.insertAdjacentHTML('beforeend', productCardHTML);
+                });
+
+                // Kích hoạt lại hiệu ứng fade-in cho các phần tử mới
+                 fadeInElements();
+
+            } catch (error) {
+                console.error('Lỗi khi tải sản phẩm:', error);
+                productListContainer.innerHTML = `<p id="productDto-list-status" class="text-red-500">Đã xảy ra lỗi khi tải sản phẩm. Vui lòng thử lại sau.</p>`;
+            }
+        }
+
+         /**
+         * Hàm để thêm animation fade-in cho các productDto card
+         */
+        function fadeInElements() {
+             const fadeElements = productListContainer.querySelectorAll('.fade-in');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        // Thêm độ trễ nhỏ trước khi thêm class visible để hiệu ứng mượt hơn
+                        setTimeout(() => {
+                            entry.target.classList.add('visible');
+                        }, 100 * (Array.from(fadeElements).indexOf(entry.target) % 10)); // stagger effect
+                        observer.unobserve(entry.target); // Ngừng theo dõi sau khi hiển thị
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            fadeElements.forEach(element => {
+                element.classList.remove('visible'); // Reset nếu cần load lại
+                observer.observe(element);
+            });
+        }
+
+
+        /**
+         * Hàm xử lý thêm vào giỏ hàng (Cần triển khai chi tiết hơn)
+         * @param {number} productId ID của sản phẩm
+         */
+        async function addToCart(productId) {
+            console.log(`Adding productDto with ID: ${productId} to cart.`);
+            alert(`Đã thêm sản phẩm ID: ${productId} vào giỏ (chức năng đang phát triển)`);
+
+            // --- LOGIC GỌI API THÊM VÀO GIỎ HÀNG SẼ Ở ĐÂY ---
+            // const userId = getCurrentUserId(); // Lấy User ID
+            // const quantity = 1;
+            // try {
+            //     const response = await fetch(`${API_BASE_URL}/api/Cart/add`, {
+            //         method: 'POST',
+            //         headers: { 'Content-Type': 'application/json' },
+            //         body: JSON.stringify({ userId, productId, quantity })
+            //     });
+            //     if (!response.ok) throw new Error('Failed to add to cart');
+            //     // Cập nhật UI giỏ hàng,...
+            //     console.log('Added to cart via API');
+            // } catch (error) {
+            //     console.error("Error adding to cart:", error);
+            //     alert("Lỗi thêm vào giỏ hàng!");
+            // }
+            // ----------------------------------------------------
+        }
+
+        // Gọi hàm để tải dữ liệu khi trang được tải xong
+        document.addEventListener('DOMContentLoaded', fetchAndDisplayProducts);
+
+    </script>
+
+</body>
+
+</html>

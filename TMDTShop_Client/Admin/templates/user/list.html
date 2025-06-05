@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Quản lý người dùng</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css"> <!-- Assuming shared admin CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Add any specific styles for user list if needed */
+        .action-icon {
+            margin-left: 0.25rem;
+            margin-right: 0.25rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+
+        <div id="sidebar">
+            <!-- Auto-loaded by custom.js -->
+        </div>
+
+        <div class="content-area flex-1">
+            <div id="header">
+                <!-- Auto-loaded by custom.js -->
+            </div>
+
+            <div id="app">
+                <main class="p-6 mx-auto">
+                    <section class="mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h2 class="text-2xl font-bold text-gray-800">Quản lý người dùng</h2>
+                                <a href="create.html"
+                                    class="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-4 rounded shadow-sm transition duration-150 ease-in-out">
+                                    <i class="fas fa-plus mr-2"></i>Thêm người dùng mới
+                                </a>
+                            </div>
+
+
+                            <!-- Search and Filters Form -->
+                            <form id="filterForm" class="mb-6">
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
+                                    <!-- Search Input -->
+                                    <div class="lg:col-span-2 xl:col-span-2">
+                                        <label for="searchInput"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm:</label>
+                                        <div class="flex">
+                                            <input type="text" id="searchInput" name="searchTerm"
+                                                placeholder="Tên, email, SĐT người dùng..."
+                                                class="p-2 border border-gray-300 rounded-l w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <button type="submit" id="searchBtn"
+                                                class="bg-blue-600 text-white px-5 rounded-r hover:bg-blue-700 transition duration-150 ease-in-out shadow-sm">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <!-- Role Filter -->
+                                    <div>
+                                        <label for="roleFilter" class="block text-sm font-medium text-gray-700 mb-1">Vai
+                                            trò:</label>
+                                        <select id="roleFilter" name="role"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="">Tất cả vai trò</option>
+                                            <option value="Customer">Customer</option>
+                                            <option value="Seller">Seller</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Status Filter -->
+                                    <div>
+                                        <label for="statusFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Trạng thái:</label>
+                                        <select id="statusFilter" name="isActive"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="">Tất cả trạng thái</option>
+                                            <option value="true">Đang hoạt động</option>
+                                            <option value="false">Ngừng hoạt động</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Sort By -->
+                                    <div class="md:col-start-1 xl:col-start-auto">
+                                        <label for="sortFilter" class="block text-sm font-medium text-gray-700 mb-1">Sắp
+                                            xếp:</label>
+                                        <select id="sortFilter" name="sortBy"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="">Mặc định (Mới nhất)</option>
+                                            <option value="fullNameAsc">Tên: A-Z</option>
+                                            <option value="fullNameDesc">Tên: Z-A</option>
+                                            <option value="emailAsc">Email: A-Z</option>
+                                            <option value="emailDesc">Email: Z-A</option>
+                                            <option value="createdAtAsc">Ngày tạo: Cũ nhất</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Page Size -->
+                                    <div>
+                                        <label for="pageSizeSelect"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Hiển thị:</label>
+                                        <select id="pageSizeSelect" name="pageSize"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                            <option value="10">10 người dùng</option>
+                                            <option value="25">25 người dùng</option>
+                                            <option value="50">50 người dùng</option>
+                                            <option value="100">100 người dùng</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="xl:col-span-2 flex justify-end items-end mt-4 md:mt-0">
+                                        <button type="button" id="applyFiltersBtn"
+                                            class="bg-indigo-600 text-white px-6 py-2 rounded hover:bg-indigo-700 transition duration-150 ease-in-out shadow-sm w-full md:w-auto">
+                                            Áp dụng bộ lọc & Tìm kiếm
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            STT</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Họ và Tên</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Email</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Số điện thoại</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Vai trò</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Ngày tạo</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Trạng thái</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody" class="bg-white divide-y divide-gray-200">
+                                    <!-- Rows will be populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </section>
+
+                    <!-- Pagination -->
+                    <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
+                        <div class="text-sm text-gray-600">
+                            Hiển thị <span id="currentPageInfo">1</span> / <span id="totalPagesInfo">1</span> trang
+                            (Tổng số <span id="totalItemsInfo">0</span> người dùng)
+                            (Tổng số <span id="totalItemsInfo">0</span> sản phẩm)
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="prevPageBtn"
+                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                disabled>Trước</button>
+                            <div class="flex items-center">
+                                <input type="number" id="pageInput" min="1"
+                                    class="p-1 border border-gray-300 rounded w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <button id="goToPageBtn"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded ml-1">Đi</button>
+                            </div>
+                            <button id="nextPageBtn"
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                disabled>Sau</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="footer">
+                <!-- Tự động load -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/Admin/assets/js/index.js"></script>
+    <!-- Shared functions like API_BASE_URL, checkAuthToken, formatDate -->
+    <script type="module" src="/Admin/assets/js/custom.js"></script> <!-- For loading sidebar, header, footer -->
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const userTableBody = document.getElementById('userTableBody');
+            const filterForm = document.getElementById('filterForm');
+            const searchInput = document.getElementById('searchInput');
+            const roleFilter = document.getElementById('roleFilter');
+            const statusFilter = document.getElementById('statusFilter');
+            const sortFilter = document.getElementById('sortFilter');
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+
+            const currentPageInfo = document.getElementById('currentPageInfo');
+            const totalPagesInfo = document.getElementById('totalPagesInfo');
+            const totalItemsInfo = document.getElementById('totalItemsInfo');
+            const prevPageBtn = document.getElementById('prevPageBtn');
+            const nextPageBtn = document.getElementById('nextPageBtn');
+            const pageInput = document.getElementById('pageInput');
+            const goToPageBtn = document.getElementById('goToPageBtn');
+
+            let currentPage = 1;
+
+            // Assumes formatDate is available globally from index.js
+            // If not, define it here:
+            // function formatDate(dateString) {
+            //     if (!dateString) return 'N/A';
+            //     const date = new Date(dateString);
+            //     if (isNaN(date.getTime())) return 'N/A';
+            //     const day = String(date.getDate()).padStart(2, '0');
+            //     const month = String(date.getMonth() + 1).padStart(2, '0'); // Month is 0-indexed
+            //     const year = date.getFullYear();
+            //     return `${day}/${month}/${year}`;
+            // }
+
+
+            async function fetchUsers(page = 1) {
+                userTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải...</td></tr>`;
+                prevPageBtn.disabled = true;
+                nextPageBtn.disabled = true;
+                goToPageBtn.disabled = true;
+
+                currentPage = page;
+                const selectedPageSize = pageSizeSelect.value;
+
+                const params = new URLSearchParams({
+                    pageNumber: currentPage.toString(),
+                    pageSizeInput: selectedPageSize
+                });
+
+                const searchTerm = searchInput.value.trim();
+                if (searchTerm) params.append('SearchTerm', searchTerm);
+
+                const role = roleFilter.value;
+                if (role) params.append('Role', role); // Backend needs to support this
+
+                const isActive = statusFilter.value;
+                if (isActive !== "") params.append('IsActive', isActive); // Backend UserFilterDto supports IsActive
+
+                const sortBy = sortFilter.value;
+                if (sortBy) params.append('SortBy', sortBy); // Backend needs to support this
+
+                const url = `${API_BASE_URL}/Users?${params.toString()}`;
+                console.log("Fetching users with URL:", url);
+                const token = sessionStorage.getItem('token');
+
+                try {
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) {
+                        const errorData = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorData || response.statusText}`);
+                    }
+                    const data = await response.json(); // PagedResult<UserSummaryDto>
+                    renderTable(data.items);
+                    updatePaginationUI(data);
+                } catch (error) {
+                    console.error('Lỗi khi lấy dữ liệu người dùng:', error);
+                    userTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Không thể tải dữ liệu. Lỗi: ${error.message}</td></tr>`;
+                    updatePaginationUI(null);
+                }
+            }
+
+            function renderTable(users) {
+                userTableBody.innerHTML = '';
+                if (!users || users.length === 0) {
+                    userTableBody.innerHTML = '<tr><td colspan="7" class="text-center py-4">Không tìm thấy người dùng nào.</td></tr>';
+                    return;
+                }
+
+                users.forEach((user, index) => {
+                    const row = document.createElement('tr');
+                    const stt = (currentPage - 1) * parseInt(pageSizeSelect.value) + index + 1;
+
+                    const statusButtonHtml = user.isActive
+                        ? `<button onclick="window.toggleUserStatus(${user.userID}, false)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white justify-center bg-green-500 w-28 hover:bg-green-600" title="Nhấp để vô hiệu hóa">Hoạt động</button>`
+                        : `<button onclick="window.toggleUserStatus(${user.userID}, true)" class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full text-white justify-center bg-gray-500 w-28 hover:bg-gray-600" title="Nhấp để kích hoạt">Vô hiệu hóa</button>`;
+
+                    const createdAtDisplay = user.createdAt ? window.formatDate(new Date(user.createdAt)) : 'N/A';
+
+
+                    row.innerHTML = `
+                        <td class="py-3 px-4 border-b text-center">${stt}</td>
+                        <td class="py-3 px-6 border-b">${user.fullName || 'N/A'}</td>
+                        <td class="py-3 px-6 border-b">${user.email || 'N/A'}</td>
+                        <td class="py-3 px-6 border-b">${user.phone || 'N/A'}</td>
+                        <td class="py-3 px-6 border-b">${user.role || 'N/A'}</td>
+                        <td class="py-3 px-6 border-b">${createdAtDisplay}</td>
+                        <td class="py-3 px-6 border-b text-center">${statusButtonHtml}</td>
+                        <td class="px-6 py-3 whitespace-nowrap text-center text-sm font-medium">
+                            <a href="update.html?id=${user.userID}" class="text-yellow-500 hover:text-yellow-700 action-icon" title="Sửa thông tin"><i class="fas fa-edit fa-fw"></i></a>
+                            <button type="button" class="text-purple-500 hover:text-purple-700 change-role-btn action-icon" data-id="${user.userID}" data-current-role="${user.role}" title="Đổi vai trò"><i class="fas fa-user-cog fa-fw"></i></button>
+                            <button type="button" class="text-red-500 hover:text-red-700 delete-btn action-icon" data-id="${user.userID}" title="Xóa vĩnh viễn"><i class="fas fa-trash-alt fa-fw"></i></button>
+                        </td>
+                    `;
+                    userTableBody.appendChild(row);
+                });
+            }
+
+            function updatePaginationUI(data) {
+                if (data) {
+                    currentPageInfo.textContent = data.pageNumber;
+                    totalPagesInfo.textContent = data.totalPages;
+                    totalItemsInfo.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber;
+                    pageInput.max = data.totalPages;
+
+                    prevPageBtn.disabled = !data.hasPreviousPage;
+                    nextPageBtn.disabled = !data.hasNextPage;
+                    goToPageBtn.disabled = (data.totalPages <= 1);
+                } else {
+                    currentPageInfo.textContent = '0';
+                    totalPagesInfo.textContent = '0';
+                    totalItemsInfo.textContent = '0';
+                    pageInput.value = '1';
+                    pageInput.max = '1';
+                    prevPageBtn.disabled = true;
+                    nextPageBtn.disabled = true;
+                    goToPageBtn.disabled = true;
+                }
+            }
+
+            window.toggleUserStatus = async function (userId, newIsActiveDesired) {
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+                const actionDescription = newIsActiveDesired ? 'KÍCH HOẠT' : 'VÔ HIỆU HÓA';
+                if (!confirm(`Bạn có chắc chắn muốn ${actionDescription} người dùng này không?`)) return;
+
+                let originalUserData;
+                try {
+                    const res = await fetch(`${API_BASE_URL}/Users/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!res.ok) throw new Error(`Không thể lấy thông tin người dùng: ${res.status}`);
+                    originalUserData = await res.json(); // Should be UserDto
+                } catch (error) {
+                    alert(`Không thể lấy thông tin người dùng để cập nhật trạng thái. ${error.message}`);
+                    console.error("Error fetching user details for status toggle:", error);
+                    return;
+                }
+
+                const payload = {
+                    fullName: originalUserData.fullName,
+                    phone: originalUserData.phone,
+                    address: originalUserData.address,
+                    role: originalUserData.role,
+                    shopName: originalUserData.shopName, // Important for Sellers
+                    isActive: newIsActiveDesired
+                };
+
+                const url = `${API_BASE_URL}/Users/${userId}`;
+                try {
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+                    if (response.ok) { // PUT usually returns 200 OK with content or 204 No Content
+                        alert(`Đã ${actionDescription.toLowerCase()} người dùng.`);
+                        fetchUsers(currentPage);
+                    } else if (response.status === 401 || response.status === 403) {
+                        alert('Bạn không có quyền hoặc phiên đăng nhập đã hết hạn.');
+                    } else if (response.status === 404) {
+                        alert('Không tìm thấy người dùng.');
+                    } else {
+                        const errorText = await response.text(); throw new Error(`Lỗi ${response.status}: ${errorText}`);
+                    }
+                } catch (error) {
+                    console.error(`Lỗi khi ${actionDescription.toLowerCase()} người dùng:`, error);
+                    alert(`${actionDescription} người dùng thất bại. Lỗi: ${error.message}`);
+                }
+            }
+
+            async function hardDeleteUser(userId) {
+                if (!confirm(`BẠN CÓ CHẮC CHẮN MUỐN XÓA VĨNH VIỄN người dùng này không? Hành động này không thể hoàn tác.`)) return;
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+                const url = `${API_BASE_URL}/Users/${userId}`;
+                try {
+                    const response = await fetch(url, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.status === 204) { // No Content
+                        alert(`Đã XÓA VĨNH VIỄN người dùng.`);
+                        fetchUsers(currentPage); // Tải lại trang hiện tại
+                    } else if (response.status === 401 || response.status === 403) {
+                        alert('Bạn không có quyền hoặc phiên đăng nhập đã hết hạn.');
+                    } else if (response.status === 404) {
+                        alert('Không tìm thấy người dùng.');
+                    } else if (response.status === 409) { // Conflict - e.g., user has related data
+                        const errorData = await response.json();
+                        alert(`Không thể xóa người dùng: ${errorData.message || 'Có ràng buộc dữ liệu.'}`);
+                    }
+                    else {
+                        const errorText = await response.text(); throw new Error(`Lỗi ${response.status}: ${errorText}`);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi xóa vĩnh viễn người dùng:', error);
+                    alert(`Xóa vĩnh viễn người dùng thất bại. Lỗi: ${error.message}`);
+                }
+            }
+
+            window.openChangeRoleModal = async function (userId, currentRole) {
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+
+                const roles = ["Customer", "Seller", "Admin"];
+                const newRole = prompt(`Nhập vai trò mới cho người dùng ID ${userId} (Current: ${currentRole}).\nCác vai trò hợp lệ: ${roles.join(", ")}`, currentRole);
+
+                if (newRole === null || newRole.trim() === "") {
+                    alert("Thay đổi vai trò đã bị hủy.");
+                    return;
+                }
+                if (!roles.map(r => r.toLowerCase()).includes(newRole.trim().toLowerCase())) {
+                    alert(`Vai trò '${newRole}' không hợp lệ. Vui lòng chọn từ: ${roles.join(", ")}.`);
+                    return;
+                }
+
+                const standardizedNewRole = roles.find(r => r.toLowerCase() === newRole.trim().toLowerCase());
+
+                let shopName = null;
+                if (standardizedNewRole === "Seller") {
+                    // Fetch current shop name if exists or prompt
+                    let currentShopName = '';
+                    try {
+                        const userRes = await fetch(`${API_BASE_URL}/Users/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                        if (userRes.ok) {
+                            const userData = await userRes.json();
+                            currentShopName = userData.shopName || '';
+                        }
+                    } catch (e) { console.warn("Could not fetch shop name for prefill", e); }
+
+                    shopName = prompt(`Người dùng được gán vai trò Seller. Vui lòng nhập Tên cửa hàng:`, currentShopName);
+                    if (shopName === null) { // User cancelled shop name prompt
+                        alert("Thay đổi vai trò đã bị hủy vì không nhập tên cửa hàng.");
+                        return;
+                    }
+                    if (shopName.trim() === "") {
+                        alert("Tên cửa hàng không được để trống cho vai trò Seller.");
+                        return;
+                    }
+                }
+
+                const payload = {
+                    newRole: standardizedNewRole,
+                    shopName: shopName // Will be null if not Seller or if not provided
+                };
+
+                if (!confirm(`Bạn có chắc muốn đổi vai trò của người dùng ID ${userId} thành '${standardizedNewRole}'` + (shopName ? ` với tên cửa hàng '${shopName}'` : "") + ` không?`)) {
+                    return;
+                }
+
+                const url = `${API_BASE_URL}/Users/${userId}/set-role`;
+                try {
+                    const response = await fetch(url, {
+                        method: 'PATCH',
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        alert(`Đã cập nhật vai trò thành công cho người dùng ID ${userId}.`);
+                        fetchUsers(currentPage);
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Lỗi khi cập nhật vai trò: ${errorData.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi gọi API SetUserRole:", error);
+                    alert(`Đã xảy ra lỗi: ${error.message}`);
+                }
+            };
+
+
+            // --- Event Listeners ---
+            filterForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                fetchUsers(1);
+            });
+
+            applyFiltersBtn.addEventListener('click', () => {
+                fetchUsers(1);
+            });
+
+            pageSizeSelect.addEventListener('change', () => fetchUsers(1));
+            sortFilter.addEventListener('change', () => fetchUsers(1));
+            roleFilter.addEventListener('change', () => fetchUsers(1));
+            statusFilter.addEventListener('change', () => fetchUsers(1));
+
+
+            prevPageBtn.addEventListener('click', () => {
+                if (currentPage > 1) fetchUsers(currentPage - 1);
+            });
+
+            nextPageBtn.addEventListener('click', () => {
+                if (currentPage < parseInt(totalPagesInfo.textContent)) fetchUsers(currentPage + 1);
+            });
+
+            goToPageBtn.addEventListener('click', () => {
+                const targetPage = parseInt(pageInput.value);
+                const totalPages = parseInt(totalPagesInfo.textContent);
+                if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) {
+                    fetchUsers(targetPage);
+                } else if (targetPage !== currentPage) {
+                    alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${totalPages}.`);
+                    pageInput.value = currentPage;
+                }
+            });
+
+            pageInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    goToPageBtn.click();
+                }
+            });
+
+            userTableBody.addEventListener('click', (e) => {
+                const deleteButton = e.target.closest('.delete-btn');
+                if (deleteButton) {
+                    const userId = deleteButton.dataset.id;
+                    if (userId) hardDeleteUser(userId);
+                    return;
+                }
+                const changeRoleButton = e.target.closest('.change-role-btn');
+                if (changeRoleButton) {
+                    const userId = changeRoleButton.dataset.id;
+                    const currentRole = changeRoleButton.dataset.currentRole;
+                    if (userId) openChangeRoleModal(userId, currentRole);
+                    return;
+                }
+            });
+
+            // --- Initial Load ---
+            fetchUsers(currentPage);
+        });
+    </script>
+</body>
+
+</html>

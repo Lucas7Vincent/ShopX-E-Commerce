@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khuyến mãi Siêu Hot - ShopX</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/discount.css">
+    <style>
+        /* Optimize font rendering */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        /* Adjust line-height and letter-spacing for body text */
+        .font-inter {
+            line-height: 1.6;
+            letter-spacing: -0.01em;
+        }
+        /* Adjust heading spacing for clarity */
+        .font-inter-heading {
+            letter-spacing: 0.01em;
+        }
+    </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'shopx-blue': '#2563EB',
+                        'shopx-orange': '#F97316',
+                        'shopx-gray': {
+                            DEFAULT: '#6B7280',
+                            light: '#F3F4F6',
+                            dark: '#374151',
+                        }
+                    },
+                    fontFamily: {
+                        inter: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50">
+     <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Promotion Hero -->
+        <section id="promotions" class="relative rounded-lg overflow-hidden shadow-xl mb-12 h-[400px] md:h-[500px]">
+            <div class="absolute inset-0 bg-cover bg-center transition-opacity duration-1000" id="banner-image">
+                <!-- Background image set by JS -->
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent z-10"></div>
+            <div class="relative z-20 flex flex-col items-center justify-end h-full text-center pb-12 md:pb-16 px-4">
+                <h2 class="text-4xl md:text-6xl font-poppins font-bold text-white mb-4 leading-tight shadow-text">Đại Tiệc Khuyến Mãi</h2>
+                <p class="text-lg md:text-xl text-gray-200 mb-8 max-w-2xl shadow-text">Săn ngàn deal hot, giảm giá cực sốc cho hàng loạt sản phẩm chất lượng!</p>
+                <a href="#products" class="bg-shopx-orange hover:bg-orange-600 text-white font-poppins font-semibold px-8 py-3 rounded-full text-lg transition transform hover:scale-105 shadow-lg">
+                    Khám Phá Ngay
+                </a>
+            </div>
+        </section>
+
+        <!-- Promotion Products -->
+        <section class="py-12" id="products">
+            <div class="container mx-auto px-4">
+                <div class="flex flex-col md:flex-row justify-between items-center mb-10 gap-6">
+                    <h2 class="text-3xl font-poppins font-bold text-shopx-dark">Sản Phẩm Nổi Bật</h2>
+                    <div class="flex gap-4 flex-wrap">
+                        <div class="relative">
+                            <select class="appearance-none bg-white border border-gray-300 rounded-full px-6 py-3 text-sm font-medium text-shopx-gray focus:outline-none focus:ring-2 focus:ring-shopx-blue focus:border-shopx-blue pr-10" id="sortSelect">
+                                <option value="default">Sắp xếp theo</option>
+                                <option value="discount">Giảm giá nhiều nhất</option>
+                                <option value="priceAsc">Giá thấp đến cao</option>
+                                <option value="priceDesc">Giá cao đến thấp</option>
+                                <option value="popular">Phổ biến nhất</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-shopx-gray pointer-events-none"></i>
+                        </div>
+                         <div class="relative">
+                            <select class="appearance-none bg-white border border-gray-300 rounded-full px-6 py-3 text-sm font-medium text-shopx-gray focus:outline-none focus:ring-2 focus:ring-shopx-blue focus:border-shopx-blue pr-10" id="categorySelect">
+                                <option value="all">Tất cả danh mục</option>
+                                <option value="Điện thoại">Điện thoại</option>
+                                <option value="Laptop">Laptop</option>
+                                <option value="Tai nghe">Tai nghe</option>
+                                <option value="Đồng hồ">Đồng hồ</option>
+                            </select>
+                            <i class="fas fa-chevron-down absolute right-4 top-1/2 transform -translate-y-1/2 text-shopx-gray pointer-events-none"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8" id="productsContainer">
+                    <!-- Products will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Countdown Banner -->
+        <section class="py-16 bg-gradient-to-r from-shopx-blue to-blue-700 my-12 rounded-lg shadow-xl">
+            <div class="container mx-auto px-4 text-center">
+                <h2 class="text-4xl font-poppins font-bold text-white mb-3">Ưu Đãi Sắp Hết Hạn!</h2>
+                <p class="text-lg text-blue-200 mb-8">Đừng bỏ lỡ cơ hội cuối cùng để sở hữu sản phẩm yêu thích với giá hời.</p>
+                <div id="countdown" class="flex justify-center gap-4 md:gap-8 mb-10">
+                    <!-- Countdown items will be styled by CSS/JS -->
+                </div>
+                <button class="bg-shopx-orange hover:bg-orange-600 text-white font-poppins font-semibold px-10 py-3 rounded-full text-lg transition transform hover:scale-105 shadow-lg">
+                    Xem Tất Cả Ưu Đãi
+                </button>
+            </div>
+        </section>
+    </main>
+<!-- Footer Container -->
+    <div id="footer-container"></div>
+    
+    
+    <!-- Chatbot -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button class="bg-shopx-blue hover:bg-blue-700 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-xl transition transform hover:scale-110 focus:outline-none focus:ring-2 focus:ring-shopx-blue focus:ring-offset-2">
+            <i class="fas fa-robot text-3xl"></i>
+        </button>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="../assets/js/index.js"></script>
+    <script src="../assets/js/promotion.js"></script>
+    <script src="../assets/js/components.js"></script>
+</body>
+</html>

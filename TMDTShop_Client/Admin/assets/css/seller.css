@@ -1,0 +1,51 @@
+.sidebar {
+    transition: all 0.3s ease;
+  }
+  .sidebar.collapsed {
+    width: 80px;
+  }
+  .sidebar.collapsed .sidebar-text {
+    display: none;
+  }
+  .sidebar.collapsed .logo-text {
+    display: none;
+  }
+  .sidebar.collapsed .nav-item {
+    justify-content: center;
+  }
+  .content {
+    transition: all 0.3s ease;
+  }
+  .content.expanded {
+    margin-left: 80px;
+  }
+  .chart-container {
+    height: 300px;
+  }
+  .section {
+    display: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .section.active {
+    display: block;
+    opacity: 1;
+  }
+  .modal {
+    transition: opacity 0.3s ease;
+  }
+  .modal-backdrop {
+    transition: opacity 0.3s ease;
+  }
+  .table-row {
+    transition: background-color 0.2s ease;
+  }
+  .table-row:hover {
+    background-color: #f1f5f9;
+  }
+  .action-btn {
+    transition: transform 0.2s ease, background-color 0.3s ease;
+  }
+  .action-btn:hover {
+    transform: scale(1.05);
+  }

@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ưu đãi & Mã giảm giá - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <style>
+        .discount-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+
+        .discount-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .copy-btn {
+            transition: background-color 0.2s;
+        }
+
+        .copied-feedback {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-0.5rem);
+            background-color: #22c55e;
+            /* green-500 */
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            pointer-events: none;
+            /* Để không cản trở click */
+        }
+
+        .copy-btn:hover .copied-feedback,
+        .copy-btn.copied .copied-feedback {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-1rem);
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <main class="container mx-auto px-4 py-8">
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="/Customer/index.html" class="text-blue-600 hover:underline">Trang chủ</a>
+                    <i class="fas fa-chevron-right fa-xs mx-2 text-gray-500"></i>
+                </li>
+                <li class="text-gray-500" aria-current="page">Ưu đãi & Mã giảm giá</li>
+            </ol>
+        </nav>
+
+        <h1 class="text-2xl md:text-3xl font-bold text-gray-800 mb-8 text-center">
+            <i class="fas fa-tags text-indigo-600 mr-2"></i>Ưu đãi hấp dẫn & Mã giảm giá
+        </h1>
+
+        <div id="discountListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Mã giảm giá sẽ được chèn vào đây -->
+        </div>
+
+        <div id="loadingDiscounts" class="text-center py-10">
+            <i class="fas fa-spinner fa-spin text-indigo-500 text-3xl"></i>
+            <p class="mt-2 text-gray-600">Đang tải các ưu đãi...</p>
+        </div>
+
+        <div id="noDiscounts" class="hidden text-center py-10 bg-white rounded-lg shadow-md">
+            <i class="fas fa-gift text-gray-400 text-4xl mb-3"></i>
+            <p class="text-gray-600">Hiện tại chưa có mã giảm giá nào. Vui lòng quay lại sau!</p>
+            <a href="/Customer/index.html"
+                class="mt-4 inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+
+    <script src="../assets/js/index.js"></script>
+    <script type="module" src="../assets/js/components.js"></script>
+    <script>
+        // Đảm bảo các hàm toàn cục từ index.js đã được load
+        function initializeDiscountsPage() {
+            const discountListContainer = document.getElementById('discountListContainer');
+            const loadingDiscountsElement = document.getElementById('loadingDiscounts');
+            const noDiscountsElement = document.getElementById('noDiscounts');
+
+            // Kiểm tra hàm đã load chưa
+            if (typeof API_BASE_URL === 'undefined' || typeof formatDate !== 'function' || typeof getSession !== 'function') {
+                console.error("API_BASE_URL hoặc các hàm tiện ích chưa được định nghĩa.");
+                loadingDiscountsElement.innerHTML = '<p class="text-red-500 text-center">Lỗi tải trang. Vui lòng thử lại.</p>';
+                return;
+            }
+
+            async function fetchActiveDiscounts() {
+                loadingDiscountsElement.classList.remove('hidden');
+                discountListContainer.innerHTML = '';
+                noDiscountsElement.classList.add('hidden');
+
+                const url = `${API_BASE_URL}/Discounts/all`; // Endpoint đã có
+                console.log("Fetching discounts from:", url);
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error(`Không thể tải mã giảm giá: ${response.status}`);
+                    }
+                    const discounts = await response.json(); // Expects List<DiscountDto>
+
+                    loadingDiscountsElement.classList.add('hidden');
+
+                    if (discounts && discounts.length > 0) {
+                        // Lọc thêm một lần nữa ở client để chỉ hiển thị mã còn hạn thực sự
+                        // Dù service đã lọc IsActive, nhưng IsCurrentlyValid trong DTO sẽ chính xác hơn
+                        const validDiscounts = discounts.filter(d => d.isCurrentlyValid);
+                        console.log(validDiscounts)
+
+                        if (validDiscounts.length > 0) {
+                            renderDiscounts(validDiscounts);
+                        } else {
+                            noDiscountsElement.classList.remove('hidden');
+                            noDiscountsElement.innerHTML = `
+                                <i class="fas fa-gift text-gray-400 text-4xl mb-3"></i>
+                                <p class="text-gray-600">Hiện tại không có mã giảm giá nào còn hiệu lực.</p>
+                                <a href="/Customer/index.html"
+                                   class="mt-4 inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">
+                                    Tiếp tục mua sắm
+                                </a>`;
+                        }
+                    } else {
+                        noDiscountsElement.classList.remove('hidden');
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tải mã giảm giá:', error);
+                    loadingDiscountsElement.classList.add('hidden');
+                    discountListContainer.innerHTML = `<p class="text-red-500 text-center col-span-full">Đã xảy ra lỗi khi tải mã giảm giá. ${error.message}</p>`;
+                }
+            }
+
+            function renderDiscounts(discounts) {
+                discountListContainer.innerHTML = ''; // Xóa nội dung cũ
+                discounts.forEach(discount => {
+                    const discountCard = `
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden discount-card flex flex-col">
+                            <div class="p-5 flex-grow">
+                                <div class="flex items-center mb-3">
+                                    <span class="inline-block bg-indigo-100 text-indigo-700 text-sm font-semibold px-3 py-1 rounded-full mr-3">
+                                        <i class="fas fa-percentage mr-1"></i> Giảm ${discount.discountPercent}%
+                                    </span>
+                                    ${!discount.isActive ? '<span class="text-xs text-red-500 font-medium">(Không hoạt động)</span>' : ''}
+                                </div>
+                                <h3 class="text-xl font-bold text-gray-800 mb-2">Mã: ${discount.discountCode}</h3>
+                                <p class="text-sm text-gray-600 mb-1">
+                                    <i class="far fa-calendar-alt mr-1 text-gray-500"></i>
+                                    Bắt đầu: ${formatDate(new Date(discount.startDate))}
+                                </p>
+                                <p class="text-sm text-gray-600 mb-4">
+                                    <i class="far fa-calendar-times mr-1 text-gray-500"></i>
+                                    Hết hạn: ${formatDate(new Date(discount.endDate))}
+                                </p>
+                                <!-- Có thể thêm mô tả ngắn nếu DTO có -->
+                            </div>
+                            <div class="bg-gray-50 p-4 border-t border-gray-200">
+                                <button
+                                    class="copy-btn w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 relative"
+                                    data-code="${discount.discountCode}">
+                                    <i class="fas fa-copy mr-2"></i>Lưu mã
+                                    <span class="copied-feedback">Đã sao chép!</span>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    discountListContainer.insertAdjacentHTML('beforeend', discountCard);
+                });
+
+                attachCopyButtonListeners();
+            }
+
+            function attachCopyButtonListeners() {
+                const copyButtons = document.querySelectorAll('.copy-btn');
+                copyButtons.forEach(button => {
+                    button.addEventListener('click', function () {
+                        const codeToCopy = this.dataset.code;
+                        navigator.clipboard.writeText(codeToCopy).then(() => {
+                            // Hiển thị phản hồi "Đã sao chép!"
+                            this.classList.add('copied');
+                            const originalText = this.innerHTML;
+                            const iconPart = '<i class="fas fa-check mr-2"></i>'; // Giữ lại icon hoặc thay đổi
+                            this.innerHTML = `${iconPart}Đã lưu!`;
+
+
+                            setTimeout(() => {
+                                this.classList.remove('copied');
+                                // Khôi phục nội dung nút, bỏ đi feedback span
+                                this.innerHTML = originalText.replace('<span class="copied-feedback">Đã sao chép!</span>', '') + '<span class="copied-feedback">Đã sao chép!</span>';
+                            }, 1500); // Ẩn phản hồi sau 1.5 giây
+                        }).catch(err => {
+                            console.error('Không thể sao chép mã:', err);
+                            alert('Lỗi: Không thể sao chép mã. Vui lòng thử lại hoặc sao chép thủ công.');
+                        });
+                    });
+                });
+            }
+            // Initial load
+            fetchActiveDiscounts();
+        }
+
+        // Chạy hàm khởi tạo sau khi DOM đã sẵn sàng và các script khác (nếu có) đã load
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeDiscountsPage);
+        } else {
+            // DOMContentLoaded đã xảy ra, components.js có thể vẫn đang load
+            setTimeout(initializeDiscountsPage, 200); // Chờ 200ms để components load xong
+        }
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Cập nhật Mã Giảm Giá</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .error-message {
+            color: #ef4444;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .success-message {
+            color: #22c55e;
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background-color: #dcfce7;
+            border: 1px solid #86efac;
+            border-radius: 0.375rem;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div>
+        <div class="content-area flex-1 min-h-screen flex flex-col">
+            <div id="header"></div>
+            <div id="app" class="flex-grow">
+                <main class="p-4 md:p-6 mx-auto w-full">
+                    <nav class="text-sm mb-4" aria-label="Breadcrumb">
+                        <ol class="list-none p-0 inline-flex">
+                            <li class="flex items-center">
+                                <a href="/Admin/templates/discount/list.html" class="text-blue-600 hover:underline">Quản
+                                    lý Mã giảm giá</a>
+                                <i class="fas fa-chevron-right fa-xs mx-2 text-gray-500"></i>
+                            </li>
+                            <li class="text-gray-500" aria-current="page">Cập nhật mã giảm giá <span
+                                    id="breadcrumbDiscountId"></span></li>
+                        </ol>
+                    </nav>
+
+                    <section class="relative mt-6 bg-white p-6 md:p-8 rounded-lg shadow-xl max-w-2xl mx-auto">
+                        <div id="loadingOverlay" class="loading-overlay hidden">
+                            <i class="fas fa-spinner fa-spin text-indigo-500 text-3xl"></i>
+                            <p class="ml-3 text-gray-600">Đang tải dữ liệu...</p>
+                        </div>
+
+                        <h2 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700">Cập nhật Mã Giảm Giá</h2>
+
+                        <div id="formMessageEdit" class="mb-4"></div>
+
+                        <form id="editDiscountForm" class="hidden space-y-6">
+                            <input type="hidden" id="discountEntityId" name="discountId">
+
+                            <div>
+                                <label for="editDiscountCode" class="block text-sm font-medium text-gray-700 mb-1">Mã
+                                    Giảm Giá <span class="text-red-500">*</span></label>
+                                <input type="text" id="editDiscountCode" name="discountCode" required maxlength="50"
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="VD: SALE20, TET2025">
+                                <p id="editDiscountCodeError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="editDiscountPercent"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Phần trăm giảm (%) <span
+                                        class="text-red-500">*</span></label>
+                                <input type="number" id="editDiscountPercent" name="discountPercent" required min="0.01"
+                                    max="100" step="0.01"
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 0.01 đến 100">
+                                <p id="editDiscountPercentError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="editBudget" class="block text-sm font-medium text-gray-700 mb-1">Ngân sách
+                                    <span class="text-red-500">*</span></label>
+                                <input type="number" id="editBudget" name="budget" min="1" disabled
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 1">
+                            </div>
+
+                            <div>
+                                <label for="editMaxDiscountPercent"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Giá trị giảm tối đa <span
+                                        class="text-red-500">*</span></label>
+                                <input type="number" id="editMaxDiscountPercent" name="maxDiscountPercent" min="1"
+                                    disabled
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 1">
+                            </div>
+
+                            <div>
+                                <label for="editRemainingBudget"
+                                    class="block text-sm font-medium text-gray-700 mb-1">Ngân sách còn lại <span
+                                        class="text-red-500">*</span></label>
+                                <input type="number" id="editRemainingBudget" name="remainingBudget" min="1" disabled
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 1">
+                            </div>
+
+                            <div>
+                                <label for="editStartDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày bắt
+                                    đầu <span class="text-red-500">*</span></label>
+                                <input type="date" id="editStartDate" name="startDate" required
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                <p id="editStartDateError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="editEndDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày kết
+                                    thúc <span class="text-red-500">*</span></label>
+                                <input type="date" id="editEndDate" name="endDate" required
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                <p id="editEndDateError" class="error-message hidden"></p>
+                            </div>
+
+                            <div class="flex items-center">
+                                <input id="editIsActive" name="isActive" type="checkbox"
+                                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <label for="editIsActive" class="ml-2 block text-sm text-gray-900">
+                                    Kích hoạt mã này?
+                                </label>
+                            </div>
+
+                            <div class="flex justify-end items-center pt-4 border-t border-gray-200 mt-6">
+                                <a href="list.html"
+                                    class="bg-gray-200 text-gray-700 px-6 py-2.5 rounded-md hover:bg-gray-300 transition font-medium mr-3">
+                                    Quay lại
+                                </a>
+                                <button type="submit" id="updateSubmitBtn"
+                                    class="bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <i class="fas fa-save mr-2"></i>Cập Nhật Mã
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </main>
+            </div>
+            <div id="footer" class="mt-auto"></div>
+        </div>
+    </div>
+
+    <script src="/Admin/assets/js/index.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+
+    <script>
+        function initializeEditDiscountPage() {
+            const form = document.getElementById('editDiscountForm');
+            const formMessageDiv = document.getElementById('formMessageEdit');
+            const submitBtn = document.getElementById('updateSubmitBtn');
+            const loadingOverlay = document.getElementById('loadingOverlay');
+            const breadcrumbDiscountIdSpan = document.getElementById('breadcrumbDiscountId');
+
+            const discountIdInput = document.getElementById('discountEntityId');
+            const discountCodeInput = document.getElementById('editDiscountCode');
+            const discountPercentInput = document.getElementById('editDiscountPercent');
+            const budgetInput = document.getElementById('editBudget');
+            const maxDiscountPercentInput = document.getElementById('editMaxDiscountPercent');
+            const remainingBudgetInput = document.getElementById('editRemainingBudget');
+            const startDateInput = document.getElementById('editStartDate');
+            const endDateInput = document.getElementById('editEndDate');
+            const isActiveCheckbox = document.getElementById('editIsActive');
+
+            const discountCodeError = document.getElementById('editDiscountCodeError');
+            const discountPercentError = document.getElementById('editDiscountPercentError');
+            const startDateError = document.getElementById('editStartDateError');
+            const endDateError = document.getElementById('editEndDateError');
+
+            if (typeof API_BASE_URL === 'undefined' || typeof checkAuthToken !== 'function') {
+                console.error("Lỗi: Các hàm hoặc biến toàn cục từ index.js chưa được tải.");
+                formMessageDiv.innerHTML = `<p class="error-message">Lỗi tải trang. Vui lòng kiểm tra console.</p>`;
+                if (submitBtn) submitBtn.disabled = true;
+                return;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const discountId = urlParams.get('id');
+
+            if (!discountId || isNaN(parseInt(discountId))) {
+                formMessageDiv.innerHTML = `<p class="error-message">ID mã giảm giá không hợp lệ hoặc không được cung cấp.</p>`;
+                form.classList.add('hidden');
+                return;
+            }
+            breadcrumbDiscountIdSpan.textContent = `#${discountId}`;
+
+            async function fetchDiscountDetails(id) {
+                loadingOverlay.classList.remove('hidden');
+                form.classList.add('hidden');
+                clearFormMessages();
+
+                const token = sessionStorage.getItem('token');
+                if (!token) { checkAuthToken(); return; } // checkAuthToken sẽ xử lý redirect
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Discounts/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) {
+                        const errorText = response.status === 404 ? `Không tìm thấy mã giảm giá với ID: ${id}` : `Lỗi ${response.status}: Không thể tải dữ liệu mã giảm giá.`;
+                        throw new Error(errorText);
+                    }
+                    const discount = await response.json();
+                    populateForm(discount);
+                    form.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Lỗi tải chi tiết mã giảm giá:", error);
+                    formMessageDiv.innerHTML = `<p class="error-message">${error.message}</p>`;
+                } finally {
+                    loadingOverlay.classList.add('hidden');
+                }
+            }
+
+            function populateForm(discount) {
+                discountIdInput.value = discount.discountID;
+                discountCodeInput.value = discount.discountCode;
+                discountPercentInput.value = discount.discountPercent;
+                budgetInput.value = discount.budget;
+                maxDiscountPercentInput.value = discount.maxDiscountPercent;
+                remainingBudgetInput.value = discount.remainingBudget;
+                // Bỏ trường description
+                startDateInput.value = formatDateForInput(new Date(discount.startDate));
+                endDateInput.value = formatDateForInput(new Date(discount.endDate));
+                isActiveCheckbox.checked = discount.isActive;
+
+                const today = new Date().toISOString().split('T')[0];
+                endDateInput.setAttribute('min', startDateInput.value || today);
+            }
+
+            startDateInput.addEventListener('change', () => {
+                endDateInput.setAttribute('min', startDateInput.value || new Date().toISOString().split('T')[0]);
+            });
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                clearFormMessages();
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang cập nhật...';
+
+                const formData = new FormData(form);
+                const discountData = {
+                    discountCode: formData.get('discountCode').trim().toUpperCase(),
+                    discountPercent: parseFloat(formData.get('discountPercent')),
+                    // Bỏ description
+                    startDate: formData.get('startDate'),
+                    endDate: formData.get('endDate'),
+                    isActive: isActiveCheckbox.checked // Lấy trực tiếp từ element checkbox
+                };
+
+                let isValid = true;
+                if (!discountData.discountCode) {
+                    displayFieldError(discountCodeError, "Mã giảm giá là bắt buộc."); isValid = false;
+                }
+                if (isNaN(discountData.discountPercent) || discountData.discountPercent <= 0 || discountData.discountPercent > 100) {
+                    displayFieldError(discountPercentError, "Phần trăm giảm phải từ 0.01 đến 100."); isValid = false;
+                }
+                if (!discountData.startDate) {
+                    displayFieldError(startDateError, "Ngày bắt đầu là bắt buộc."); isValid = false;
+                }
+                if (!discountData.endDate) {
+                    displayFieldError(endDateError, "Ngày kết thúc là bắt buộc."); isValid = false;
+                }
+                if (discountData.startDate && discountData.endDate && new Date(discountData.endDate) < new Date(discountData.startDate)) {
+                    displayFieldError(endDateError, "Ngày kết thúc không được trước ngày bắt đầu."); isValid = false;
+                }
+
+                if (!isValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Cập Nhật Mã';
+                    return;
+                }
+
+                const token = sessionStorage.getItem('token');
+                if (!token) { checkAuthToken(); return; }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Discounts/${discountIdInput.value}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(discountData)
+                    });
+
+                    if (response.ok) {
+                        const updatedDiscount = await response.json();
+                        formMessageDiv.innerHTML = `<p class="success-message">Đã cập nhật mã giảm giá "${updatedDiscount.discountCode}" thành công!</p>`;
+                        //fetchDiscountDetails(discountIdInput.value); // Tải lại để đảm bảo form hiển thị đúng dữ liệu mới nhất
+                    } else {
+                        const errorData = await response.json();
+                        formMessageDiv.innerHTML = `<p class="error-message">Lỗi: ${errorData.message || response.statusText}</p>`;
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi cập nhật mã giảm giá:", error);
+                    formMessageDiv.innerHTML = `<p class="error-message">Đã xảy ra lỗi kết nối. Vui lòng thử lại.</p>`;
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Cập Nhật Mã';
+                }
+            });
+
+            function displayFieldError(element, message) {
+                if (element) { element.textContent = message; element.classList.remove('hidden'); }
+            }
+            function clearFormMessages() {
+                formMessageDiv.innerHTML = '';
+                [discountCodeError, discountPercentError, startDateError, endDateError].forEach(el => {
+                    if (el) { el.textContent = ''; el.classList.add('hidden'); }
+                });
+            }
+
+            checkAuthToken();
+            fetchDiscountDetails(discountId);
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeEditDiscountPage);
+        } else {
+            setTimeout(initializeEditDiscountPage, 100);
+        }
+    </script>
+</body>
+
+</html>

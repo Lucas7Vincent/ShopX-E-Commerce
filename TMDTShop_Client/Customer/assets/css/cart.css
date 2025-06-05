@@ -1,0 +1,47 @@
+/* Đảm bảo nút giỏ hàng có thể nhấp */
+#cartButton {
+    position: relative;
+    z-index: 60; /* Đảm bảo nút không bị che */
+    pointer-events: auto !important; /* Đảm bảo có thể nhấp */
+}
+
+/* Đảm bảo dropdown giỏ hàng hiển thị đúng */
+.cart-dropdown {
+    z-index: 50;
+}
+
+/* Đảm bảo nút thông báo có thể nhấp */
+#notificationButton {
+    position: relative;
+    z-index: 60; /* Đảm bảo nút không bị che */
+    pointer-events: auto !important; /* Đảm bảo có thể nhấp */
+}
+
+/* Đảm bảo dropdown thông báo hiển thị đúng */
+#notification-dropdown {
+    z-index: 50;
+}
+
+/* Style cho submenu trong navigation */
+.submenu-group:hover .submenu {
+    display: block;
+}
+
+/* Style cho phần lịch sử mua hàng */
+#order-history .border-b:last-child {
+    border-bottom: none;
+}
+
+/* Đảm bảo hình ảnh trong giỏ hàng được căn chỉnh đúng */
+#cart-items-list img,
+#cart-items img {
+    object-fit: cover;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #cart-items-list img {
+        width: 60px;
+        height: 60px;
+    }
+}

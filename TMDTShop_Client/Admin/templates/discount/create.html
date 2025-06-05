@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Thêm Mã Giảm Giá</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Thêm style cho thông báo lỗi nếu cần */
+        .error-message {
+            color: #ef4444;
+            /* Tailwind red-500 */
+            font-size: 0.875rem;
+            /* text-sm */
+            margin-top: 0.25rem;
+            /* mt-1 */
+        }
+
+        .success-message {
+            color: #22c55e;
+            /* Tailwind green-500 */
+            font-size: 0.875rem;
+            margin-top: 0.5rem;
+            padding: 0.75rem;
+            background-color: #dcfce7;
+            /* green-100 */
+            border: 1px solid #86efac;
+            /* green-300 */
+            border-radius: 0.375rem;
+            /* rounded-md */
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div>
+        <div class="content-area flex-1 min-h-screen flex flex-col">
+            <div id="header"></div>
+            <div id="app" class="flex-grow">
+                <main class="p-4 md:p-6 mx-auto w-full">
+                    <nav class="text-sm mb-4" aria-label="Breadcrumb">
+                        <ol class="list-none p-0 inline-flex">
+                            <li class="flex items-center">
+                                <a href="/Admin/templates/discount/list.html" class="text-blue-600 hover:underline">Quản
+                                    lý Mã giảm giá</a>
+                                <i class="fas fa-chevron-right fa-xs mx-2 text-gray-500"></i>
+                            </li>
+                            <li class="text-gray-500" aria-current="page">Tạo mã giảm giá mới</li>
+                        </ol>
+                    </nav>
+
+                    <section class="mt-6 bg-white p-6 md:p-8 rounded-lg shadow-xl max-w-2xl mx-auto">
+                        <h2 class="text-xl md:text-2xl font-bold mb-6 text-indigo-700">Thêm Mã Giảm Giá Mới</h2>
+
+                        <div id="formMessage" class="mb-4"></div> <!-- Để hiển thị thông báo thành công/lỗi chung -->
+
+                        <form id="createDiscountForm" class="space-y-6">
+
+                            <div>
+                                <label for="discountCode" class="block text-sm font-medium text-gray-700 mb-1">Mã Giảm
+                                    Giá <span class="text-red-500">*</span></label>
+                                <input type="text" id="discountCode" name="discountCode" required maxlength="50"
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="VD: SALE20, TET2025">
+                                <p id="discountCodeError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="discountPercent" class="block text-sm font-medium text-gray-700 mb-1">Phần
+                                    trăm giảm (%) <span class="text-red-500">*</span></label>
+                                <input type="number" id="discountPercent" name="discountPercent" required min="0.01"
+                                    max="100" step="0.01"
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 0.01 đến 100">
+                                <p id="discountPercentError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="budget" class="block text-sm font-medium text-gray-700 mb-1">Ngân sách <span class="text-red-500">*</span></label>
+                                <input type="number" id="budget" name="budget" required min="1"
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 0.01">
+                                <p id="budgetError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="maxDiscountPercent" class="block text-sm font-medium text-gray-700 mb-1">Giá trị giảm tối đa <span class="text-red-500">*</span></label>
+                                <input type="number" id="maxDiscountPercent" name="maxDiscountPercent" required min="1"
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+                                    placeholder="Nhập số từ 0.01">
+                                <p id="maxDiscountPercentError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="startDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày bắt đầu
+                                    <span class="text-red-500">*</span></label>
+                                <input type="date" id="startDate" name="startDate" required
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                <p id="startDateError" class="error-message hidden"></p>
+                            </div>
+
+                            <div>
+                                <label for="endDate" class="block text-sm font-medium text-gray-700 mb-1">Ngày kết thúc
+                                    <span class="text-red-500">*</span></label>
+                                <input type="date" id="endDate" name="endDate" required
+                                    class="border w-full border-gray-300 px-4 py-2 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors">
+                                <p id="endDateError" class="error-message hidden"></p>
+                            </div>
+
+                            <div class="flex items-center">
+                                <input id="isActive" name="isActive" type="checkbox" checked
+                                    class="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                                <label for="isActive" class="ml-2 block text-sm text-gray-900">
+                                    Kích hoạt mã này?
+                                </label>
+                            </div>
+
+                            <div class="flex justify-end items-center pt-4 border-t border-gray-200 mt-6">
+                                <a href="list.html"
+                                    class="bg-gray-200 text-gray-700 px-6 py-2.5 rounded-md hover:bg-gray-300 transition font-medium mr-3">
+                                    Quay lại
+                                </a>
+                                <button type="submit" id="submitBtn"
+                                    class="bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                                    <i class="fas fa-save mr-2"></i>Lưu Mã Giảm Giá
+                                </button>
+                            </div>
+                        </form>
+                    </section>
+                </main>
+            </div>
+            <div id="footer" class="mt-auto"></div>
+        </div>
+    </div>
+
+    <script src="/Admin/assets/js/index.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <!-- Không cần product-form.js cho trang này -->
+
+    <script>
+        function initializeCreateDiscountPage() {
+            const form = document.getElementById('createDiscountForm');
+            const formMessageDiv = document.getElementById('formMessage');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Elements cho thông báo lỗi từng trường (tùy chọn, nếu muốn validate chi tiết hơn ở client)
+            const discountCodeError = document.getElementById('discountCodeError');
+            const discountPercentError = document.getElementById('discountPercentError');
+            const budgetError = document.getElementById('budgetError');
+            const maxDiscountPercentError = document.getElementById('maxDiscountPercentError');
+            const startDateError = document.getElementById('startDateError');
+            const endDateError = document.getElementById('endDateError');
+            if (typeof API_BASE_URL === 'undefined' || typeof checkAuthToken !== 'function') {
+                console.error("Lỗi: Các hàm hoặc biến toàn cục từ index.js chưa được tải.");
+                formMessageDiv.innerHTML = `<p class="error-message">Lỗi tải trang. Vui lòng kiểm tra console.</p>`;
+                if (submitBtn) submitBtn.disabled = true;
+                return;
+            }
+
+            // Hàm tiện ích để định dạng ngày thành YYYY-MM-DDTHH:mm:ss (cần có trong index.js)
+            // Hoặc dùng date.toISOString() nhưng cần đảm bảo múi giờ đúng nếu backend xử lý múi giờ.
+            // Trong trường hợp này, backend có thể chỉ cần ngày, nên date.toISOString().split('T')[0] là đủ cho phần date.
+            // Tuy nhiên, DiscountCreateDto của bạn có thể mong đợi DateTime đầy đủ.
+
+            form.addEventListener('submit', async function (event) {
+                event.preventDefault();
+                clearFormMessages();
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Đang lưu...';
+
+                const formData = new FormData(form);
+                const discountData = {
+                    discountCode: formData.get('discountCode').trim().toUpperCase(), // Nên chuẩn hóa mã
+                    discountPercent: parseFloat(formData.get('discountPercent')),
+                    budget: parseInt(formData.get('budget')),
+                    maxDiscountPercent: parseInt(formData.get('maxDiscountPercent')),
+                    startDate: formData.get('startDate'), // Format YYYY-MM-DD
+                    endDate: formData.get('endDate'),     // Format YYYY-MM-DD
+                    isActive: form.elements.isActive.checked
+                };
+
+                // Client-side validation (cơ bản)
+                let isValid = true;
+                if (!discountData.discountCode) {
+                    displayFieldError(discountCodeError, "Mã giảm giá là bắt buộc.");
+                    isValid = false;
+                }
+                if (isNaN(discountData.discountPercent) || discountData.discountPercent <= 0 || discountData.discountPercent > 100) {
+                    displayFieldError(discountPercentError, "Phần trăm giảm phải từ 0.01 đến 100.");
+                    isValid = false;
+                }
+                if (isNaN(discountData.budget) || discountData.budget <= 0) {
+                    displayFieldError(budgetError, "Ngân sách phải từ 0.01.");
+                    isValid = false;
+                }
+                if (isNaN(discountData.maxDiscountPercent) || discountData.maxDiscountPercent <= 0 || discountData.maxDiscountPercent > discountData.budget) {
+                    displayFieldError(maxDiscountPercentError, "Giá trị giảm giá tối đa phải từ 0.01 và nhỏ hơn hoặc bằng ngân sách.");
+                    isValid = false;
+                }
+                if (!discountData.startDate) {
+                    displayFieldError(startDateError, "Ngày bắt đầu là bắt buộc.");
+                    isValid = false;
+                }
+                if (!discountData.endDate) {
+                    displayFieldError(endDateError, "Ngày kết thúc là bắt buộc.");
+                    isValid = false;
+                }
+                if (discountData.startDate && discountData.endDate && new Date(discountData.endDate) <= new Date(discountData.startDate)) {
+                    displayFieldError(endDateError, "Ngày kết thúc phải sau ngày bắt đầu.");
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Lưu Mã Giảm Giá';
+                    return;
+                }
+
+                // Định dạng lại ngày giờ để gửi lên API (nếu API yêu cầu DateTime đầy đủ)
+                // Giả sử API nhận YYYY-MM-DD và tự xử lý phần giờ là đầu ngày/cuối ngày
+                // Hoặc nếu API cần DateTime đầy đủ, bạn cần thêm giờ phút giây:
+                // discountData.startDate = new Date(formData.get('startDate') + "T00:00:00Z").toISOString();
+                // discountData.endDate = new Date(formData.get('endDate') + "T23:59:59Z").toISOString();
+                // Quan trọng: Đảm bảo DiscountCreateDto ở backend nhận đúng kiểu DateTime và xử lý múi giờ nếu cần.
+                // Hiện tại, service của bạn sẽ nhận string rồi AutoMapper chuyển.
+
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+                    window.location.href = "/Admin/templates/auth/login.html"; // Chỉnh lại nếu cần
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Discounts`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(discountData)
+                    });
+
+                    if (response.ok) {
+                        const createdDiscount = await response.json();
+                        formMessageDiv.innerHTML = `<p class="success-message">Đã thêm mã giảm giá "${createdDiscount.discountCode}" thành công!</p>`;
+                        form.reset(); // Xóa form sau khi thành công
+                        // Optional: Redirect to list page or detail page
+                        // setTimeout(() => { window.location.href = `/Admin/templates/discount/list.html`; }, 2000);
+                    } else {
+                        const errorData = await response.json();
+                        // Hiển thị lỗi từ server (ví dụ: mã đã tồn tại, ngày không hợp lệ từ backend)
+                        formMessageDiv.innerHTML = `<p class="error-message">Lỗi: ${errorData.message || response.statusText}</p>`;
+                        // Nếu lỗi liên quan đến trường cụ thể, có thể map và hiển thị (phức tạp hơn)
+                        // Ví dụ: if (errorData.errors && errorData.errors.DiscountCode) { displayFieldError(discountCodeError, errorData.errors.DiscountCode[0]); }
+                    }
+                } catch (error) {
+                    console.error("Lỗi khi tạo mã giảm giá:", error);
+                    formMessageDiv.innerHTML = `<p class="error-message">Đã xảy ra lỗi kết nối. Vui lòng thử lại.</p>`;
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2"></i>Lưu Mã Giảm Giá';
+                }
+            });
+
+            function displayFieldError(element, message) {
+                if (element) {
+                    element.textContent = message;
+                    element.classList.remove('hidden');
+                }
+            }
+
+            function clearFormMessages() {
+                formMessageDiv.innerHTML = '';
+                [discountCodeError, discountPercentError, budget, maxDiscountPercent, startDateError, endDateError].forEach(el => {
+                    if (el) {
+                        el.textContent = '';
+                        el.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Set min date for startDate and endDate to today
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('startDate').setAttribute('min', today);
+            document.getElementById('endDate').setAttribute('min', today);
+
+            // Initial check
+            checkAuthToken(); // Đảm bảo user đã đăng nhập
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeCreateDiscountPage);
+        } else {
+            // DOMContentLoaded đã xảy ra, nhưng custom.js (load sidebar/header) có thể vẫn đang chạy
+            setTimeout(initializeCreateDiscountPage, 100); // Chờ một chút
+        }
+    </script>
+</body>
+
+</html>

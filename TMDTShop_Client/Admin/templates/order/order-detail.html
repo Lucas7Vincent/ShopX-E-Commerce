@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Chi tiết Đơn hàng</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css"> <!-- Đảm bảo đường dẫn này đúng -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Các style cho status-badge và action-button có thể copy từ list.html nếu cần */
+        .status-badge {
+            padding: 0.35em 0.7em;
+            border-radius: 0.375rem;
+            font-size: 0.875em;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            cursor: default;
+            transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+            min-width: 130px;
+            display: inline-block;
+            border: 1px solid transparent;
+        }
+
+        .status-badge.interactive {
+            cursor: pointer;
+        }
+
+        .status-badge.interactive:hover {
+            opacity: 0.85;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .status-cho-xac-nhan {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        .status-dang-xu-ly {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+        .status-dang-giao {
+            background-color: #d1fae5;
+            color: #065f46;
+            border-color: #a7f3d0;
+        }
+
+        .status-da-giao {
+            background-color: #5ca274;
+            color: #ffffff;
+            border-color: #bbf7d0;
+        }
+
+        .status-yeu-cau-tra-hang-hoan-tien {
+            background-color: #fffbeb;
+            color: #b45309;
+            border-color: #fef3c7;
+        }
+
+        .status-da-hoan-tien {
+            background-color: #ede9fe;
+            color: #5b21b6;
+            border-color: #ddd6fe;
+        }
+
+        .status-da-huy {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border-color: #fecaca;
+        }
+
+        .status-default {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border-color: #e5e7eb;
+        }
+
+        .action-button {
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.15s ease-in-out;
+            border: 1px solid transparent;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .action-button i {
+            margin-right: 0.35rem;
+        }
+
+        .action-button-cancel {
+            background-color: #fef2f2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .action-button-cancel:hover {
+            background-color: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .action-button-refund {
+            background-color: #dcfce7;
+            color: #15803d;
+            border-color: #bbf7d0;
+        }
+
+        .action-button-refund:hover {
+            background-color: #bbf7d0;
+            color: #14532d;
+        }
+
+        .action-button-return-request {
+            background-color: #fff7ed;
+            color: #c2410c;
+            border-color: #fed7aa;
+        }
+
+        .action-button-return-request:hover {
+            background-color: #ffedd5;
+            color: #9a3412;
+        }
+
+
+        .action-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .action-button:disabled:hover {
+            background-color: inherit;
+            color: inherit;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .info-label {
+            font-weight: 500;
+            color: #4b5563;
+            /* gray-600 */
+            margin-bottom: 0.25rem;
+        }
+
+        .info-value {
+            color: #1f2937;
+            /* gray-800 */
+        }
+
+        .info-value.status {
+            margin-top: 0.25rem;
+        }
+
+        /* Add some space for status button */
+
+        .product-image {
+            width: 4rem;
+            height: 4rem;
+            object-fit: cover;
+            border-radius: 0.375rem;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div>
+        <div class="content-area flex-1 min-h-screen flex flex-col">
+            <div id="header"></div>
+            <div id="app" class="flex-grow">
+                <main class="p-4 md:p-6 mx-auto w-full max-w-4xl">
+                    <!-- Breadcrumbs -->
+                    <nav class="mb-4 text-sm text-gray-600" aria-label="Breadcrumb">
+                        <ol class="list-none p-0 inline-flex">
+                            <li class="flex items-center">
+                                <a href="/Admin/templates/order/list.html" class="hover:text-blue-600">Danh sách đơn
+                                    hàng</a>
+                                <i class="fas fa-chevron-right fa-xs mx-2"></i>
+                            </li>
+                            <li class="text-gray-800 font-medium" aria-current="page">
+                                Chi tiết đơn hàng <span id="breadcrumbOrderId"></span>
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <!-- Order Details Section -->
+                    <section id="orderDetailsContainer" class="mt-6 bg-white shadow-xl rounded-lg p-4 md:p-6">
+                        <!-- Loading State -->
+                        <div id="loadingState" class="text-center py-10">
+                            <i class="fas fa-spinner fa-spin text-blue-500 text-3xl"></i>
+                            <p class="mt-2 text-gray-600">Đang tải chi tiết đơn hàng...</p>
+                        </div>
+
+                        <!-- Error State -->
+                        <div id="errorState" class="hidden text-center py-10">
+                            <i class="fas fa-exclamation-triangle text-red-500 text-3xl"></i>
+                            <p class="mt-2 text-red-600" id="errorMessage"></p>
+                            <a href="/Admin/templates/order/list.html"
+                                class="mt-4 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                                Quay lại danh sách
+                            </a>
+                        </div>
+
+                        <!-- Content State (hidden by default) -->
+                        <div id="contentState" class="hidden">
+                            <div
+                                class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 pb-4 border-b border-gray-200">
+                                <h3 class="text-xl md:text-2xl font-bold text-gray-800 mb-2 sm:mb-0">
+                                    Chi tiết đơn hàng #<span id="orderIdDisplay"></span>
+                                </h3>
+                                <div id="orderActionButtons" class="flex space-x-2">
+                                    <!-- Action buttons will be populated here -->
+                                </div>
+                            </div>
+
+                            <!-- Order Summary Info -->
+                            <div class="pb-8 mb-6 border-b border-gray-200">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-3">Thông tin đơn hàng</h4>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Ngày đặt:</span>
+                                        <span id="orderDate" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Địa chỉ giao hàng:</span>
+                                        <span id="shippingAddress" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Tổng tiền hàng:</span>
+                                        <span id="totalAmount" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Mã giảm giá:</span>
+                                        <span id="discountCode" class="info-value">N/A</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Thanh toán:</span>
+                                        <span id="totalPayment" class="info-value font-semibold text-green-600"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Trạng thái:</span>
+                                        <div id="orderStatus" class="info-value status">
+                                            <!-- Status badge/button will be populated here -->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Customer Info -->
+                            <div class="mb-8">
+                                <h4 class="text-lg font-semibold text-gray-700 mb-3">Thông tin khách hàng</h4>
+                                <div class="info-grid">
+                                    <div class="info-item">
+                                        <span class="info-label">Tên khách hàng:</span>
+                                        <span id="customerName" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Email:</span>
+                                        <span id="customerEmail" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Số điện thoại:</span>
+                                        <span id="customerPhone" class="info-value"></span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="info-label">Địa chỉ liên hệ:</span>
+                                        <span id="customerAddress" class="info-value"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Order Items Table -->
+                            <div>
+                                <h4 class="text-lg font-semibold text-gray-700 mb-3">Sản phẩm trong đơn hàng</h4>
+                                <div class="overflow-x-auto border border-gray-200 rounded-lg">
+                                    <table class="min-w-full bg-white">
+                                        <thead class="bg-gray-50 text-xs text-gray-500 uppercase tracking-wider">
+                                            <tr>
+                                                <th class="py-3 px-4 text-left font-medium">STT</th>
+                                                <th class="py-3 px-4 text-left font-medium">Hình ảnh</th>
+                                                <th class="py-3 px-4 text-left font-medium">Tên sản phẩm</th>
+                                                <th class="py-3 px-4 text-center font-medium">Số lượng</th>
+                                                <th class="py-3 px-4 text-right font-medium">Đơn giá</th>
+                                                <th class="py-3 px-4 text-right font-medium">Tổng phụ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="orderItemsTableBody"
+                                            class="text-sm text-gray-700 divide-y divide-gray-200">
+                                            <!-- Items will be populated here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                </main>
+            </div>
+            <div id="footer" class="mt-auto"></div>
+        </div>
+    </div>
+
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const loadingState = document.getElementById('loadingState');
+            const errorState = document.getElementById('errorState');
+            const errorMessageElement = document.getElementById('errorMessage');
+            const contentState = document.getElementById('contentState');
+
+            const orderIdDisplay = document.getElementById('orderIdDisplay');
+            const breadcrumbOrderId = document.getElementById('breadcrumbOrderId');
+            const orderDateElement = document.getElementById('orderDate');
+            const shippingAddressElement = document.getElementById('shippingAddress');
+            const totalAmountElement = document.getElementById('totalAmount');
+            const discountCodeElement = document.getElementById('discountCode');
+            const totalPaymentElement = document.getElementById('totalPayment');
+            const orderStatusElement = document.getElementById('orderStatus');
+            const orderActionButtonsContainer = document.getElementById('orderActionButtons');
+
+            const customerNameElement = document.getElementById('customerName');
+            const customerEmailElement = document.getElementById('customerEmail');
+            const customerPhoneElement = document.getElementById('customerPhone');
+            const customerAddressElement = document.getElementById('customerAddress');
+            const orderItemsTableBody = document.getElementById('orderItemsTableBody');
+
+            const ORDER_STATUSES = Object.freeze({
+                CHO_XAC_NHAN: "Chờ xác nhận",
+                DANG_XU_LY: "Đang xử lý",
+                DANG_GIAO: "Đang giao",
+                DA_GIAO: "Đã giao",
+                YEU_CAU_TRA_HANG_HOAN_TIEN: "Yêu cầu trả hàng/ hoàn tiền",
+                DA_HOAN_TIEN: "Đã hoàn tiền",
+                DA_HUY: "Đã hủy"
+            });
+
+            // Helper function (assumed to be in index.js or define here)
+            // function formatDate(dateString) { ... } 
+            // function formatLocalCurrency(amount) { ... }
+            // function getStatusClass(status) { ... }
+            // function getNextStatusInFlow(currentStatus) { ... }
+            // async function updateOrderStatusAPI(orderId, newStatus) { ... }
+            // window.handleStatusButtonClick, window.handleCancelOrder, window.handleConfirmRefundRequest, etc.
+            // For brevity, these are assumed to be defined similar to list.html or in index.js
+
+            function getStatusClass(status) {
+                switch (status) {
+                    case ORDER_STATUSES.CHO_XAC_NHAN: return 'status-cho-xac-nhan';
+                    case ORDER_STATUSES.DANG_XU_LY: return 'status-dang-xu-ly';
+                    case ORDER_STATUSES.DANG_GIAO: return 'status-dang-giao';
+                    case ORDER_STATUSES.DA_GIAO: return 'status-da-giao';
+                    case ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN: return 'status-yeu-cau-tra-hang-hoan-tien';
+                    case ORDER_STATUSES.DA_HOAN_TIEN: return 'status-da-hoan-tien';
+                    case ORDER_STATUSES.DA_HUY: return 'status-da-huy';
+                    default: return 'status-default';
+                }
+            }
+
+            function getNextStatusInFlow(currentStatus) {
+                switch (currentStatus) {
+                    case ORDER_STATUSES.CHO_XAC_NHAN: return ORDER_STATUSES.DANG_XU_LY;
+                    case ORDER_STATUSES.DANG_XU_LY: return ORDER_STATUSES.DANG_GIAO;
+                    case ORDER_STATUSES.DANG_GIAO: return ORDER_STATUSES.DA_GIAO;
+                    default: return null;
+                }
+            }
+
+            function formatLocalCurrency(amount) {
+                if (amount === null || typeof amount !== 'number') return 'N/A';
+                return amount.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+            }
+
+
+            async function updateOrderStatusAPI(orderId, newStatus, callback) {
+                if (typeof API_BASE_URL === 'undefined') {
+                    alert("Lỗi cấu hình: API_BASE_URL không được định nghĩa.");
+                    return;
+                }
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    alert('Vui lòng đăng nhập lại.');
+                    window.location.href = "/Customer/templates/login.html"; // Adjust path
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Orders/${orderId}/status`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ newStatus: newStatus })
+                    });
+
+                    if (response.ok) {
+                        alert(`Cập nhật trạng thái đơn hàng #${orderId} thành công!`);
+                        if (callback && typeof callback === 'function') {
+                            callback(); // Call the refresh/update function
+                        }
+                    } else {
+                        let errorMessage = `Lỗi cập nhật trạng thái (${response.status})`;
+                        try {
+                            const errorData = await response.json();
+                            errorMessage = `Lỗi: ${errorData.message || JSON.stringify(errorData)}`;
+                        } catch (e) {
+                            const textError = await response.text();
+                            errorMessage = `Lỗi ${response.status}: ${textError || response.statusText}`;
+                        }
+                        alert(errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi cập nhật trạng thái:', error);
+                    alert(`Đã xảy ra lỗi: ${error.message}`);
+                }
+            }
+
+
+            async function fetchOrderDetails(orderId) {
+                loadingState.classList.remove('hidden');
+                errorState.classList.add('hidden');
+                contentState.classList.add('hidden');
+
+                if (typeof API_BASE_URL === 'undefined') {
+                    errorMessageElement.textContent = "Lỗi cấu hình: API_BASE_URL không được định nghĩa.";
+                    loadingState.classList.add('hidden');
+                    errorState.classList.remove('hidden');
+                    return;
+                }
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    alert('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    window.location.href = "/Customer/templates/login.html"; // Adjust path if needed
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Orders/${orderId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 404) {
+                            throw new Error(`Không tìm thấy đơn hàng với ID ${orderId} hoặc bạn không có quyền xem.`);
+                        }
+                        const errorText = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorText || response.statusText}`);
+                    }
+                    const orderData = await response.json();
+                    renderOrderDetails(orderData);
+                    loadingState.classList.add('hidden');
+                    contentState.classList.remove('hidden');
+
+                } catch (error) {
+                    console.error("Lỗi khi tải chi tiết đơn hàng:", error);
+                    errorMessageElement.textContent = error.message;
+                    loadingState.classList.add('hidden');
+                    errorState.classList.remove('hidden');
+                }
+            }
+
+            function renderOrderDetails(order) {
+                orderIdDisplay.textContent = order.orderID;
+                breadcrumbOrderId.textContent = `#${order.orderID}`;
+                orderDateElement.textContent = formatDate(new Date(order.orderDate));
+                shippingAddressElement.textContent = order.shippingAddress;
+                totalAmountElement.textContent = formatLocalCurrency(order.totalAmount);
+                discountCodeElement.textContent = order.discountCode || 'Không có';
+                totalPaymentElement.textContent = formatLocalCurrency(order.totalPayment);
+
+                // Render Customer Info
+                if (order.customerInfo) {
+                    customerNameElement.textContent = order.customerInfo.fullName || 'N/A';
+                    customerEmailElement.textContent = order.customerInfo.email || 'N/A';
+                    customerPhoneElement.textContent = order.customerInfo.phone || 'N/A';
+                    customerAddressElement.textContent = order.customerInfo.address || 'N/A';
+                } else {
+                    [customerNameElement, customerEmailElement, customerPhoneElement, customerAddressElement].forEach(el => el.textContent = 'N/A');
+                }
+
+                // Render Status and Action Buttons
+                renderStatusAndActions(order);
+
+
+                // Render Order Items
+                orderItemsTableBody.innerHTML = ''; // Clear previous items
+                if (order.items && order.items.length > 0) {
+                    order.items.forEach((item, index) => {
+                        const row = orderItemsTableBody.insertRow();
+                        row.className = index % 2 === 0 ? 'bg-white' : 'bg-gray-50';
+                        row.innerHTML = `
+                            <td class="py-3 px-4 border-b border-gray-200">${index + 1}</td>
+                            <td class="py-3 px-4 border-b border-gray-200">
+                                <img src="${item.productImageURL || '/Admin/assets/images/placeholder.png'}" alt="${item.productName}" class="product-image">
+                            </td>
+                            <td class="py-3 px-4 border-b border-gray-200 font-medium">${item.productName}</td>
+                            <td class="py-3 px-4 border-b border-gray-200 text-center">${item.quantity}</td>
+                            <td class="py-3 px-4 border-b border-gray-200 text-right">${formatLocalCurrency(item.unitPrice)}</td>
+                            <td class="py-3 px-4 border-b border-gray-200 text-right font-semibold">${formatLocalCurrency(item.lineTotal)}</td>
+                        `;
+                    });
+                } else {
+                    orderItemsTableBody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-gray-500">Không có sản phẩm nào trong đơn hàng này.</td></tr>';
+                }
+            }
+
+            function renderStatusAndActions(order) {
+                orderStatusElement.innerHTML = ''; // Clear previous
+                orderActionButtonsContainer.innerHTML = ''; // Clear previous
+
+                const currentStatus = order.status;
+                const statusClass = getStatusClass(currentStatus);
+                const nextFlowStatus = getNextStatusInFlow(currentStatus);
+                const isInteractiveStatusFlow = !!nextFlowStatus;
+
+                let statusDisplayHtml;
+                if (isInteractiveStatusFlow) {
+                    statusDisplayHtml = `
+                        <button class="status-badge interactive ${statusClass}" 
+                                onclick="handleStatusButtonClick(${order.orderID}, '${currentStatus}')"
+                                title="Nhấp để chuyển sang '${nextFlowStatus}'">
+                            ${currentStatus}
+                            <i class="fas fa-arrow-right fa-xs ml-2"></i>
+                        </button>`;
+                } else {
+                    statusDisplayHtml = `<span class="status-badge ${statusClass}">${currentStatus}</span>`;
+                }
+                orderStatusElement.innerHTML = statusDisplayHtml;
+
+                // Action Buttons specific to detail page
+                if (currentStatus === ORDER_STATUSES.CHO_XAC_NHAN || currentStatus === ORDER_STATUSES.DANG_XU_LY || statusClass === 'status-default') {
+                    const cancelButton = document.createElement('button');
+                    cancelButton.className = 'action-button action-button-cancel';
+                    cancelButton.title = 'Hủy đơn hàng';
+                    cancelButton.innerHTML = `<i class="fas fa-times-circle"></i> Hủy đơn`;
+                    cancelButton.onclick = () => handleCancelOrder(order.orderID);
+                    orderActionButtonsContainer.appendChild(cancelButton);
+                }
+
+                if (currentStatus === ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN) {
+                    const confirmRefundButton = document.createElement('button');
+                    confirmRefundButton.className = 'action-button action-button-refund';
+                    confirmRefundButton.title = 'Xác nhận yêu cầu & hoàn tiền';
+                    confirmRefundButton.innerHTML = `<i class="fas fa-check-circle"></i> XN Hoàn tiền`;
+                    confirmRefundButton.onclick = () => handleConfirmRefundRequest(order.orderID);
+                    orderActionButtonsContainer.appendChild(confirmRefundButton);
+                }
+
+            }
+
+            // Make these global for onclick handlers
+            window.handleStatusButtonClick = (orderId, currentStatus) => {
+                const nextStatus = getNextStatusInFlow(currentStatus);
+                if (!nextStatus) return;
+                if (confirm(`Bạn có chắc muốn chuyển đơn hàng #${orderId} từ "${currentStatus}" sang "${nextStatus}"?`)) {
+                    updateOrderStatusAPI(orderId, nextStatus, () => fetchOrderDetails(orderId));
+                }
+            };
+            window.handleCancelOrder = (orderId) => {
+                if (confirm(`Bạn có chắc chắn muốn HỦY đơn hàng #${orderId} không?`)) {
+                    updateOrderStatusAPI(orderId, ORDER_STATUSES.DA_HUY, () => fetchOrderDetails(orderId));
+                }
+            };
+            window.handleConfirmRefundRequest = (orderId) => {
+                if (confirm(`Xác nhận yêu cầu trả hàng và hoàn tiền cho đơn hàng #${orderId}? Đơn hàng sẽ được chuyển sang "Đã hoàn tiền".`)) {
+                    updateOrderStatusAPI(orderId, ORDER_STATUSES.DA_HOAN_TIEN, () => fetchOrderDetails(orderId));
+                }
+            };
+            window.markAsReturnRequestedByAdmin = (orderId) => {
+                if (confirm(`Đánh dấu đơn hàng #${orderId} là "Yêu cầu trả hàng/hoàn tiền"?`)) {
+                    updateOrderStatusAPI(orderId, ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN, () => fetchOrderDetails(orderId));
+                }
+            };
+
+
+            // Get orderId from URL and load details
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderId = urlParams.get('id');
+
+            if (orderId && !isNaN(orderId)) {
+                checkAuthToken(); // From index.js
+                fetchOrderDetails(parseInt(orderId));
+            } else {
+                errorMessageElement.textContent = 'ID đơn hàng không hợp lệ hoặc không được cung cấp.';
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+            }
+        });
+    </script>
+</body>
+
+</html>

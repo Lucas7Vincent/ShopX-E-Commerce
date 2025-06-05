@@ -1,0 +1,54 @@
+/firebasekey.json
+/cac buoc trien khai api.txt
+.vs/
+.github/
+ShopxEX1.sln
+# API
+/ShopxEX1/appsettings.json
+/ShopxEX1/bin/
+/ShopxEX1/obj/
+/ShopxEX1/appsettings.Development.json
+/ShopxEX1.sln
+/ShopxEX1/ShopxEX1.csproj
+/ShopxEX1/ShopxEX1.csproj.user
+/ShopxEX1/ShopxEX1.http
+/ShopxEX1/ShopxEX1.sln
+ShopxEX1.sln
+/ShopxEX1/Properties/
+
+
+# Client
+/TMDTShop_Client/exp.index.html
+
+
+# Ignore config files with sensitive information
+Customer/assets/js/config.js
+Customer/assets/js/config.*.js
+
+# Node modules
+node_modules/
+
+# Build files
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System files
+.DS_Store
+Thumbs.db

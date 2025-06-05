@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thông tin tài khoản - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+</head>
+
+<body class="bg-gray-50">
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="flex flex-col md:flex-row gap-8">
+            <!-- Sidebar -->
+            <div class="w-full md:w-64 space-y-6">
+                <!-- User Info -->
+                <div class="bg-white rounded-lg shadow p-6 text-center">
+                    <div class="w-24 h-24 rounded-full bg-blue-100 mx-auto mb-4 relative">
+                        <img id="avatarImg" src="/api/placeholder/150/150" alt="Avatar" class="w-full h-full rounded-full object-cover" />
+                        <input type="file" id="avatarInput" accept="image/*" class="hidden" />
+                        <div id="avatarCamera" class="absolute bottom-0 right-0 bg-blue-600 rounded-full p-2 cursor-pointer">
+                            <i class="fas fa-camera text-white text-xs"></i>
+                        </div>
+                    </div>
+                    <h3 id="sidebarUserName" class="font-bold text-lg">Nguyễn Văn A</h3>
+                    <p id="sidebarUserEmail" class="text-gray-500 text-sm"><a href="/cdn-cgi/l/email-protection"
+                            class="__cf_email__"
+                            data-cfemail="195c6a7c6b597c61787469757c377a7674">[email&#160;protected]</a></p>
+                </div>
+                <!-- Navigation -->
+                <div class="bg-white rounded-lg shadow overflow-hidden">
+                    <nav>
+                        <a href="#" id="sidebarAccount" class="flex items-center gap-3 px-6 py-3 bg-blue-50 border-l-4 border-blue-600 text-blue-600 sidebar-tab active">
+                            <i class="fas fa-user-circle"></i>
+                            <span>Thông tin tài khoản</span>
+                        </a>
+                        <a href="#" id="sidebarOrders" class="flex items-center gap-3 px-6 py-3 hover:bg-gray-50 text-gray-700 sidebar-tab">
+                            <i class="fas fa-key"></i>
+                            <span>Đổi mật khẩu</span>
+                        </a>
+                    </nav>
+                </div>
+            </div>
+            <!-- Content -->
+            <div class="flex-1">
+                <div id="account-info-section" class="bg-white rounded-lg shadow p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold">Thông tin tài khoản</h2>
+                        <button id="editToggle" class="text-blue-600 flex items-center gap-2">
+                            <i class="fas fa-pen"></i>
+                            <span>Chỉnh sửa</span>
+                        </button>
+                    </div>
+                    <!-- Profile Form -->
+                    <form id="profileForm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Họ tên -->
+                            <div>
+                                <label for="fullName" class="block text-gray-700 font-medium mb-2">Họ và tên</label>
+                                <input type="text" id="fullName" name="fullName" disabled
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-100">
+                            </div>
+                            <!-- Email -->
+                            <div>
+                                <label for="email" class="block text-gray-700 font-medium mb-2">Email</label>
+                                <input type="email" id="email" name="email" disabled
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-100">
+                            </div>
+                            <!-- Số điện thoại -->
+                            <div>
+                                <label for="phone" class="block text-gray-700 font-medium mb-2">Số điện thoại</label>
+                                <input type="tel" id="phone" name="phone" disabled
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-100">
+                            </div>
+                            <!-- Ngày sinh -->
+                            <div class="relative">
+                                <label for="birthdate" class="block text-gray-700 font-medium mb-2">Ngày sinh</label>
+                                <input type="date" id="birthdate" name="birthdate"
+                                    class="block w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition bg-gray-50"
+                                    placeholder=" " /* Thêm placeholder trống để label hoạt động nếu dùng floating label
+                                    sau này */>
+                                <span id="birthdateDisplay" class="hidden text-xs text-red-500 mt-1"></span>
+                            </div>
+                            <!-- Giới tính -->
+                            <div>
+                                <label class="block text-gray-700 font-medium mb-2">Giới tính</label>
+                                <div class="flex items-center space-x-4">
+                                    <label class="flex items-center">
+                                        <input type="radio" name="gender" value="male" ...> Nam
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" name="gender" value="female" ...> Nữ
+                                    </label>
+                                </div>
+                            </div>
+                             <!-- Vai trò -->
+                             <div>
+                                <label class="block text-gray-700 font-medium mb-2">Vai trò</label>
+                                <div class="flex items-center space-x-4">
+                                    <select id="role" class="mt-1 p-2 w-full border rounded" disabled>
+                                        <option value="customer" >Customer</option>
+                                        <option value="seller">Seller</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- Tên cửa hàng (hiển thị khi người dùng là Seller) -->
+                            <div id="shopNameContainer" class="hidden">
+                                <label for="shopName" class="block text-gray-700 font-medium mb-2">Tên cửa hàng</label>
+                                <input type="text" id="shopName" name="shopName" disabled
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-100">
+                            </div>
+                        </div>
+                        <hr class="my-6 border-gray-200">
+                        <h3 class="text-lg font-semibold mb-4">Địa chỉ</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Địa chỉ cụ thể -->
+                            <div>
+                                <label for="address" class="block text-gray-700 font-medium mb-2">Địa chỉ cụ thể</label>
+                                <input type="text" id="address" name="address" value="123 Nguyễn Huệ" disabled
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition disabled:bg-gray-100">
+                            </div>
+                        </div>
+                        <!-- Buttons -->
+                        <div class="mt-8 flex justify-end space-x-4" id="actionButtons" style="display: none;">
+                            <button type="button" id="cancelBtn"
+                                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition">
+                                Hủy
+                            </button>
+                            <button type="submit"
+                                class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                Lưu thay đổi
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div id="order-section" class="bg-white rounded-lg shadow p-6 mt-8 hidden">
+                    <h2 class="text-xl font-bold mb-6">Đổi mật khẩu</h2>
+                    <form id="changePasswordForm">
+                        <div class="space-y-6">
+                            <!-- Mật khẩu hiện tại -->
+                            <div>
+                                <label for="currentPassword" class="block text-gray-700 font-medium mb-2">Mật khẩu hiện tại</label>
+                                <input type="password" id="currentPassword" name="currentPassword" required
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <!-- Mật khẩu mới -->
+                            <div>
+                                <label for="newPassword" class="block text-gray-700 font-medium mb-2">Mật khẩu mới</label>
+                                <input type="password" id="newPassword" name="newPassword" required
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                                <p class="text-sm text-gray-500 mt-1">Mật khẩu phải có ít nhất 6 ký tự</p>
+                            </div>
+                            
+                            <!-- Xác nhận mật khẩu mới -->
+                            <div>
+                                <label for="confirmNewPassword" class="block text-gray-700 font-medium mb-2">Xác nhận mật khẩu mới</label>
+                                <input type="password" id="confirmNewPassword" name="confirmNewPassword" required
+                                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                            </div>
+                            
+                            <div id="passwordError" class="text-red-500 hidden"></div>
+                            
+                            <!-- Button submit -->
+                            <div class="mt-8 flex justify-end">
+                                <button type="submit"
+                                    class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                                    Đổi mật khẩu
+                                </button>
+                    </div>
+                    </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer Container -->
+    <div id="footer-container"></div>
+    
+    <!-- JavaScript -->
+    <!-- Thêm script seller.js trước info.js -->
+    <script src="../assets/js/seller.js"></script>
+    <script src="../assets/js/index.js"></script>
+    <script src="../assets/js/info.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script>
+        // Đợi đến khi trang tải xong và các script đã sẵn sàng
+        document.addEventListener('DOMContentLoaded', function() {
+            // Đợi thêm một chút để đảm bảo info.js đã được tải
+            setTimeout(async function() {
+                if (typeof checkRole === 'function') {
+                    try {
+                        await checkRole();
+                        console.log('checkRole đã được gọi thành công từ HTML');
+                    } catch (error) {
+                        console.error('Lỗi khi gọi checkRole:', error);
+                    }
+                } else {
+                    console.error('Hàm checkRole không tồn tại!');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+
+</html>

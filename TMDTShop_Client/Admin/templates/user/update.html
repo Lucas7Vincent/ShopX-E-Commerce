@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Cập nhật thông tin người dùng</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css"> <!-- Assuming shared admin CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+
+        <div id="sidebar">
+            <!-- Auto-loaded by custom.js -->
+        </div>
+
+        <div class="content-area flex-1">
+            <div id="header">
+                <!-- Auto-loaded by custom.js -->
+            </div>
+
+            <div id="app">
+                <main class="p-4 md:p-6 lg:p-8">
+                    <section class="mt-6 md:mt-10 bg-white shadow-xl rounded-xl overflow-hidden">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Cập nhật thông tin người dùng
+                                </h2>
+                                <a href="list.html"
+                                    class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors duration-150 ease-in-out group">
+                                    <i
+                                        class="fas fa-arrow-left mr-2 group-hover:-translate-x-0.5 transition-transform duration-150 ease-in-out"></i>
+                                    <span>Quay lại danh sách</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <div id="messageArea" class="mb-6"></div>
+                            <div id="loadingIndicator" class="text-center py-10 hidden">
+                                <i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i>
+                                <p class="mt-2 text-gray-600">Đang tải dữ liệu người dùng...</p>
+                            </div>
+
+                            <form id="updateUserForm" class="space-y-6 hidden">
+                                <!-- User ID (hidden) -->
+                                <input type="hidden" id="userId" name="userId">
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                    <!-- Email (Display Only) -->
+                                    <div>
+                                        <label for="email"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                                        <input type="email" id="email" name="email" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-100 cursor-not-allowed
+                                                      focus:outline-none focus:ring-0 sm:text-sm" readonly>
+                                    </div>
+
+                                    <!-- Role -->
+                                    <div>
+                                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Vai trò
+                                            <span class="text-red-500">*</span></label>
+                                        <select id="role" name="role" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                                                       placeholder-gray-400 
+                                                       focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                                       sm:text-sm" required>
+                                            <option value="Customer">Customer</option>
+                                            <option value="Seller">Seller</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                        <div id="roleError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+
+                                    <!-- Full Name -->
+                                    <div>
+                                        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Họ và
+                                            Tên</label>
+                                        <input type="text" id="fullName" name="fullName" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                                                      placeholder-gray-400 
+                                                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                                      sm:text-sm">
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div>
+                                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Số điện
+                                            thoại</label>
+                                        <input type="tel" id="phone" name="phone" placeholder="Ví dụ: 09xxxxxxxx" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                                                      placeholder-gray-400 
+                                                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                                      sm:text-sm">
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="md:col-span-2">
+                                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Địa
+                                            chỉ</label>
+                                        <input type="text" id="address" name="address"
+                                            placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                                                      placeholder-gray-400 
+                                                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                                      sm:text-sm">
+                                    </div>
+
+                                    <!-- Shop Name (Conditional) -->
+                                    <div id="shopNameContainer" class="md:col-span-2 hidden">
+                                        <label for="shopName" class="block text-sm font-medium text-gray-700 mb-1">Tên
+                                            cửa hàng <span id="shopNameRequiredStar"
+                                                class="text-red-500 hidden">*</span></label>
+                                        <input type="text" id="shopName" name="shopName"
+                                            placeholder="Tên cửa hàng kinh doanh" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm 
+                                                      placeholder-gray-400 
+                                                      focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                                                      sm:text-sm">
+                                        <div id="shopNameError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Is Active Checkbox -->
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="isActive" name="isActive"
+                                        class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                                    <label for="isActive" class="ml-2 block text-sm text-gray-900">Kích hoạt tài
+                                        khoản</label>
+                                </div>
+
+                                <div class="pt-5">
+                                    <div class="flex justify-end space-x-3">
+                                        <a href="list.html" type="button"
+                                            class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                            Quay lại
+                                        </a>
+                                        <button type="submit" id="submitBtn"
+                                            class="inline-flex justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                            <i class="fas fa-save mr-2 my-auto"></i>Lưu thay đổi
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </main>
+            </div>
+            <div id="footer">
+                <!-- Auto-loaded by custom.js -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/Admin/assets/js/index.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Các biến DOM elements
+            const updateUserForm = document.getElementById('updateUserForm');
+            const userIdInput = document.getElementById('userId');
+            const emailInput = document.getElementById('email');
+            const roleSelect = document.getElementById('role');
+            const fullNameInput = document.getElementById('fullName');
+            const phoneInput = document.getElementById('phone');
+            const addressInput = document.getElementById('address');
+            const shopNameInput = document.getElementById('shopName');
+            const shopNameContainer = document.getElementById('shopNameContainer');
+            const shopNameRequiredStar = document.getElementById('shopNameRequiredStar');
+            const isActiveCheckbox = document.getElementById('isActive');
+            const messageArea = document.getElementById('messageArea');
+            const submitBtn = document.getElementById('submitBtn');
+            const loadingIndicator = document.getElementById('loadingIndicator');
+
+            const roleError = document.getElementById('roleError');
+            const shopNameError = document.getElementById('shopNameError');
+
+
+            function clearFieldErrors() {
+                roleError.textContent = '';
+                shopNameError.textContent = '';
+            }
+
+            function displayMessage(message, type = 'error') { // Thêm hàm này vào phạm vi để fetchUserData có thể dùng
+                messageArea.innerHTML = '';
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = message;
+                messageDiv.className = type === 'success'
+                    ? 'text-green-700 text-sm p-3 bg-green-50 border border-green-300 rounded-md'
+                    : 'text-red-700 text-sm p-3 bg-red-50 border border-red-300 rounded-md';
+                messageArea.appendChild(messageDiv);
+                window.scrollTo(0, 0);
+            }
+
+            function toggleShopNameField() {
+                const isSeller = roleSelect.value === 'Seller';
+                shopNameContainer.classList.toggle('hidden', !isSeller);
+                shopNameInput.required = isSeller;
+                shopNameRequiredStar.classList.toggle('hidden', !isSeller);
+            }
+
+            roleSelect.addEventListener('change', () => {
+                toggleShopNameField();
+                if (roleSelect.value !== 'Seller') {
+                    shopNameInput.value = '';
+                }
+            });
+
+            async function fetchUserData(id) {
+                loadingIndicator.classList.remove('hidden'); // Hiện loading
+                updateUserForm.classList.add('hidden');    // Ẩn form
+                const token = sessionStorage.getItem('token');
+
+                if (!token) {
+                    console.warn('Không có token. Chuyển hướng đăng nhập.');
+                    // Đảm bảo loginPageUrl đã được định nghĩa
+                    window.location.href = `${window.loginPageUrl || '/Customer/templates/login.html'}?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                    return;
+                }
+
+                try {
+                    // Đảm bảo API_BASE_URL đã được định nghĩa
+                    const response = await fetch(`${API_BASE_URL}/Users/${id}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (response.status === 401 || response.status === 403) {
+                        console.warn(`API trả về lỗi ${response.status}. Chuyển hướng đến trang cấm truy cập.`);
+                        // Đảm bảo forbiddenPageUrl đã được định nghĩa
+                        window.location.href = window.forbiddenPageUrl || '/403.html';
+                        return;
+                    }
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`Lỗi ${response.status}: Không thể tải dữ liệu người dùng. ${errorText}`);
+                    }
+                    const user = await response.json();
+                    populateForm(user);
+                    loadingIndicator.classList.add('hidden');   // Ẩn loading
+                    updateUserForm.classList.remove('hidden'); // Hiện form
+                } catch (error) {
+                    console.error('Lỗi khi tải dữ liệu người dùng:', error);
+                    displayMessage(error.message || 'Lỗi không xác định khi tải dữ liệu.');
+                    loadingIndicator.classList.add('hidden'); // Ẩn loading nếu lỗi
+                }
+            }
+
+            function populateForm(user) {
+                userIdInput.value = user.userID;
+                emailInput.value = user.email || '';
+                roleSelect.value = user.role || 'Customer';
+                fullNameInput.value = user.fullName || '';
+                phoneInput.value = user.phone || '';
+                addressInput.value = user.address || '';
+                isActiveCheckbox.checked = user.isActive;
+                shopNameInput.value = user.shopName || '';
+                toggleShopNameField();
+            }
+
+            // Lấy userId TỪ URL và gọi fetchUserData
+            const urlParams = new URLSearchParams(window.location.search);
+            const currentUserId = urlParams.get('id'); // KHAI BÁO currentUserId ở đây
+
+            if (!currentUserId) {
+                displayMessage('Không tìm thấy ID người dùng trong URL. Vui lòng kiểm tra lại.');
+                loadingIndicator.classList.add('hidden');
+            } else {
+                fetchUserData(currentUserId); // Gọi fetchUserData với ID đã lấy được
+            }
+
+
+            updateUserForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                clearFieldErrors();
+                messageArea.innerHTML = '';
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 my-auto"></i>Đang cập nhật...';
+
+                let isValid = true;
+                if (roleSelect.value === 'Seller' && !shopNameInput.value.trim()) {
+                    shopNameError.textContent = 'Tên cửa hàng không được để trống cho vai trò Seller.';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu thay đổi';
+                    if (roleSelect.value === 'Seller' && !shopNameInput.value.trim()) shopNameInput.focus();
+                    return;
+                }
+
+                const formData = {
+                    fullName: fullNameInput.value.trim() || null,
+                    phone: phoneInput.value.trim() || null,
+                    address: addressInput.value.trim() || null,
+                    role: roleSelect.value,
+                    shopName: (roleSelect.value === 'Seller' && shopNameInput.value.trim()) ? shopNameInput.value.trim() : null,
+                    isActive: isActiveCheckbox.checked
+                };
+
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    console.warn('Không có token khi gửi form. Chuyển hướng đăng nhập.');
+                    window.location.href = `${window.loginPageUrl || '/Customer/templates/login.html'}?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+                    submitBtn.disabled = false; // Kích hoạt lại nút nếu chuyển hướng không thành công ngay
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu thay đổi';
+                    return;
+                }
+
+                // currentUserId đã được định nghĩa ở phạm vi ngoài sự kiện DOMContentLoaded
+                // nên có thể sử dụng ở đây
+                if (!currentUserId) {
+                    displayMessage('Lỗi: Không tìm thấy ID người dùng để cập nhật.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu thay đổi';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Users/${currentUserId}`, { // Sử dụng currentUserId ở đây
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.status === 401 || response.status === 403) {
+                        console.warn(`API trả về lỗi ${response.status} khi cập nhật. Chuyển hướng.`);
+                        window.location.href = window.forbiddenPageUrl || '/403.html';
+                        return;
+                    }
+
+                    if (response.ok) {
+                        if (response.status === 204) {
+                            displayMessage(`Thông tin người dùng đã được cập nhật thành công!`, 'success');
+                        } else {
+                            const updatedUser = await response.json();
+                            displayMessage(`Thông tin người dùng "${updatedUser.email || emailInput.value}" đã được cập nhật thành công!`, 'success');
+                        }
+                    } else {
+                        const errorData = await response.json();
+                        let errorMessage = `Lỗi ${response.status}: Không thể cập nhật người dùng.`;
+                        if (errorData && errorData.message) {
+                            errorMessage = errorData.message;
+                        } else if (errorData && errorData.errors) {
+                            let detailedErrors = [];
+                            for (const key in errorData.errors) {
+                                detailedErrors.push(`${key}: ${errorData.errors[key].join(', ')}`);
+                            }
+                            errorMessage = `Lỗi dữ liệu: \n- ${detailedErrors.join('\n- ')}`;
+                            if (errorData.errors.Role) roleError.textContent = errorData.errors.Role.join(', ');
+                            if (errorData.errors.ShopName) shopNameError.textContent = errorData.errors.ShopName.join(', ');
+                        }
+                        displayMessage(errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi cập nhật người dùng:', error);
+                    displayMessage('Đã xảy ra lỗi kết nối hoặc lỗi không xác định. Vui lòng thử lại.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu thay đổi';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

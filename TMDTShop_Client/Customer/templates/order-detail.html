@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Đơn hàng - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css"> <!-- CSS chung của Customer -->
+    <style>
+        /* Copy các style cho status-badge và action-button từ orders.html hoặc list.html (Admin) */
+        .status-badge {
+            padding: 0.25em 0.6em;
+            border-radius: 0.25rem;
+            font-size: 0.875em;
+            /* text-sm */
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            display: inline-block;
+            min-width: 120px;
+        }
+
+        .status-cho-xac-nhan {
+            background-color: #fef3c7;
+            color: #b45309;
+        }
+
+        .status-dang-xu-ly {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .status-dang-giao {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-da-giao {
+            background-color: #dcfce7;
+            color: #166534;
+        }
+
+        .status-yeu-cau-tra-hang-hoan-tien {
+            background-color: #fffbeb;
+            color: #b45309;
+        }
+
+        .status-da-hoan-tien {
+            background-color: #ede9fe;
+            color: #5b21b6;
+        }
+
+        .status-da-huy {
+            background-color: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-default {
+            background-color: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .action-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            /* rounded-md */
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: background-color 0.2s;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .action-button i {
+            margin-right: 0.35rem;
+        }
+
+        /* Nút Hủy Đơn Hàng (Customer) */
+        .customer-cancel-order-btn {
+            background-color: #fecaca;
+            color: #b91c1c;
+            /* red-200, red-700 */
+        }
+
+        .customer-cancel-order-btn:hover {
+            background-color: #fca5a5;
+        }
+
+        /* Nút Yêu Cầu Trả Hàng (Customer) */
+        .customer-return-request-btn {
+            background-color: #ffedd5;
+            color: #c2410c;
+            /* orange-100, orange-700 */
+        }
+
+        .customer-return-request-btn:hover {
+            background-color: #fed7aa;
+        }
+
+
+        .info-group {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-group:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .info-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 0.75rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 0.75rem;
+        }
+
+        .info-item>span:first-child {
+            font-weight: 500;
+            color: #6b7280;
+        }
+
+        /* Label */
+        .info-item>span:last-child {
+            color: #1f2937;
+        }
+
+        /* Value */
+
+        .product-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 1rem 0;
+            border-bottom: 1px solid #f3f4f6;
+        }
+
+        .product-item:last-child {
+            border-bottom: none;
+        }
+
+        .product-image-detail {
+            width: 5rem;
+            height: 5rem;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+
+        .product-details {
+            flex-grow: 1;
+        }
+
+        .product-name-detail {
+            font-weight: 600;
+            color: #111827;
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .product-category-detail {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin-bottom: 0.25rem;
+        }
+
+        .product-shop-detail {
+            font-size: 0.875rem;
+            color: #4f46e5;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Indigo for shop */
+        .product-quantity-detail {
+            font-size: 0.875rem;
+            color: #4b5563;
+        }
+
+        .product-price-detail {
+            text-align: right;
+            font-size: 0.875rem;
+            color: #1f2937;
+        }
+
+        .product-linetotal-detail {
+            text-align: right;
+            font-weight: 600;
+            color: #1f2937;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-sans">
+    <div id="header-container"></div>
+
+    <main class="container mx-auto px-4 py-8 min-h-[calc(100vh-200px)]">
+        <nav class="text-sm mb-6" aria-label="Breadcrumb">
+            <ol class="list-none p-0 inline-flex">
+                <li class="flex items-center">
+                    <a href="/Customer/index.html" class="text-blue-600 hover:underline">Trang chủ</a>
+                    <i class="fas fa-chevron-right fa-xs mx-2 text-gray-500"></i>
+                </li>
+                <li class="flex items-center">
+                    <a href="/Customer/templates/orders.html" class="text-blue-600 hover:underline">Đơn hàng của tôi</a>
+                    <i class="fas fa-chevron-right fa-xs mx-2 text-gray-500"></i>
+                </li>
+                <li class="text-gray-500" aria-current="page">Chi tiết đơn hàng <span
+                        id="breadcrumbOrderDetailId"></span></li>
+            </ol>
+        </nav>
+
+        <div id="customerOrderDetailContainer" class="bg-white p-4 md:p-8 rounded-lg shadow-xl">
+            <!-- Loading State -->
+            <div id="customerLoadingOrderDetail" class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-indigo-500 text-4xl"></i>
+                <p class="mt-3 text-gray-600">Đang tải chi tiết đơn hàng...</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="customerErrorOrderDetail" class="hidden text-center py-12">
+                <i class="fas fa-exclamation-circle text-red-500 text-4xl"></i>
+                <p class="mt-3 text-red-600" id="customerErrorMessageDetail"></p>
+                <a href="/Customer/templates/orders.html"
+                    class="mt-6 inline-block bg-indigo-600 text-white px-6 py-2 rounded-md hover:bg-indigo-700 transition">
+                    Quay lại Danh sách Đơn hàng
+                </a>
+            </div>
+
+            <!-- Content State (hidden by default) -->
+            <div id="customerContentOrderDetail" class="hidden">
+                <div
+                    class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 pb-4 border-b border-gray-200">
+                    <div>
+                        <h1 class="text-2xl md:text-3xl font-bold text-gray-800">
+                            Chi tiết Đơn hàng #<span id="detailOrderId"></span>
+                        </h1>
+                        <p class="text-sm text-gray-500">Ngày đặt: <span id="detailOrderDate"></span></p>
+                    </div>
+                    <div id="detailOrderStatusBadge" class="mt-3 md:mt-0">
+                        <!-- Status badge will be here -->
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h2 class="info-title">Thông tin giao hàng</h2>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span>Người nhận:</span>
+                            <span id="detailCustomerName"></span>
+                        </div>
+                        <div class="info-item">
+                            <span>Số điện thoại:</span>
+                            <span id="detailCustomerPhone"></span>
+                        </div>
+                        <div class="info-item md:col-span-2">
+                            <span>Địa chỉ giao hàng:</span>
+                            <span id="detailShippingAddress"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h2 class="info-title">Sản phẩm</h2>
+                    <div id="detailOrderItemsList" class="divide-y divide-gray-100">
+                        <!-- Product items will be rendered here -->
+                    </div>
+                </div>
+
+                <div class="info-group">
+                    <h2 class="info-title">Thanh toán</h2>
+                    <div class="space-y-2 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Tổng tiền hàng:</span>
+                            <span id="detailSubtotal" class="text-gray-800"></span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Phí vận chuyển:</span>
+                            <span id="detailShippingFee" class="text-gray-800">Miễn phí</span>
+                            <!-- Hoặc giá trị động -->
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Giảm giá (Code: <span id="detailDiscountCode">Không
+                                    có</span>):</span>
+                            <span id="detailDiscountAmount" class="text-red-500"></span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="flex justify-between font-bold text-lg">
+                            <span class="text-gray-800">Tổng thanh toán:</span>
+                            <span id="detailTotalPayment" class="text-indigo-600"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="customerOrderActionButtons" class="mt-8 flex flex-col sm:flex-row justify-end gap-3">
+                    <!-- Customer-specific action buttons will be here -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="footer-container"></div>
+
+    <script src="../assets/js/index.js"></script>
+    <script type="module" src="../assets/js/components.js"></script>
+    <script src="../assets/js/rebuy-handler.js"></script>
+
+    <script>
+        function initializeOrderDetailPage() {
+            const loadingElement = document.getElementById('customerLoadingOrderDetail');
+            const errorElement = document.getElementById('customerErrorOrderDetail');
+            const errorMessageSpan = document.getElementById('customerErrorMessageDetail');
+            const contentElement = document.getElementById('customerContentOrderDetail');
+
+            const breadcrumbIdSpan = document.getElementById('breadcrumbOrderDetailId');
+            const orderIdSpan = document.getElementById('detailOrderId');
+            const orderDateSpan = document.getElementById('detailOrderDate');
+            const statusBadgeContainer = document.getElementById('detailOrderStatusBadge');
+
+            const customerNameSpan = document.getElementById('detailCustomerName');
+            const customerPhoneSpan = document.getElementById('detailCustomerPhone');
+            const shippingAddressSpan = document.getElementById('detailShippingAddress');
+
+            const itemsListDiv = document.getElementById('detailOrderItemsList');
+
+            const subtotalSpan = document.getElementById('detailSubtotal');
+            const shippingFeeSpan = document.getElementById('detailShippingFee'); // Cần dữ liệu nếu có
+            const discountCodeSpan = document.getElementById('detailDiscountCode');
+            const discountAmountSpan = document.getElementById('detailDiscountAmount');
+            const totalPaymentSpan = document.getElementById('detailTotalPayment');
+            const actionButtonsContainer = document.getElementById('customerOrderActionButtons');
+
+            const ORDER_STATUSES = Object.freeze({
+                CHO_XAC_NHAN: "Chờ xác nhận",
+                DANG_XU_LY: "Đang xử lý",
+                DANG_GIAO: "Đang giao",
+                DA_GIAO: "Đã giao",
+                YEU_CAU_TRA_HANG_HOAN_TIEN: "Yêu cầu trả hàng/ hoàn tiền",
+                DA_HOAN_TIEN: "Đã hoàn tiền",
+                DA_HUY: "Đã hủy"
+            });
+
+            if (typeof formatDate !== 'function' || typeof formatCurrency !== 'function' || typeof getSession !== 'function' || typeof API_BASE_URL === 'undefined' || typeof getImageUrl !== 'function') {
+                console.error("Một số hàm hoặc biến toàn cục từ index.js chưa sẵn sàng.");
+                loadingElement.classList.add('hidden');
+                errorMessageSpan.textContent = "Lỗi tải trang. Vui lòng thử lại hoặc liên hệ hỗ trợ.";
+                errorElement.classList.remove('hidden');
+                return;
+            }
+
+            function getStatusClass(status) {
+                switch (status) {
+                    case ORDER_STATUSES.CHO_XAC_NHAN: return 'status-cho-xac-nhan';
+                    case ORDER_STATUSES.DANG_XU_LY: return 'status-dang-xu-ly';
+                    case ORDER_STATUSES.DANG_GIAO: return 'status-dang-giao';
+                    case ORDER_STATUSES.DA_GIAO: return 'status-da-giao';
+                    case ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN: return 'status-yeu-cau-tra-hang-hoan-tien';
+                    case ORDER_STATUSES.DA_HOAN_TIEN: return 'status-da-hoan-tien';
+                    case ORDER_STATUSES.DA_HUY: return 'status-da-huy';
+                    default:
+                        console.warn(`Trạng thái không xác định trong getStatusClass (detail): "${status}"`);
+                        return 'status-default';
+                }
+            }
+
+            async function updateOrderStatusViaAPI(orderId, newStatus, successMessage, refreshCallback) {
+                const token = getSession('token');
+                if (!token && token != null) {
+                    alert('Bạn cần đăng nhập để có thể sử dụng chức năng này')
+                    sessionStorage.clear();
+                    window.location.assign('/Customer/templates/login.html')
+                }
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Orders/${orderId}/customer-status`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ newStatus: newStatus })
+                    });
+                    if (response.ok) {
+                        alert(successMessage || `Cập nhật trạng thái đơn hàng #${orderId} thành công!`);
+                        if (refreshCallback) refreshCallback();
+                    } else {
+                        const errorData = await response.json();
+                        alert(`Lỗi: ${errorData.message || response.statusText}`);
+                    }
+                } catch (error) {
+                    alert(`Lỗi kết nối: ${error.message}`);
+                }
+            }
+
+
+            window.customerCancelOrder = (orderId) => {
+                if (confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderId} không?`)) {
+                    updateOrderStatusViaAPI(orderId, ORDER_STATUSES.DA_HUY,
+                        `Đơn hàng #${orderId} đã được yêu cầu hủy.`,
+                        () => fetchOrderDetail(orderId) // Tải lại chi tiết sau khi hủy
+                    );
+                }
+            };
+
+            window.customerRequestReturn = (orderId) => {
+                if (confirm(`Bạn có muốn gửi Yêu cầu trả hàng/ hoàn tiền cho đơn hàng #${orderId} không?`)) {
+                    updateOrderStatusViaAPI(orderId, ORDER_STATUSES.YEU_CAU_TRA_HANG_HOAN_TIEN,
+                        `Yêu cầu trả hàng/ hoàn tiền cho đơn hàng #${orderId} đã được gửi. Shop sẽ liên hệ với bạn.`,
+                        () => fetchOrderDetail(orderId)
+                    );
+                }
+            };
+
+
+            async function fetchOrderDetail(orderId) {
+                loadingElement.classList.remove('hidden');
+                errorElement.classList.add('hidden');
+                contentElement.classList.add('hidden');
+
+                const token = getSession('token');
+                if (!token) { return; }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Orders/${orderId}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (!response.ok) {
+                        if (response.status === 404) throw new Error(`Không tìm thấy đơn hàng #${orderId}.`);
+                        const errorText = await response.text();
+                        throw new Error(`Lỗi ${response.status}: ${errorText || "Không thể tải chi tiết đơn hàng."}`);
+                    }
+                    const order = await response.json();
+                    renderOrderDetail(order);
+                    contentElement.classList.remove('hidden');
+                } catch (err) {
+                    errorMessageSpan.textContent = err.message;
+                    errorElement.classList.remove('hidden');
+                } finally {
+                    loadingElement.classList.add('hidden');
+                }
+            }
+
+            function renderOrderDetail(order) {
+                console.log(order)
+                breadcrumbIdSpan.textContent = `#${order.orderID}`;
+                orderIdSpan.textContent = order.orderID;
+                orderDateSpan.textContent = formatDate(new Date(order.orderDate));
+
+                statusBadgeContainer.innerHTML = `<span class="status-badge ${getStatusClass(order.status)}">${order.status}</span>`;
+
+                shippingAddressSpan.textContent = order.shippingAddress;
+                if (order.customerInfo) {
+                    customerNameSpan.textContent = order.customerInfo.fullName || 'N/A';
+                    customerPhoneSpan.textContent = order.customerInfo.phone || 'N/A';
+                }
+
+                itemsListDiv.innerHTML = ''; // Clear old items
+                order.items.forEach(item => {
+                    itemsListDiv.innerHTML += `
+                        <div class="product-item">
+                            <img src="${getImageUrl(item.productImageURL)}" alt="${item.productName}" class="product-image-detail">
+                            <div class="product-details">
+                                <a href="/Customer/templates/product-detail.html?productId=${item.productID}" 
+                                                class="mb-2 text-lg text-gray-800 leading-tight hover:text-indigo-600 rounded-full ${!item.isActive || !item.shopIsActive ? 'no-event' : ''}">
+                                                ${item.productName}
+                                                ${!item.isActive || !item.shopIsActive ? `<span class="text-xs font-medium px-3 py-1 ml-8 bg-gray-500 rounded-full w-24 text-center text-white">Đã ngừng bán</span>` : ''}
+                                                </a>
+                                <p class="product-category-detail">Phân loại: ${item.categoryName || 'Chưa phân loại'}</p>
+                                ${item.shopName && item.shopName !== "N/A" ? `<a href="https://127.0.0.1:5500/Customer/templates/seller-profile.html?sellerId=${item.sellerID}" class="product-shop-detail hover:text-indigo-800 hover:underline">Shop: ${item.shopName}</a>` : ''}
+                                <p class="product-quantity-detail">Số lượng: ${item.quantity}</p>
+                            </div>
+                            <div class="ml-auto text-right">
+                                <p class="product-price-detail">${formatCurrency(item.unitPrice)}</p>
+                                <p class="product-linetotal-detail">${formatCurrency(item.lineTotal)}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                subtotalSpan.textContent = formatCurrency(order.totalAmount);
+                // Phí vận chuyển và giảm giá có thể cần tính toán hoặc lấy từ API nếu có
+                const discountApplied = order.totalAmount - order.totalPayment;
+                discountCodeSpan.textContent = order.discountCode || 'Không có';
+                discountAmountSpan.textContent = `- ${formatCurrency(discountApplied)}`;
+                totalPaymentSpan.textContent = formatCurrency(order.totalPayment);
+
+                // Render Action Buttons cho Customer
+                actionButtonsContainer.innerHTML = '';
+                if (order.status === ORDER_STATUSES.CHO_XAC_NHAN) {
+                    actionButtonsContainer.innerHTML += `
+                        <button onclick="customerCancelOrder(${order.orderID})" class="action-button customer-cancel-order-btn">
+                            <i class="fas fa-times-circle"></i>Hủy Đơn Hàng
+                        </button>`;
+                }
+
+                if (order.status === ORDER_STATUSES.DA_GIAO && order?.orderDate) {
+                    if (getDateDifference(order.orderDate) < 3) {
+                        actionButtonsContainer.innerHTML += `
+                        <button onclick="customerRequestReturn(${order.orderID})" class="action-button customer-return-request-btn ml-0 sm:ml-3 mt-2 sm:mt-0">
+                            <i class="fas fa-undo-alt"></i>Yêu cầu trả hàng/ hoàn tiền
+                            </button>`;
+                        actionButtonsContainer.innerHTML += `
+                            <button onclick="window.location.href='/Customer/templates/review.html?orderId=${order.orderID}'" class="action-button bg-indigo-600 text-white hover:bg-indigo-700 ml-0 sm:ml-3 mt-2 sm:mt-0">
+                                <i class="fas fa-star"></i>Đánh Giá Sản Phẩm
+                                </button>`;
+                    }
+                }
+                actionButtonsContainer.innerHTML += `
+                        <button onclick="rebuyHandler.showRebuyModal(${order.orderID})" 
+                            class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white border border-indigo-600 px-4 py-2 rounded-sm text-sm font-medium transition-colors">
+                        <i class="fas fa-redo-alt mr-2"></i>Mua Lại
+                    </button>`;
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const orderIdFromUrl = urlParams.get('id');
+
+            if (orderIdFromUrl && !isNaN(orderIdFromUrl)) {
+                if (checkAuthTokenForPage()) {
+                    fetchOrderDetail(parseInt(orderIdFromUrl));
+                } else {
+                    loadingElement.classList.add('hidden');
+                    errorMessageSpan.textContent = "Vui lòng đăng nhập để xem chi tiết đơn hàng.";
+                    errorElement.classList.remove('hidden');
+                }
+            } else {
+                loadingElement.classList.add('hidden');
+                errorMessageSpan.textContent = 'ID đơn hàng không hợp lệ.';
+                errorElement.classList.remove('hidden');
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeOrderDetailPage);
+        } else {
+            setTimeout(initializeOrderDetailPage, 100); // Chờ chút cho components.js và index.js
+        }
+    </script>
+</body>
+
+</html>

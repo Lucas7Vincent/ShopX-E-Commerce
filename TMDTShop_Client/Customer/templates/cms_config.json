@@ -1,0 +1,153 @@
+{
+    "logo_url": "../assets/images/logo.png",
+    "logo_alt": "ShopX Logo",
+    "main_menu": [
+        {
+            "title": "Trang chủ",
+            "url": "/"
+        },
+        {
+            "title": "Sản phẩm",
+            "url": "/products"
+        },
+        {
+            "title": "Khuyến mãi",
+            "url": "/promotion"
+        },
+        {
+            "title": "Liên hệ",
+            "url": "/contact"
+        }
+    ],
+    "category_menu": {
+        "title": "Danh mục",
+        "items": [
+            {
+                "title": "Thời trang",
+                "items": [
+                    {
+                        "title": "Áo nam",
+                        "url": "/products/ao-nam"
+                    },
+                    {
+                        "title": "Quần nam",
+                        "url": "/products/quan-nam"
+                    },
+                    {
+                        "title": "Áo nữ",
+                        "url": "/products/ao-nu"
+                    },
+                    {
+                        "title": "Quần nữ",
+                        "url": "/products/quan-nu"
+                    },
+                    {
+                        "title": "Giày dép",
+                        "url": "/products/giay-dep"
+                    },
+                    {
+                        "title": "Phụ kiện thời trang",
+                        "url": "/products/phu-kien-thoi-trang"
+                    }
+                ]
+            },
+            {
+                "title": "Điện tử",
+                "items": [
+                    {
+                        "title": "Điện thoại",
+                        "url": "/products/dien-thoai"
+                    },
+                    {
+                        "title": "Laptop",
+                        "url": "/products/laptop"
+                    },
+                    {
+                        "title": "Tablet",
+                        "url": "/products/tablet"
+                    },
+                    {
+                        "title": "Tai nghe",
+                        "url": "/products/tai-nghe"
+                    },
+                    {
+                        "title": "Thiết bị điện tử",
+                        "url": "/products/thiet-bi-dien-tu"
+                    }
+                ]
+            }
+        ]
+    },
+    "search": {
+        "action": "/search",
+        "method": "GET",
+        "input_name": "q",
+        "placeholder": "Tìm kiếm sản phẩm..."
+    },
+    "footer": {
+        "about": {
+            "title": "Về ShopX",
+            "content": "Chúng tôi cung cấp các sản phẩm chất lượng cao với giá cả phải chăng, đảm bảo sự hài lòng của khách hàng."
+        },
+        "quick_links": {
+            "title": "Liên kết nhanh",
+            "items": [
+                {
+                    "title": "Về chúng tôi",
+                    "url": "/about"
+                },
+                {
+                    "title": "Liên hệ",
+                    "url": "/contact"
+                },
+                {
+                    "title": "Blog",
+                    "url": "/blog"
+                },
+                {
+                    "title": "FAQ",
+                    "url": "/faq"
+                }
+            ]
+        },
+        "contact": {
+            "title": "Liên hệ",
+            "items": [
+                {
+                    "icon": "fas fa-map-marker-alt",
+                    "content": "123 Đường ABC, Quận XYZ, TP.HCM"
+                },
+                {
+                    "icon": "fas fa-phone",
+                    "content": "(028) 1234 5678"
+                },
+                {
+                    "icon": "fas fa-envelope",
+                    "content": "info@shopx.com"
+                }
+            ]
+        },
+        "social": {
+            "title": "Theo dõi chúng tôi",
+            "items": [
+                {
+                    "icon": "fab fa-facebook",
+                    "url": "https://facebook.com/shopx"
+                },
+                {
+                    "icon": "fab fa-twitter",
+                    "url": "https://twitter.com/shopx"
+                },
+                {
+                    "icon": "fab fa-instagram",
+                    "url": "https://instagram.com/shopx"
+                },
+                {
+                    "icon": "fab fa-youtube",
+                    "url": "https://youtube.com/shopx"
+                }
+            ]
+        },
+        "copyright": "© 2024 ShopX. Tất cả quyền được bảo lưu."
+    }
+} 

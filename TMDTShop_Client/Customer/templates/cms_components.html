@@ -1,0 +1,102 @@
+<!-- CMS Components -->
+<!-- Header Components -->
+<div class="cms-header-components">
+    <!-- Logo -->
+    <div class="cms-logo" data-cms-type="image">
+        <img src="{{ cms.logo_url }}" alt="{{ cms.logo_alt }}" class="text-2xl font-bold text-blue-600">
+    </div>
+
+    <!-- Main Navigation -->
+    <div class="cms-main-nav" data-cms-type="menu">
+        <nav class="hidden md:flex items-center gap-6">
+            {% for item in cms.main_menu %}
+            <a href="{{ item.url }}" class="text-gray-700 hover:text-blue-600 transition">{{ item.title }}</a>
+            {% endfor %}
+        </nav>
+    </div>
+
+    <!-- Category Menu -->
+    <div class="cms-category-menu" data-cms-type="menu">
+        <div class="relative group" x-data="{ open: false }">
+            <button @click="open = !open" class="flex items-center gap-1 text-gray-700 hover:text-blue-600 transition">
+                {{ cms.category_menu.title }}
+                <i class="fas fa-chevron-down text-xs transition-transform duration-200" :class="{'transform rotate-180': open}"></i>
+            </button>
+            <div x-show="open" @click.outside="open = false" class="absolute left-0 mt-2 w-56 bg-white rounded-md shadow-lg z-50 border border-gray-200">
+                {% for category in cms.category_menu.items %}
+                <div class="relative submenu-group">
+                    <button class="flex justify-between items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100">
+                        <span>{{ category.title }}</span>
+                        <i class="fas fa-chevron-right text-xs"></i>
+                    </button>
+                    <div class="absolute left-full top-0 ml-1 w-56 bg-white rounded-md shadow-lg z-50 border border-gray-200 hidden submenu">
+                        {% for subitem in category.items %}
+                        <a href="{{ subitem.url }}" class="block px-4 py-2 text-gray-700 hover:bg-gray-100">{{ subitem.title }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="cms-search" data-cms-type="search">
+        <div class="relative hidden md:block">
+            <form action="{{ cms.search.action }}" method="{{ cms.search.method }}" class="relative">
+                <input type="text" name="{{ cms.search.input_name }}" placeholder="{{ cms.search.placeholder }}" 
+                    class="border border-gray-300 rounded-full py-2 px-4 pl-10 w-56 lg:w-64 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" />
+                <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Components -->
+<div class="cms-footer-components">
+    <!-- About Section -->
+    <div class="cms-about" data-cms-type="text">
+        <h3 class="text-lg font-semibold mb-4">{{ cms.footer.about.title }}</h3>
+        <p class="text-gray-600">{{ cms.footer.about.content }}</p>
+    </div>
+
+    <!-- Quick Links -->
+    <div class="cms-quick-links" data-cms-type="menu">
+        <h3 class="text-lg font-semibold mb-4">{{ cms.footer.quick_links.title }}</h3>
+        <ul class="space-y-2">
+            {% for link in cms.footer.quick_links.items %}
+            <li><a href="{{ link.url }}" class="text-gray-600 hover:text-blue-600 transition">{{ link.title }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="cms-contact" data-cms-type="contact">
+        <h3 class="text-lg font-semibold mb-4">{{ cms.footer.contact.title }}</h3>
+        <ul class="space-y-2">
+            {% for item in cms.footer.contact.items %}
+            <li class="flex items-center text-gray-600">
+                <i class="{{ item.icon }} w-5"></i>
+                <span>{{ item.content }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Social Media -->
+    <div class="cms-social" data-cms-type="social">
+        <h3 class="text-lg font-semibold mb-4">{{ cms.footer.social.title }}</h3>
+        <div class="flex space-x-4">
+            {% for social in cms.footer.social.items %}
+            <a href="{{ social.url }}" class="text-gray-600 hover:text-blue-600 transition">
+                <i class="{{ social.icon }} text-2xl"></i>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="cms-copyright" data-cms-type="text">
+        <p class="text-center text-gray-600">{{ cms.footer.copyright }}</p>
+    </div>
+</div> 

@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Liên hệ - ShopX Admin</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        .message-ellipsis {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            word-break: break-word;
+        }
+
+        .status-badge-button {
+            padding: 0.25em 0.6em;
+            border-radius: 0.25rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1;
+            text-align: center;
+            white-space: nowrap;
+            vertical-align: baseline;
+            display: inline-block;
+            min-width: 120px;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .status-badge-button:hover:not(:disabled) {
+            /* Thêm :not(:disabled) */
+            opacity: 0.8;
+        }
+
+        .status-dang-cho-xu-ly {
+            background-color: #fef3c7;
+            color: #b45309;
+            border-color: #fde68a;
+        }
+
+        .status-dang-xu-ly {
+            background-color: #dbeafe;
+            color: #1e40af;
+            border-color: #bfdbfe;
+        }
+
+        .status-da-phan-hoi {
+            background-color: #dcfce7;
+            color: #166534;
+            border-color: #bbf7d0;
+        }
+
+        .status-default {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border-color: #e5e7eb;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+        <div id="sidebar"></div>
+        <div class="content-area flex-1">
+            <div id="header"></div>
+            <div id="app">
+                <main class="p-6 mx-auto">
+                    <section class="mt-10 bg-white shadow-lg rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-2xl font-bold mb-6 text-gray-800">Quản lý Yêu cầu Liên hệ</h2>
+                            <form id="contactFilterForm" class="mb-6">
+                                <div
+                                    class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 items-end">
+                                    <div class="lg:col-span-2 xl:col-span-2">
+                                        <label for="contactSearchInput"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Tìm kiếm:</label>
+                                        <div class="flex">
+                                            <input type="text" id="contactSearchInput" name="searchTerm"
+                                                placeholder="Nội dung, tên hoặc email người gửi..."
+                                                class="p-2 border border-gray-300 rounded-l w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                            <button type="submit" id="contactSearchBtn"
+                                                class="bg-indigo-600 text-white px-5 rounded-r hover:bg-indigo-700 transition duration-150 ease-in-out shadow-sm">
+                                                <i class="fas fa-search"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label for="contactStatusFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Trạng thái:</label>
+                                        <select id="contactStatusFilter" name="status"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                            <option value="">Tất cả trạng thái</option>
+                                            <option value="Đang chờ xử lý">Đang chờ xử lý</option>
+                                            <option value="Đang xử lý">Đang xử lý</option>
+                                            <option value="Đã phản hồi">Đã phản hồi</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="contactUserIdFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">UserID (nếu
+                                            có):</label>
+                                        <input type="number" id="contactUserIdFilter" name="userId"
+                                            placeholder="Nhập UserID"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    </div>
+                                    <div class="md:col-start-1 xl:col-start-auto">
+                                        <label for="contactPageSizeSelect"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Hiển thị:</label>
+                                        <select id="contactPageSizeSelect" name="pageSizeInput"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                            <option value="10">10 mục</option>
+                                            <option value="20" selected>20 mục</option>
+                                            <option value="50">50 mục</option>
+                                            <option value="100">100 mục</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label for="contactStartDateFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Từ ngày:</label>
+                                        <input type="date" id="contactStartDateFilter" name="startDate"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    </div>
+                                    <div>
+                                        <label for="contactEndDateFilter"
+                                            class="block text-sm font-medium text-gray-700 mb-1">Đến ngày:</label>
+                                        <input type="date" id="contactEndDateFilter" name="endDate"
+                                            class="p-2 border border-gray-300 rounded w-full shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                    </div>
+                                    <div class="xl:col-span-1 flex justify-end items-end">
+                                        <button type="button" id="applyContactFiltersBtn"
+                                            class="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition duration-150 ease-in-out shadow-sm w-full md:w-auto">
+                                            Áp dụng bộ lọc
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            STT</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Người gửi</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Email</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Số điện thoại</th>
+                                        <th class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider"
+                                            style="min-width: 250px; max-width: 350px;">Nội dung</th>
+                                        <th
+                                            class="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Ngày gửi</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Trạng thái</th>
+                                        <th
+                                            class="px-6 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                                            Hành động</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="contactTableBody" class="bg-white divide-y divide-gray-200"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <div class="flex flex-col md:flex-row justify-between items-center mt-6 gap-4">
+                        <div class="text-sm text-gray-600">
+                            Hiển thị <span id="contactCurrentPageInfo">1</span> / <span
+                                id="contactTotalPagesInfo">1</span> trang
+                            (Tổng số <span id="contactTotalItemsInfo">0</span> liên hệ)
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button id="contactPrevPageBtn"
+                                class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                disabled>Trước</button>
+                            <div class="flex items-center">
+                                <input type="number" id="contactPageInput" min="1"
+                                    class="p-1 border border-gray-300 rounded w-16 text-center shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                                <button id="contactGoToPageBtn"
+                                    class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded ml-1">Đi</button>
+                            </div>
+                            <button id="contactNextPageBtn"
+                                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded disabled:opacity-50"
+                                disabled>Sau</button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+            <div id="footer"></div>
+        </div>
+    </div>
+
+    <div id="contactModal"
+        class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center hidden z-50">
+        <div class="relative bg-white rounded-lg shadow-xl p-8 max-w-2xl w-full mx-auto">
+            <h3 class="text-xl font-semibold mb-4 border-b" id="modalTitle">Chi tiết Liên hệ</h3>
+            <div id="modalContent" class="space-y-4">
+                <p><strong class="mr-2">Người gửi:</strong> <span id="modalUserName"></span></p>
+                <p><strong class="mr-2">Email:</strong> <span id="modalUserEmail"></span></p>
+                <p><strong class="mr-2">Số điện thoại:</strong> <span id="modalUserNumberPhone"></span></p>
+                <p><strong class="mr-2">Ngày gửi:</strong> <span id="modalCreatedAt"></span></p>
+                <p><strong>Nội dung:</strong></p>
+                <div id="modalMessage" class="bg-gray-100 p-3 rounded-md max-h-60 overflow-y-auto"></div>
+                <div class="mt-4">
+                    <label for="modalStatusSelect" class="block text-sm font-medium text-gray-700">Cập nhật trạng
+                        thái:</label>
+                    <select id="modalStatusSelect"
+                        class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
+                        <option value="Đang chờ xử lý">Đang chờ xử lý</option>
+                        <option value="Đang xử lý">Đang xử lý</option>
+                        <option value="Đã phản hồi">Đã phản hồi</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-3">
+                <button id="closeModalBtn" type="button"
+                    class="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300">Đóng</button>
+                <button id="updateStatusBtn" type="button"
+                    class="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700">Lưu thay đổi trạng
+                    thái</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script src="/Admin/assets/js/index.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const contactTableBody = document.getElementById('contactTableBody');
+            const filterForm = document.getElementById('contactFilterForm');
+            const searchInput = document.getElementById('contactSearchInput');
+            const statusFilter = document.getElementById('contactStatusFilter');
+            const userIdFilter = document.getElementById('contactUserIdFilter');
+            const startDateFilter = document.getElementById('contactStartDateFilter');
+            const endDateFilter = document.getElementById('contactEndDateFilter');
+            const pageSizeSelect = document.getElementById('contactPageSizeSelect');
+            const applyFiltersBtn = document.getElementById('applyContactFiltersBtn');
+
+            const currentPageInfo = document.getElementById('contactCurrentPageInfo');
+            const totalPagesInfo = document.getElementById('contactTotalPagesInfo');
+            const totalItemsInfo = document.getElementById('contactTotalItemsInfo');
+            const prevPageBtn = document.getElementById('contactPrevPageBtn');
+            const nextPageBtn = document.getElementById('contactNextPageBtn');
+            const pageInput = document.getElementById('contactPageInput');
+            const goToPageBtn = document.getElementById('contactGoToPageBtn');
+
+            const contactModal = document.getElementById('contactModal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalUserName = document.getElementById('modalUserName');
+            const modalUserEmail = document.getElementById('modalUserEmail');
+            const modalUserNumberPhone = document.getElementById('modalUserNumberPhone');
+            const modalCreatedAt = document.getElementById('modalCreatedAt');
+            const modalMessage = document.getElementById('modalMessage');
+            const modalStatusSelect = document.getElementById('modalStatusSelect');
+            const closeModalBtn = document.getElementById('closeModalBtn');
+            const updateStatusBtn = document.getElementById('updateStatusBtn');
+            let currentEditingContactId = null;
+            let currentPage = 1;
+
+            const STATUS_ORDER = ["Đang chờ xử lý", "Đang xử lý", "Đã phản hồi"];
+
+            function getStatusClass(status) {
+                switch (status?.toLowerCase()) {
+                    case 'đang chờ xử lý': return 'status-dang-cho-xu-ly';
+                    case 'đang xử lý': return 'status-dang-xu-ly';
+                    case 'đã phản hồi': return 'status-da-phan-hoi';
+                    default: return 'status-default';
+                }
+            }
+
+            async function fetchContacts(page = 1) {
+                contactTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4"><i class="fas fa-spinner fa-spin mr-2"></i>Đang tải dữ liệu liên hệ...</td></tr>`;
+                [prevPageBtn, nextPageBtn, goToPageBtn].forEach(btn => btn.disabled = true);
+                currentPage = page;
+                const selectedPageSize = pageSizeSelect.value;
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập lại.'); window.location.href = '/Customer/templates/login.html'; return; }
+                const params = new URLSearchParams({ pageNumber: currentPage.toString(), pageSizeInput: selectedPageSize });
+                const searchTerm = searchInput.value.trim(); if (searchTerm) params.append('SearchTerm', searchTerm);
+                const status = statusFilter.value; if (status) params.append('Status', status);
+                const userId = userIdFilter.value; if (userId) params.append('UserId', userId);
+                const startDate = startDateFilter.value; if (startDate) params.append('StartDate', startDate);
+                const endDate = endDateFilter.value; if (endDate) params.append('EndDate', endDate);
+                // Xây dựng URL hoàn chỉnh
+                const url = `${API_BASE_URL}/Contacts?${params.toString()}`; // Điều chỉnh đường dẫn API
+                console.log(url)
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) { const errorData = await response.text(); throw new Error(`Lỗi ${response.status}: ${errorData || response.statusText}`); }
+                    const data = await response.json();
+                    renderContactTable(data.items);
+                    updateContactPaginationUI(data);
+                } catch (error) {
+                    console.error('Lỗi khi lấy dữ liệu liên hệ:', error);
+                    contactTableBody.innerHTML = `<tr><td colspan="7" class="text-center py-4 text-red-500">Không thể tải dữ liệu. Lỗi: ${error.message}</td></tr>`;
+                    updateContactPaginationUI(null);
+                }
+            }
+
+            function renderContactTable(contacts) {
+                contactTableBody.innerHTML = '';
+                if (!contacts || contacts.length === 0) {
+                    contactTableBody.innerHTML = '<tr><td colspan="7" class="text-center py-4">Không tìm thấy yêu cầu liên hệ nào.</td></tr>';
+                    return;
+                }
+                contacts.forEach((contact, index) => {
+                    console.log(contact)
+                    const row = document.createElement('tr');
+                    const stt = (currentPage - 1) * parseInt(pageSizeSelect.value) + index + 1;
+                    const statusClass = getStatusClass(contact.status);
+                    const formattedDate = contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('vi-VN') : 'N/A';
+                    const maxMessageLength = 70;
+                    const displayMessage = contact.message.length > maxMessageLength ? contact.message.substring(0, maxMessageLength) + '...' : contact.message;
+                    const canChangeStatus = contact.status !== STATUS_ORDER[STATUS_ORDER.length - 1]; // Kiểm tra nếu không phải trạng thái cuối cùng
+                    const statusButtonHtml = `
+                        <button type="button"
+                                class="status-badge-button ${statusClass} ${!canChangeStatus ? 'opacity-70 cursor-not-allowed' : ''}"
+                                data-id="${contact.contactID}"
+                                data-current-status="${contact.status}"
+                                ${!canChangeStatus ? 'disabled' : ''}
+                                title="${canChangeStatus ? 'Nhấp để chuyển sang trạng thái tiếp theo' : 'Đã ở trạng thái cuối cùng'}">
+                            ${contact.status || 'N/A'}
+                            <i class="fas fa-arrow-right fa-xs ml-2"></i>
+                        </button>
+                    `;
+                    row.innerHTML = `
+                        <td class="py-3 px-4 border-b text-sm text-center align-top">${stt}</td>
+                        <td class="py-3 px-4 border-b text-sm align-top">${contact.userFullName || 'N/A'}</td>
+                        <td class="py-3 px-4 border-b text-sm align-top">${contact.userEmail || 'N/A'}</td>
+                        <td class="py-3 px-4 border-b text-sm align-top">${contact.userNumberPhone || 'N/A'}</td>
+                        <td class="py-3 px-4 border-b text-sm align-top" style="max-width: 300px; min-width: 200px;">
+                            <div class="message-ellipsis" title="${contact.message.replace(/"/g, '"')}">${displayMessage}</div>
+                        </td>
+                        <td class="py-3 px-4 border-b text-sm align-top">${formattedDate}</td>
+                        <td class="py-3 px-4 border-b text-center align-top">${statusButtonHtml}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2 align-top">
+                            <button type="button" class="text-blue-600 hover:text-blue-900 view-contact-btn" data-id="${contact.contactID}" title="Xem chi tiết"><i class="fas fa-eye fa-fw"></i></button>
+                            <button type="button" class="text-red-600 hover:text-red-800 delete-contact-btn" data-id="${contact.contactID}" title="Xóa"><i class="fas fa-trash-alt fa-fw"></i></button>
+                        </td>
+                    `;
+                    contactTableBody.appendChild(row);
+                });
+            }
+
+            function updateContactPaginationUI(data) {
+                if (data) {
+                    currentPageInfo.textContent = data.pageNumber; totalPagesInfo.textContent = data.totalPages; totalItemsInfo.textContent = data.totalCount;
+                    pageInput.value = data.pageNumber; pageInput.max = data.totalPages;
+                    prevPageBtn.disabled = !data.hasPreviousPage; nextPageBtn.disabled = !data.hasNextPage; goToPageBtn.disabled = (data.totalPages <= 1);
+                } else {
+                    currentPageInfo.textContent = '0'; totalPagesInfo.textContent = '0'; totalItemsInfo.textContent = '0';
+                    pageInput.value = '1'; pageInput.max = '1';
+                    [prevPageBtn, nextPageBtn, goToPageBtn].forEach(btn => btn.disabled = true);
+                }
+            }
+
+            async function openContactModal(contactId) {
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Contacts/${contactId}`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) throw new Error(`Lỗi tải chi tiết liên hệ: ${response.status}`);
+                    const contact = await response.json();
+                    modalUserName.textContent = contact.userFullName || 'N/A';
+                    modalUserEmail.textContent = contact.userEmail || 'N/A';
+                    modalUserNumberPhone.textContent = contact.userNumberPhone || 'N/A';
+                    modalCreatedAt.textContent = contact.createdAt ? new Date(contact.createdAt).toLocaleString('vi-VN') : 'N/A';
+                    modalMessage.innerHTML = contact.message.replace(/\n/g, '<br>');
+                    modalStatusSelect.value = contact.status;
+                    if (contact.status === "Đã phản hồi") {
+                        console.log('true')
+                        modalStatusSelect.classList.add('no-event')
+                    }
+                    currentEditingContactId = contact.contactID;
+                    modalTitle.textContent = `Chi tiết Liên hệ #${contact.contactID}`;
+                    contactModal.classList.remove('hidden');
+                } catch (error) { console.error("Lỗi khi mở modal:", error); alert(`Không thể tải chi tiết liên hệ. Lỗi: ${error.message}`); }
+            }
+
+            closeModalBtn.addEventListener('click', () => { contactModal.classList.add('hidden'); currentEditingContactId = null; });
+
+            updateStatusBtn.addEventListener('click', async () => { // Nút trong Modal
+                if (!currentEditingContactId) return;
+                const newStatus = modalStatusSelect.value;
+                // Gọi hàm dùng chung, callback là đóng modal và fetch lại
+                await updateStatusOnServer(currentEditingContactId, newStatus, () => {
+                    contactModal.classList.add('hidden');
+                    fetchContacts(currentPage);
+                }, updateStatusBtn); // Truyền nút modal để xử lý UI
+            });
+
+            async function handleStatusChangeClick(contactId, currentStatus) {
+                const currentIndex = STATUS_ORDER.indexOf(currentStatus);
+                if (currentIndex === -1 || currentIndex >= STATUS_ORDER.length - 1) {
+                    console.log(`Trạng thái "${currentStatus}" không thể chuyển tiếp.`);
+                    return;
+                }
+                const nextStatus = STATUS_ORDER[currentIndex + 1];
+
+                // Thêm xác nhận người dùng
+                if (!confirm(`Bạn có chắc chắn muốn chuyển trạng thái của liên hệ #${contactId} từ "${currentStatus}" sang "${nextStatus}" không?`)) {
+                    return; // Người dùng hủy
+                }
+
+                const buttonOnTable = document.querySelector(`.status-badge-button[data-id="${contactId}"]`);
+                await updateStatusOnServer(contactId, nextStatus, () => fetchContacts(currentPage), buttonOnTable);
+            }
+
+            async function updateStatusOnServer(contactId, newStatus, successCallback, clickedButtonElement = null) {
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+
+                let originalButtonInnerHTML, originalButtonDisabledState;
+                let isModalUpdateButton = (clickedButtonElement === updateStatusBtn); // Kiểm tra xem có phải nút modal không
+
+                if (clickedButtonElement) {
+                    originalButtonInnerHTML = clickedButtonElement.innerHTML;
+                    originalButtonDisabledState = clickedButtonElement.disabled;
+                    clickedButtonElement.disabled = true;
+                    clickedButtonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+                }
+
+                let apiCallSuccessful = false; // Cờ để theo dõi API thành công hay không
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Contacts/status/${contactId}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify({ status: newStatus })
+                    });
+
+                    if (response.ok) {
+                        apiCallSuccessful = true; // Đánh dấu API thành công
+                        alert(`Cập nhật trạng thái thành công cho liên hệ #${contactId} thành "${newStatus}"!`);
+                        if (successCallback) {
+                            await successCallback(); // Đợi fetchContacts hoàn thành
+                        }
+                    } else {
+                        const errorData = await response.json().catch(() => ({ message: 'Cập nhật thất bại.' }));
+                        throw new Error(errorData.message || `Lỗi ${response.status}`);
+                    }
+                } catch (error) {
+                    console.error("Lỗi cập nhật trạng thái:", error);
+                    alert(`Cập nhật trạng thái thất bại. Lỗi: ${error.message}`);
+                } finally {
+                    if (clickedButtonElement) {
+                        if (!apiCallSuccessful) {
+                            // Nếu API thất bại, khôi phục lại nút về trạng thái ban đầu
+                            clickedButtonElement.innerHTML = originalButtonInnerHTML;
+                            clickedButtonElement.disabled = originalButtonDisabledState;
+                        } else if (isModalUpdateButton) {
+                            clickedButtonElement.disabled = false;
+                            clickedButtonElement.innerHTML = "Lưu thay đổi trạng thái";
+                        }
+                        if (!isModalUpdateButton && clickedButtonElement.disabled && apiCallSuccessful) {
+                            // Chờ một chút để fetchContacts có thể đã render xong
+                            setTimeout(() => {
+                                const newButton = document.querySelector(`.status-badge-button[data-id="${contactId}"]`);
+                                if (newButton && newButton.classList.contains('cursor-not-allowed')) {
+                                    // Nếu nút mới vẫn bị disabled (ví dụ đã ở trạng thái cuối), không làm gì
+                                } else if (newButton) {
+                                    newButton.disabled = false;
+                                } else {
+                                    // Nếu nút không tìm thấy (lỗi render), khôi phục nút cũ
+                                    clickedButtonElement.innerHTML = originalButtonInnerHTML; // Hoặc trạng thái mới nếu biết
+                                    clickedButtonElement.disabled = originalButtonDisabledState;
+                                }
+                            }, 200);
+                        }
+                    }
+                }
+            }
+
+            async function deleteContact(contactId) {
+                if (!confirm(`Bạn có chắc chắn muốn xóa yêu cầu liên hệ #${contactId} không? Hành động này không thể hoàn tác.`)) return;
+                const token = sessionStorage.getItem('token');
+                if (!token) { alert('Vui lòng đăng nhập.'); return; }
+                const url = `${API_BASE_URL}/Contacts/${contactId}`;
+                try {
+                    const response = await fetch(url, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    if (response.status === 204) { alert(`Đã xóa thành công yêu cầu liên hệ #${contactId}.`); fetchContacts(currentPage); }
+                    else if (response.status === 404) { alert(`Không tìm thấy yêu cầu liên hệ #${contactId} để xóa.`); }
+                    else { const errorData = await response.json().catch(() => ({ message: 'Xóa thất bại.' })); throw new Error(errorData.message || `Lỗi ${response.status}`); }
+                } catch (error) { console.error(`Lỗi khi xóa liên hệ #${contactId}:`, error); alert(`Xóa liên hệ thất bại. Lỗi: ${error.message}`); }
+            }
+
+            filterForm.addEventListener('submit', (e) => { e.preventDefault(); fetchContacts(1); });
+            applyFiltersBtn.addEventListener('click', () => fetchContacts(1));
+            pageSizeSelect.addEventListener('change', () => fetchContacts(1));
+            prevPageBtn.addEventListener('click', () => { if (currentPage > 1) fetchContacts(currentPage - 1); });
+            nextPageBtn.addEventListener('click', () => { if (currentPage < parseInt(totalPagesInfo.textContent)) fetchContacts(currentPage + 1); });
+            goToPageBtn.addEventListener('click', () => {
+                const targetPage = parseInt(pageInput.value); const totalPages = parseInt(totalPagesInfo.textContent);
+                if (targetPage >= 1 && targetPage <= totalPages && targetPage !== currentPage) { fetchContacts(targetPage); }
+                else if (targetPage !== currentPage) { alert(`Vui lòng nhập số trang hợp lệ từ 1 đến ${totalPages}.`); pageInput.value = currentPage; }
+            });
+            pageInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); goToPageBtn.click(); } });
+            contactTableBody.addEventListener('click', (e) => {
+                const viewButton = e.target.closest('.view-contact-btn');
+                const deleteButton = e.target.closest('.delete-contact-btn');
+                const statusButton = e.target.closest('.status-badge-button');
+                if (viewButton) {
+                    const contactId = viewButton.dataset.id; if (contactId) openContactModal(contactId);
+                } else if (deleteButton) {
+                    const contactId = deleteButton.dataset.id; if (contactId) deleteContact(contactId);
+                } else if (statusButton && !statusButton.disabled) {
+                    const contactId = statusButton.dataset.id;
+                    const currentStatus = statusButton.dataset.currentStatus;
+                    if (contactId && currentStatus) {
+                        handleStatusChangeClick(parseInt(contactId), currentStatus);
+                    }
+                }
+            });
+
+            fetchContacts(currentPage)
+        });
+    </script>
+</body>
+
+</html>

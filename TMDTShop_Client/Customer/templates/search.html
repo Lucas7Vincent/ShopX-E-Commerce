@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tìm kiếm - ShopX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link rel="icon" type="image/png" href="/Customer/assets/images/logo.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        secondary: '#10B981',
+                        dark: '#1F2937',
+                        light: '#F9FAFB'
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-50">
+    <!-- Header Container -->
+    <div id="header-container"></div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-dark mb-8">Kết quả tìm kiếm cho <!--"<span id="search-query"></span>"--></h1>
+        
+        <div id="search-results" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Search results will be populated dynamically -->
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <img src="https://images.unsplash.com/photo-1524672353063-4f66ee1f385e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3MzY5OTh8MHwxfHNlYXJjaHw0fHx0LXNoaXJ0JTIwbWVuJTIwZmFzaGlvbnxlbnwwfHx8Ymx1ZXwxNzQ0NzcxMzg1fDA&ixlib=rb-4.0.3&q=85" alt="Áo thun nam" class="w-full h-48 object-cover rounded mb-4">
+                <h3 class="text-lg font-medium text-dark">Áo thun nam cao cấp</h3>
+                <p class="text-gray-500 text-sm">Màu: Xanh dương | Size: L</p>
+                <p class="text-lg font-bold text-primary">350.000₫</p>
+            </div>
+            <div class="bg-white rounded-lg shadow-md p-4">
+                <img src="https://images.unsplash.com/photo-1524672353063-4f66ee1f385e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3MzY5OTh8MHwxfHNlYXJjaHw2fHxqZWFucyUyMHdvbWVuJTIwZmFzaGlvbnxlbnwwfHx8Ymx1ZXwxNzQ0NzcxMzg1fDA&ixlib=rb-4.0.3&q=85" alt="Quần jeans nữ" class="w-full h-48 object-cover rounded mb-4">
+                <h3 class="text-lg font-medium text-dark">Quần jeans nữ ống suông</h3>
+                <p class="text-gray-500 text-sm">Màu: Xanh đậm | Size: M</p>
+                <p class="text-lg font-bold text-primary">450.000₫</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer (tương tự giohang.html, lược giản) -->
+    <footer class="bg-gray-800 text-white pt-12 pb-6">
+        <div class="px-6 md:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 mb-8">
+                <div class="col-span-2">
+                    <h3 class="text-xl font-bold mb-4">ShopX</h3>
+                    <p class="text-gray-400 mb-4">Nền tảng thương mại điện tử hàng đầu Việt Nam với AI gợi ý sản phẩm thông minh.</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 pt-6">
+                <p class="text-gray-400 text-center">© 2025 ShopX. Bảo lưu mọi quyền.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="../assets/js/index.js"></script>
+    <script src="../assets/js/components.js"></script>
+    <script src="../assets/js/search.js"></script>
+</body>
+</html>

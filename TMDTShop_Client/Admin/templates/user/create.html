@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản trị ShopX - Thêm người dùng mới</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/Admin/assets/css/index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+
+
+    </style>
+</head>
+
+<body class="bg-gray-100">
+    <div class="flex">
+
+        <div id="sidebar">
+            <!-- Auto-loaded by custom.js -->
+        </div>
+
+        <div class="content-area flex-1">
+            <div id="header">
+                <!-- Auto-loaded by custom.js -->
+            </div>
+
+            <div id="app">
+                <main class="p-4 md:p-6 lg:p-8">
+                    <section class="mt-6 md:mt-10 bg-white shadow-xl rounded-xl overflow-hidden">
+                        <div class="p-6 border-b border-gray-200">
+                            <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+                                <h2 class="text-xl sm:text-2xl font-bold text-gray-800">Thêm người dùng mới</h2>
+                                <a href="list.html"
+                                    class="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 transition-colors duration-150 ease-in-out group">
+                                    <i
+                                        class="fas fa-arrow-left mr-2 group-hover:-translate-x-0.5 transition-transform duration-150 ease-in-out"></i>
+                                    <span>Quay lại danh sách</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <div class="p-6">
+                            <div id="messageArea" class="mb-6"></div>
+                            <form id="createUserForm" class="space-y-6">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                                    <!-- Email -->
+                                    <div>
+                                        <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="email" id="email" name="email" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                        <div id="emailError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+
+                                    <!-- Role -->
+                                    <div>
+                                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Vai trò <span
+                                                class="text-red-500">*</span></label>
+                                        <select id="role" name="role" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                            <option value="Customer">Customer</option>
+                                            <option value="Seller">Seller</option>
+                                            <option value="Admin">Admin</option>
+                                        </select>
+                                        <div id="roleError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+
+                                    <!-- Password -->
+                                    <div>
+                                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Mật khẩu <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="password" id="password" name="password" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required
+                                            minlength="6">
+                                        <div id="passwordError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+
+                                    <!-- Confirm Password -->
+                                    <div>
+                                        <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Xác nhận mật khẩu <span
+                                                class="text-red-500">*</span></label>
+                                        <input type="password" id="confirmPassword" name="confirmPassword"
+                                            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                                        <div id="confirmPasswordError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+
+                                    <!-- Full Name -->
+                                    <div>
+                                        <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Họ và Tên</label>
+                                        <input type="text" id="fullName" name="fullName" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
+                                    </div>
+
+                                    <!-- Phone -->
+                                    <div>
+                                        <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Số điện thoại</label>
+                                        <input type="tel" id="phone" name="phone" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            placeholder="Ví dụ: 09xxxxxxxx">
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="md:col-span-2">
+                                        <label for="address" class="block text-sm font-medium text-gray-700 mb-1">Địa chỉ</label>
+                                        <input type="text" id="address" name="address" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố">
+                                    </div>
+
+                                    <!-- Shop Name (Conditional) -->
+                                    <div id="shopNameContainer" class="md:col-span-2 hidden">
+                                        <label for="shopName" class="block text-sm font-medium text-gray-700 mb-1">Tên cửa hàng <span
+                                                id="shopNameRequiredStar" class="text-red-500 hidden">*</span></label>
+                                        <input type="text" id="shopName" name="shopName" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                            placeholder="Tên cửa hàng kinh doanh">
+                                        <div id="shopNameError" class="text-red-500 text-xs mt-1"></div>
+                                    </div>
+
+                                </div>
+
+                                <!-- Is Active Checkbox - moved outside grid for better flow with space-y -->
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="isActive" name="isActive"
+                                        class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                                        checked>
+                                    <label for="isActive" class="ml-2 block text-sm text-gray-900">Kích hoạt tài
+                                        khoản</label>
+                                </div>
+
+                                <div class="pt-5">
+                                    <div class="flex justify-end space-x-3">
+                                        <a href="list.html" type="button"
+                                            class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition duration-150 ease-in-out">
+                                            Quay lại
+                                        </a>
+                                        <button type="submit" id="submitBtn"
+                                            class="inline-flex justify-center py-2 px-6 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
+                                            <i class="fas fa-save mr-2 my-auto"></i>Lưu người dùng
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </section>
+                </main>
+            </div>
+            <div id="footer">
+                <!-- Auto-loaded by custom.js -->
+            </div>
+        </div>
+    </div>
+
+    <script src="/Admin/assets/js/index.js"></script>
+    <script type="module" src="/Admin/assets/js/custom.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const createUserForm = document.getElementById('createUserForm');
+            const emailInput = document.getElementById('email');
+            const roleSelect = document.getElementById('role');
+            const passwordInput = document.getElementById('password');
+            const confirmPasswordInput = document.getElementById('confirmPassword');
+            const fullNameInput = document.getElementById('fullName');
+            const phoneInput = document.getElementById('phone');
+            const addressInput = document.getElementById('address');
+            const shopNameInput = document.getElementById('shopName');
+            const shopNameContainer = document.getElementById('shopNameContainer');
+            const shopNameRequiredStar = document.getElementById('shopNameRequiredStar');
+            const isActiveCheckbox = document.getElementById('isActive');
+            const messageArea = document.getElementById('messageArea');
+            const submitBtn = document.getElementById('submitBtn');
+
+            // Error message elements
+            const emailError = document.getElementById('emailError');
+            const roleError = document.getElementById('roleError');
+            const passwordError = document.getElementById('passwordError');
+            const confirmPasswordError = document.getElementById('confirmPasswordError');
+            const shopNameError = document.getElementById('shopNameError');
+
+
+            function clearErrors() {
+                emailError.textContent = '';
+                roleError.textContent = '';
+                passwordError.textContent = '';
+                confirmPasswordError.textContent = '';
+                shopNameError.textContent = '';
+                messageArea.innerHTML = ''; // Clear general messages
+            }
+
+            function displayMessage(message, type = 'error') {
+                messageArea.innerHTML = ''; // Clear previous messages
+                const messageDiv = document.createElement('div');
+                messageDiv.textContent = message;
+                if (type === 'success') {
+                    messageDiv.className = 'text-green-700 text-sm p-3 bg-green-50 border border-green-300 rounded-md';
+                } else {
+                    messageDiv.className = 'text-red-700 text-sm p-3 bg-red-50 border border-red-300 rounded-md';
+                }
+                messageArea.appendChild(messageDiv);
+                window.scrollTo(0, 0); // Scroll to top to see message
+            }
+
+            function toggleShopNameField() {
+                if (roleSelect.value === 'Seller') {
+                    shopNameContainer.classList.remove('hidden');
+                    shopNameInput.required = true;
+                    shopNameRequiredStar.classList.remove('hidden');
+                } else {
+                    shopNameContainer.classList.add('hidden');
+                    shopNameInput.required = false;
+                    shopNameRequiredStar.classList.add('hidden');
+                    shopNameInput.value = ''; // Clear shop name if role is not Seller
+                    shopNameError.textContent = ''; // Clear shop name error
+                }
+            }
+
+            roleSelect.addEventListener('change', toggleShopNameField);
+            toggleShopNameField();
+
+            createUserForm.addEventListener('submit', async (event) => {
+                event.preventDefault();
+                clearErrors();
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2 my-auto"></i>Đang xử lý...';
+
+                let isValid = true;
+
+                if (!emailInput.value.trim()) {
+                    emailError.textContent = 'Email không được để trống.';
+                    isValid = false;
+                } else if (!/^\S+@\S+\.\S+$/.test(emailInput.value.trim())) {
+                    emailError.textContent = 'Email không đúng định dạng.';
+                    isValid = false;
+                }
+
+                if (!passwordInput.value) {
+                    passwordError.textContent = 'Mật khẩu không được để trống.';
+                    isValid = false;
+                } else if (passwordInput.value.length < 6) {
+                    passwordError.textContent = 'Mật khẩu phải có ít nhất 6 ký tự.';
+                    isValid = false;
+                }
+
+                if (passwordInput.value !== confirmPasswordInput.value) {
+                    confirmPasswordError.textContent = 'Mật khẩu xác nhận không khớp.';
+                    isValid = false;
+                }
+
+                if (roleSelect.value === 'Seller' && !shopNameInput.value.trim()) {
+                    shopNameError.textContent = 'Tên cửa hàng không được để trống cho vai trò Seller.';
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu người dùng';
+                    emailInput.focus(); // Focus on the first field for easier correction
+                    return;
+                }
+
+                const formData = {
+                    email: emailInput.value.trim(),
+                    password: passwordInput.value,
+                    role: roleSelect.value,
+                    fullName: fullNameInput.value.trim() || null,
+                    phone: phoneInput.value.trim() || null,
+                    address: addressInput.value.trim() || null,
+                    shopName: (roleSelect.value === 'Seller' && shopNameInput.value.trim()) ? shopNameInput.value.trim() : null,
+                    isActive: isActiveCheckbox.checked
+                };
+
+                const token = sessionStorage.getItem('token');
+                if (!token) {
+                    displayMessage('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.');
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu người dùng';
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`${API_BASE_URL}/Users`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.status === 201) {
+                        const createdUser = await response.json();
+                        displayMessage(`Người dùng "${createdUser.email}" đã được tạo thành công!`, 'success');
+                        createUserForm.reset();
+                        toggleShopNameField();
+                        emailInput.focus(); // Focus back on email for next entry
+                    } 
+                    else {
+                        checkErrorCode(response.status)
+                        const errorData = await response.json();
+                        let errorMessage = `Lỗi ${response.status}: Không thể tạo người dùng.`;
+                        if (errorData && errorData.message) {
+                            errorMessage = errorData.message;
+                        } else if (errorData && errorData.errors) {
+                            let detailedErrors = [];
+                            for (const key in errorData.errors) {
+                                detailedErrors.push(`${errorData.errors[key].join(', ')}`);
+                            }
+                            errorMessage = `Vui lòng kiểm tra lại các thông tin sau: \n- ${detailedErrors.join('\n- ')}`;
+                            if (errorData.errors.Email) emailError.textContent = errorData.errors.Email.join(', ');
+                            if (errorData.errors.Password) passwordError.textContent = errorData.errors.Password.join(', ');
+                            if (errorData.errors.Role) roleError.textContent = errorData.errors.Role.join(', ');
+                            if (errorData.errors.ShopName) shopNameError.textContent = errorData.errors.ShopName.join(', ');
+                        }
+                        displayMessage(errorMessage);
+                    }
+                } catch (error) {
+                    console.error('Lỗi khi tạo người dùng:', error);
+                    displayMessage('Đã xảy ra lỗi kết nối hoặc lỗi không xác định. Vui lòng thử lại.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = '<i class="fas fa-save mr-2 my-auto"></i>Lưu người dùng';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

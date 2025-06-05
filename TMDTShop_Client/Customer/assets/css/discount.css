@@ -1,0 +1,229 @@
+/* Global Styles & Fonts */
+body {
+    font-family: 'Lato', sans-serif;
+    color: #374151; /* shopx-gray-dark */
+    line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600; /* semibold by default for Poppins */
+}
+
+.shadow-text {
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom Tailwind Colors (already in HTML, but good for reference) */
+/* 
+.bg-shopx-blue { background-color: #2563EB; }
+.text-shopx-blue { color: #2563EB; }
+.bg-shopx-orange { background-color: #F97316; }
+.text-shopx-orange { color: #F97316; }
+.bg-shopx-gray-light { background-color: #F3F4F6; }
+.text-shopx-gray { color: #6B7280; }
+.bg-shopx-dark { background-color: #374151; }
+.text-shopx-dark { color: #374151; }
+*/
+
+/* Header */
+#header-container nav a {
+    transition: color 0.3s ease;
+}
+
+/* Hero Banner */
+#banner-image {
+    /* Default banner image, can be overridden by JS */
+    background-image: url('https://via.placeholder.com/1920x600.png?text=Hero+Banner+ShopX'); 
+}
+
+/* Product Cards */
+#productsContainer .product-card {
+    background-color: rgba(255, 255, 255, 0.8); /* Light glassmorphism base */
+    backdrop-filter: blur(10px) saturate(180%);
+    -webkit-backdrop-filter: blur(10px) saturate(180%);
+    border: 1px solid rgba(209, 213, 219, 0.3); /* Subtle border */
+    border-radius: 0.75rem; /* 12px */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden;
+}
+
+#productsContainer .product-card:hover {
+    transform: translateY(-5px) scale(1.03);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+#productsContainer .product-card img.product-image {
+    transition: transform 0.3s ease;
+    width: 100%;
+    height: 200px; /* Fixed height for consistency */
+    object-fit: cover;
+}
+
+#productsContainer .product-card:hover img.product-image {
+    transform: scale(1.05);
+}
+
+#productsContainer .product-card .discount-badge {
+    position: absolute;
+    top: 0.75rem; /* 12px */
+    left: 0.75rem; /* 12px */
+    background-color: #F97316; /* shopx-orange */
+    color: white;
+    font-size: 0.75rem; /* 12px */
+    font-weight: 700; /* bold */
+    padding: 0.25rem 0.6rem;
+    border-radius: 9999px; /* pill shape */
+    z-index: 10;
+}
+
+#productsContainer .product-card .product-details {
+    padding: 1rem; /* 16px */
+}
+
+#productsContainer .product-card .product-name {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600; /* semibold */
+    color: #1F2937; /* darker gray for text */
+    margin-bottom: 0.5rem; /* 8px */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 2.5em; /* Ensure space for two lines */
+}
+
+#productsContainer .product-card .product-price-original {
+    font-size: 0.875rem; /* 14px */
+    color: #9CA3AF; /* gray-400 */
+    text-decoration: line-through;
+}
+
+#productsContainer .product-card .product-price-discounted {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 700; /* bold */
+    color: #EF4444; /* red-500 for discounted price */
+    margin-right: 0.5rem; /* 8px */
+}
+
+#productsContainer .product-card .view-details-button {
+    background-color: #2563EB; /* shopx-blue */
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 500; /* medium */
+    padding: 0.6rem 1.2rem;
+    border-radius: 9999px; /* pill shape */
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+}
+
+#productsContainer .product-card .view-details-button:hover {
+    background-color: #1D4ED8; /* darker shopx-blue */
+    transform: translateY(-2px);
+}
+
+/* Filters */
+.filter-select-wrapper {
+    position: relative;
+}
+
+.filter-select-wrapper .filter-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-color: white;
+    border: 1px solid #D1D5DB; /* gray-300 */
+    border-radius: 9999px; /* pill shape */
+    padding: 0.75rem 2.5rem 0.75rem 1.25rem; /* 12px 40px 12px 20px */
+    font-size: 0.875rem; /* 14px */
+    font-weight: 500; /* medium */
+    color: #374151; /* shopx-gray-dark */
+    cursor: pointer;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.filter-select-wrapper .filter-select:focus {
+    outline: none;
+    border-color: #2563EB; /* shopx-blue */
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.filter-select-wrapper .filter-icon {
+    position: absolute;
+    right: 1rem; /* 16px */
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6B7280; /* shopx-gray */
+    pointer-events: none;
+}
+
+/* Countdown Timer */
+#countdown .countdown-item {
+    background-color: rgba(255, 255, 255, 0.15); /* Lighter, more translucent */
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    padding: 1rem 1.25rem; /* 16px 20px */
+    border-radius: 0.5rem; /* 8px */
+    min-width: 80px; /* Ensure items have some width */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#countdown .countdown-number {
+    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem; /* 40px */
+    font-weight: 700; /* bold */
+    color: white;
+    line-height: 1;
+}
+
+#countdown .countdown-label {
+    font-size: 0.875rem; /* 14px */
+    color: #E0E7FF; /* lighter blue for text */
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 0.25rem;
+}
+
+/* Footer */
+footer a {
+    transition: color 0.3s ease;
+}
+
+footer .social-icon i {
+    transition: transform 0.3s ease;
+}
+
+footer .social-icon:hover i {
+    transform: scale(1.2);
+}
+
+/* Responsive adjustments if needed beyond Tailwind */
+@media (max-width: 768px) {
+    #countdown .countdown-number {
+        font-size: 2rem; /* 32px */
+    }
+    #countdown .countdown-item {
+        padding: 0.75rem 1rem; /* 12px 16px */
+        min-width: 65px;
+    }
+    #productsContainer .product-card .product-name {
+        font-size: 1rem; /* 16px */
+        min-height: 2.2em;
+    }
+    #productsContainer .product-card .product-price-discounted {
+        font-size: 1.125rem; /* 18px */
+    }
+}
+
+/* Lazy loading placeholder */
+.lazy-image {
+    background-color: #e0e0e0; /* Light gray placeholder */
+    /* You can add a spinner or a placeholder SVG here as a background-image */
+}
+
