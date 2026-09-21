@@ -272,6 +272,20 @@
 
             const STATUS_ORDER = ["Đang chờ xử lý", "Đang xử lý", "Đã phản hồi"];
 
+            function applyStatusSelectOptions(currentStatus) {
+                const options = STATUS_ORDER.map((status) => {
+                    const isSelected = status === currentStatus;
+                    const isDisabled = currentStatus === 'Đã phản hồi' && !isSelected;
+                    return `<option value="${status}" ${isSelected ? 'selected' : ''} ${isDisabled ? 'disabled' : ''}>${status}</option>`;
+                }).join('');
+
+                modalStatusSelect.innerHTML = options;
+                modalStatusSelect.value = currentStatus || STATUS_ORDER[0];
+                modalStatusSelect.disabled = currentStatus === 'Đã phản hồi';
+                updateStatusBtn.disabled = currentStatus === 'Đã phản hồi';
+                updateStatusBtn.textContent = currentStatus === 'Đã phản hồi' ? 'Đã phản hồi' : 'Lưu thay đổi trạng thái';
+            }
+
             function getStatusClass(status) {
                 switch (status?.toLowerCase()) {
                     case 'đang chờ xử lý': return 'status-dang-cho-xu-ly';
@@ -324,17 +338,17 @@
                     const formattedDate = contact.createdAt ? new Date(contact.createdAt).toLocaleDateString('vi-VN') : 'N/A';
                     const maxMessageLength = 70;
                     const displayMessage = contact.message.length > maxMessageLength ? contact.message.substring(0, maxMessageLength) + '...' : contact.message;
-                    const canChangeStatus = contact.status !== STATUS_ORDER[STATUS_ORDER.length - 1]; // Kiểm tra nếu không phải trạng thái cuối cùng
-                    const statusButtonHtml = `
-                        <button type="button"
-                                class="status-badge-button ${statusClass} ${!canChangeStatus ? 'opacity-70 cursor-not-allowed' : ''}"
+                    const isClosed = contact.status === 'Đã phản hồi';
+                    const statusSelectHtml = `
+                        <select class="status-select ${statusClass} border rounded px-2 py-1 text-sm font-medium w-full min-w-[150px] ${isClosed ? 'opacity-70 cursor-not-allowed' : ''}"
                                 data-id="${contact.contactID}"
-                                data-current-status="${contact.status}"
-                                ${!canChangeStatus ? 'disabled' : ''}
-                                title="${canChangeStatus ? 'Nhấp để chuyển sang trạng thái tiếp theo' : 'Đã ở trạng thái cuối cùng'}">
-                            ${contact.status || 'N/A'}
-                            <i class="fas fa-arrow-right fa-xs ml-2"></i>
-                        </button>
+                                data-current-status="${contact.status || ''}"
+                                ${isClosed ? 'disabled' : ''}
+                                title="${isClosed ? 'Đã phản hồi - không thể thay đổi' : 'Chọn trạng thái'}">
+                            ${STATUS_ORDER.map((status) => `
+                                <option value="${status}" ${status === contact.status ? 'selected' : ''} ${isClosed && status !== contact.status ? 'disabled' : ''}>${status}</option>
+                            `).join('')}
+                        </select>
                     `;
                     row.innerHTML = `
                         <td class="py-3 px-4 border-b text-sm text-center align-top">${stt}</td>
@@ -345,7 +359,7 @@
                             <div class="message-ellipsis" title="${contact.message.replace(/"/g, '"')}">${displayMessage}</div>
                         </td>
                         <td class="py-3 px-4 border-b text-sm align-top">${formattedDate}</td>
-                        <td class="py-3 px-4 border-b text-center align-top">${statusButtonHtml}</td>
+                        <td class="py-3 px-4 border-b text-center align-top">${statusSelectHtml}</td>
                         <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2 align-top">
                             <button type="button" class="text-blue-600 hover:text-blue-900 view-contact-btn" data-id="${contact.contactID}" title="Xem chi tiết"><i class="fas fa-eye fa-fw"></i></button>
                             <button type="button" class="text-red-600 hover:text-red-800 delete-contact-btn" data-id="${contact.contactID}" title="Xóa"><i class="fas fa-trash-alt fa-fw"></i></button>
@@ -379,11 +393,7 @@
                     modalUserNumberPhone.textContent = contact.userNumberPhone || 'N/A';
                     modalCreatedAt.textContent = contact.createdAt ? new Date(contact.createdAt).toLocaleString('vi-VN') : 'N/A';
                     modalMessage.innerHTML = contact.message.replace(/\n/g, '<br>');
-                    modalStatusSelect.value = contact.status;
-                    if (contact.status === "Đã phản hồi") {
-                        console.log('true')
-                        modalStatusSelect.classList.add('no-event')
-                    }
+                    applyStatusSelectOptions(contact.status || STATUS_ORDER[0]);
                     currentEditingContactId = contact.contactID;
                     modalTitle.textContent = `Chi tiết Liên hệ #${contact.contactID}`;
                     contactModal.classList.remove('hidden');
@@ -511,18 +521,33 @@
             contactTableBody.addEventListener('click', (e) => {
                 const viewButton = e.target.closest('.view-contact-btn');
                 const deleteButton = e.target.closest('.delete-contact-btn');
-                const statusButton = e.target.closest('.status-badge-button');
                 if (viewButton) {
                     const contactId = viewButton.dataset.id; if (contactId) openContactModal(contactId);
                 } else if (deleteButton) {
                     const contactId = deleteButton.dataset.id; if (contactId) deleteContact(contactId);
-                } else if (statusButton && !statusButton.disabled) {
-                    const contactId = statusButton.dataset.id;
-                    const currentStatus = statusButton.dataset.currentStatus;
-                    if (contactId && currentStatus) {
-                        handleStatusChangeClick(parseInt(contactId), currentStatus);
-                    }
                 }
+            });
+
+            contactTableBody.addEventListener('change', async (e) => {
+                const statusSelect = e.target.closest('.status-select');
+                if (!statusSelect || statusSelect.disabled) return;
+
+                const contactId = statusSelect.dataset.id;
+                const newStatus = statusSelect.value;
+                const currentStatus = statusSelect.dataset.currentStatus;
+
+                if (!contactId || !newStatus || !currentStatus || newStatus === currentStatus) return;
+
+                const confirmed = confirm(`Bạn có chắc chắn muốn cập nhật trạng thái của liên hệ #${contactId} từ "${currentStatus}" sang "${newStatus}" không?`);
+                if (!confirmed) {
+                    statusSelect.value = currentStatus;
+                    return;
+                }
+
+                statusSelect.disabled = true;
+                await updateStatusOnServer(parseInt(contactId), newStatus, () => fetchContacts(currentPage), statusSelect);
+                statusSelect.dataset.currentStatus = newStatus;
+                statusSelect.disabled = false;
             });
 
             fetchContacts(currentPage)

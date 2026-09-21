@@ -322,11 +322,19 @@ document.addEventListener('DOMContentLoaded', async function() {
             const roleLower = typeof role === 'string' ? role.toLowerCase() : '';
             console.log('Role after lowercase:', roleLower);
             
-            // Không tự tạo options mới, chỉ đặt giá trị cho option có sẵn
+            // Đặt role theo option có sẵn trong giao diện.
             try {
+                const supportedRoles = ['customer', 'seller', 'admin'];
+                roleSelect.value = supportedRoles.includes(roleLower) ? roleLower : 'customer';
+                roleSelect.dataset.currentRole = roleSelect.value;
+                const adminOption = roleSelect.querySelector('option[value="admin"]');
+                if (adminOption) {
+                    adminOption.hidden = roleLower !== 'admin';
+                    adminOption.disabled = true;
+                }
+                console.log('Setting role value to:', roleSelect.value);
+
                 if (roleLower === 'seller') {
-                    roleSelect.value = 'seller';
-                    console.log('Setting role value to: seller');
                     // Hiển thị phần shop name nếu là seller
                     shopNameContainer.classList.remove('hidden');
                     const shopNameInput = document.getElementById('shopName');
@@ -335,8 +343,6 @@ document.addEventListener('DOMContentLoaded', async function() {
                         console.log('Shop name set to:', shopName);
                     }
                 } else {
-                    roleSelect.value = 'customer';
-                    console.log('Setting role value to: customer');
                     shopNameContainer.classList.add('hidden');
                 }
             } catch (error) {
@@ -505,6 +511,9 @@ document.addEventListener('DOMContentLoaded', async function() {
             formFields.forEach(field => {
                 field.disabled = false;
             });
+            if (roleSelect?.dataset.currentRole === 'admin') {
+                roleSelect.disabled = true;
+            }
             document.querySelectorAll('input[name="gender"]').forEach(radio => {
                 radio.disabled = false;
             });
@@ -596,7 +605,8 @@ document.addEventListener('DOMContentLoaded', async function() {
                 const genderRadio = document.querySelector('input[name="gender"]:checked');
                 const genderValue = genderRadio ? (genderRadio.value === 'male') : null;
                 const address = document.getElementById('address').value.trim();
-                const role = roleSelect?.value || 'customer';
+                const currentRole = (userData.role || '').toLowerCase();
+                const role = currentRole === 'admin' ? 'admin' : (roleSelect?.value || 'customer');
                 
                 // ✅ VALIDATE required fields
                 if (!fullName) {

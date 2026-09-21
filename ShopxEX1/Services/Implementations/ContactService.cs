@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using ShopxEX1.Data;
 using ShopxEX1.Dtos.Contacts;
@@ -148,47 +148,47 @@ namespace ShopxEX1.Services.Implementations
             }
         }
 
-        public async Task<ContactDto?> UpdateContactStatusAsync(int contactId, ContactUpdateDto updateDto)
+       public async Task<ContactDto?> UpdateContactStatusAsync(int contactId, ContactUpdateDto updateDto)
+{
+    _logger.LogInformation("Bắt đầu cập nhật trạng thái cho liên hệ ID: {ContactId} thành '{NewStatus}'", contactId, updateDto.Status);
+    try
+    {
+        var contact = await _context.Contacts
+                                .Include(c => c.User)
+                                .FirstOrDefaultAsync(c => c.ContactID == contactId);
+
+        if (contact == null)
         {
-            _logger.LogInformation("Bắt đầu cập nhật trạng thái cho liên hệ ID: {ContactId} thành '{NewStatus}'", contactId, updateDto.Status);
-            try
-            {
-                var contact = await _context.Contacts
-                                        .Include(c => c.User) // Include User để trả về DTO đầy đủ
-                                        .FirstOrDefaultAsync(c => c.ContactID == contactId);
-
-                if (contact == null)
-                {
-                    _logger.LogWarning("Không tìm thấy liên hệ ID: {ContactId} để cập nhật trạng thái.", contactId);
-                    return null;
-                }
-
-                // Kiểm tra xem trạng thái mới có hợp lệ không (tùy chọn, có thể thêm danh sách trạng thái hợp lệ)
-                if (updateDto.Status != DefaultNewStatus && updateDto.Status != StatusResponded && updateDto.Status != StatusClosed)
-                {
-                    _logger.LogWarning($"Trạng thái cập nhật '{contact.Status}' không hợp lệ");
-                    throw new ArgumentException("Trạng thái cập nhật không hợp lệ");
-                }
-
-                if (updateDto.Status != StatusClosed)
-                {
-                    _logger.LogWarning("Không thể thay đổi trạng thái khi đã phản hồi");
-                    throw new ArgumentException("Không thể thay đổi trạng thái khi đã phản hồi");
-                }
-
-                contact.Status = updateDto.Status;
-                if (contact.Status == StatusClosed) contact.CreatedAt = DateTime.UtcNow;
-
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Đã cập nhật thành công trạng thái cho liên hệ ID: {ContactId}", contactId);
-                return _mapper.Map<ContactDto>(contact); // Trả về DTO với thông tin User
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Lỗi xảy ra khi cập nhật trạng thái cho liên hệ ID: {ContactId}", contactId);
-                throw;
-            }
+            _logger.LogWarning("Không tìm thấy liên hệ ID: {ContactId} để cập nhật trạng thái.", contactId);
+            return null;
         }
+
+        // Kiểm tra xem trạng thái mới có thuộc 3 trạng thái hợp lệ không
+        if (updateDto.Status != DefaultNewStatus && updateDto.Status != StatusResponded && updateDto.Status != StatusClosed)
+        {
+            _logger.LogWarning($"Trạng thái cập nhật '{updateDto.Status}' không hợp lệ");
+            throw new ArgumentException("Trạng thái cập nhật không hợp lệ");
+        }
+
+        // SỬA LỖI: Kiểm tra trạng thái HIỆN TẠI của đơn liên hệ (contact.Status)
+        if (contact.Status == StatusClosed)
+        {
+            _logger.LogWarning("Không thể thay đổi trạng thái khi đã phản hồi");
+            throw new ArgumentException("Không thể thay đổi trạng thái khi đã phản hồi");
+        }
+
+        contact.Status = updateDto.Status;
+        
+        await _context.SaveChangesAsync();
+        _logger.LogInformation("Đã cập nhật thành công trạng thái cho liên hệ ID: {ContactId}", contactId);
+        return _mapper.Map<ContactDto>(contact); 
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Lỗi xảy ra khi cập nhật trạng thái cho liên hệ ID: {ContactId}", contactId);
+        throw;
+    }
+}
 
         public async Task<bool> DeleteContactAsync(int contactId)
         {
